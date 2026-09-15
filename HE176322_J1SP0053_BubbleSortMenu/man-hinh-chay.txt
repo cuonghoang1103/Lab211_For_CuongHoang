@@ -1,0 +1,46 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+a
+-1
+3
+5
+1
+3
+2
+3
+4
+
+======================================================================
+Màn hình:
+========= Bubble Sort program =========
+1. Input Element
+2. Sort Ascending
+3. Sort Descending
+4. Exit
+Please choice one option:
+----- Input Element -----
+Input Length Of Array
+Enter Number: Please input numberand number is greater than zero
+Enter Number: Please input numberand number is greater than zero
+Enter Number: Enter Number 1: Enter Number 2: Enter Number 3: ========= Bubble Sort program =========
+1. Input Element
+2. Sort Ascending
+3. Sort Descending
+4. Exit
+Please choice one option:
+----- Ascending -----
+[1]->[3]->[5]
+========= Bubble Sort program =========
+1. Input Element
+2. Sort Ascending
+3. Sort Descending
+4. Exit
+Please choice one option:
+----- Descending -----
+[5]<-[3]<-[1]
+========= Bubble Sort program =========
+1. Input Element
+2. Sort Ascending
+3. Sort Descending
+4. Exit
+Please choice one option:
