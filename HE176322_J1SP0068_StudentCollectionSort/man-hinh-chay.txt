@@ -1,0 +1,23 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+Nghia
+FU1
+100
+Y
+Lien
+FU1
+100
+N
+
+======================================================================
+Màn hình:
+====== Collection Sort Program ======
+Please input student information
+Name: Classes: Mark: Do you want to enter more student information?(Y/N):Please input student information
+Name: Classes: Mark: Do you want to enter more student information?(Y/N):-------------Student 1-------------
+Name: Lien
+Classes: FU1
+Mark: 100.0
+-------------Student 2-------------
+Name: Nghia
+Classes: FU1
+Mark: 100.0
