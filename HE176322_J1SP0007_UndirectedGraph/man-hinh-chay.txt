@@ -1,0 +1,27 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+two
+
+2.5
+0
+6
+-1
+2
+5
+
+======================================================================
+Màn hình:
+Enter the start point:
+You must input a number.
+Enter the start point:
+You must input a number.
+Enter the start point:
+You must input a number.
+Enter the start point:
+Value must be between 1 and 5.
+Enter the start point:
+Value must be between 1 and 5.
+Enter the start point:
+Value must be between 1 and 5.
+Enter the start point:
+Enter the end point:
+This is  an edge
