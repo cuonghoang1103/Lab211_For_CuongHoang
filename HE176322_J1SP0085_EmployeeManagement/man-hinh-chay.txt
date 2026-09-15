@@ -1,0 +1,249 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+4
+5
+2
+3
+1
+E001
+John
+Smith
+0901234567
+john.smith@example.com
+12 Le Loi, Da Nang
+1994-05-20
+Male
+1500
+Sales
+1
+E002
+Bob
+Tran
+09xx
+0912345678
+bob
+bob.tran@example.com
+7 Tran Phu, Hue
+1994-13-40
+1990-01-02
+boy
+Male
+-5
+1800
+IT
+1
+E001
+E003
+Anna
+Lee
+0987654321
+anna.lee@example.com
+3 Nguyen Hue, Ha Noi
+1998-11-09
+Female
+1200
+HR
+4
+sm
+4
+zz
+5
+2
+E009
+2
+E002
+
+
+
+
+
+
+
+2000
+
+5
+3
+E003
+3
+E003
+9
+6
+
+======================================================================
+Màn hình:
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Search employees --
+=> The employee list is empty.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: => The employee list is empty.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Update employee --
+=> The employee list is empty.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Remove employee --
+=> The employee list is empty.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Add employee --
+Id         : First name : Last name  : Phone      : Email      : Address    : DOB        : Sex        : Salary     : Agency     : => Employee E001 added successfully.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Add employee --
+Id         : First name : Last name  : Phone      : Phone must contain digits only.
+Phone      : Email      : Email must look like name@domain.com.
+Email      : Address    : DOB        : DOB must be a real date in yyyy-MM-dd format.
+DOB        : Sex        : Sex must be Male or Female.
+Sex        : Salary     : Salary must be greater than 0.
+Salary     : Agency     : => Employee E002 added successfully.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Add employee --
+Id         : => Employee id E001 already exists.
+Id         : First name : Last name  : Phone      : Email      : Address    : DOB        : Sex        : Salary     : Agency     : => Employee E003 added successfully.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Search employees --
+Enter name (or part): Id     First name  Last name     Salary  Agency
+-----------------------------------------------
+E001   John        Smith        1500.00  Sales
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Search employees --
+Enter name (or part): => No employee matches "zz".
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: Employees sorted by salary (ascending):
+Id     Name                Salary  Agency
+-----------------------------------------
+E003   Anna Lee           1200.00  HR
+E001   John Smith         1500.00  Sales
+E002   Bob Tran           1800.00  IT
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Update employee --
+Id         : => No employee found with id E009.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Update employee --
+Id         : Press Enter to keep the value in brackets.
+First name : [Bob] Last name  : [Tran] Phone      : [0912345678] Email      : [bob.tran@example.com] Address    : [7 Tran Phu, Hue] DOB        : [1990-01-02] Sex        : [Male] Salary     : [1800.00] Agency     : [IT] => Employee E002 updated successfully.
+   Employee{id=E002, name=Bob Tran, phone=0912345678, email=bob.tran@example.com, address=7 Tran Phu, Hue, dob=1990-01-02, sex=Male, salary=2000.00, agency=IT}
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: Employees sorted by salary (ascending):
+Id     Name                Salary  Agency
+-----------------------------------------
+E003   Anna Lee           1200.00  HR
+E001   John Smith         1500.00  Sales
+E002   Bob Tran           2000.00  IT
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Remove employee --
+Id         : => Employee E003 removed successfully.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: -- Remove employee --
+Id         : => No employee found with id E003.
+========= EMPLOYEE MANAGEMENT =========
+1. Add employees
+2. Update employees
+3. Remove employees
+4. Search employees
+5. Sort employees by salary
+6. Exit
+=======================================
+Please select an option: Please choose from 1 to 6.
+Please select an option: Goodbye.
