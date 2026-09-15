@@ -1,0 +1,15 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+Y
+test.txt
+Content file
+save
+Y
+test.txt
+
+======================================================================
+Màn hình:
+============ Writer Program ===============
+Do you want to write file? (Y/N or y/n):Please enter file path: Save file with content <save> or <SAVE>
+Please enter file content:
+Do you want to read file? (Y/N or y/n):Please enter file path: Content file
+Read file successfully.
