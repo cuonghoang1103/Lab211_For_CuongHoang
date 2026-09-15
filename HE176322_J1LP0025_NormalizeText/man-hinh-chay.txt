@@ -1,0 +1,34 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+2
+3
+0
+
+======================================================================
+Màn hình:
+============ TEXT NORMALIZER ============
+1. Create the sample input file (input.txt)
+2. Normalize input.txt into output.txt
+3. Show output.txt from the disk
+4. Normalize one line typed on the keyboard
+5. Show the rules on sample cases
+0. Exit
+========================================
+Your choice: Error: File not found: input.txt
+============ TEXT NORMALIZER ============
+1. Create the sample input file (input.txt)
+2. Normalize input.txt into output.txt
+3. Show output.txt from the disk
+4. Normalize one line typed on the keyboard
+5. Show the rules on sample cases
+0. Exit
+========================================
+Your choice: Error: File not found: output.txt
+============ TEXT NORMALIZER ============
+1. Create the sample input file (input.txt)
+2. Normalize input.txt into output.txt
+3. Show output.txt from the disk
+4. Normalize one line typed on the keyboard
+5. Show the rules on sample cases
+0. Exit
+========================================
+Your choice: Goodbye.
