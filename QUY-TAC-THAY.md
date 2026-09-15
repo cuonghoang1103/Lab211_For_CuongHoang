@@ -260,7 +260,10 @@ Design pattern (DP) — **thầy đánh giá cao nhất** (lời thầy V7, mụ
 
 | | Quyết định | Vì sao |
 |---|---|---|
-| **Package** (constants, controller, dto, model, repository, service, utils, view) | **giữ đủ ở MỌI bài**, kể cả bài 21 dòng | Đúng `Guide.xlsx`; anh hỏi lại thầy **15/09/2026**, thầy nói chia package như vậy mới đúng Design Pattern và SOLID. Mỗi package là một lý do để thay đổi (chữ **S**) |
+| **Khung cố định**: `constants` · `model` · `dto` · `controller` · `view` · `main` (+ `utils` khi có nhập liệu / đọc ghi file / mã hoá) | **mọi bài, kể cả bài 21 dòng** | Chính project mẫu thầy phát — `HE176322_J1S0055_DoctorManagement` — có đúng bộ này (8 package, kèm `repository`). Bài luyện 01 của thầy cũng vậy. Anh hỏi lại thầy **15/09/2026**: chia package như thế mới đúng Design Pattern và SOLID |
+| **Thêm `repository`** | khi chương trình **giữ một collection** (danh sách bác sỹ, sinh viên…) | GUIDE: *"Chứa data, ví dụ danh sách sinh viên… Các method CRUD đơn giản đối với data chính cũng nằm ở đây"*. Bộ này: **23/54 bài** |
+| **Thêm `service`** | khi có **tính toán nghiệp vụ hoặc thuật toán** ngoài CRUD | GUIDE, ngay trong ô `repository`: *"Nếu có các tính toán nghiệp vụ ngoài CRUD thì **cần thêm** class DoctorServices.java… Services nằm giữa Controller và Repo"*. Bài luyện 02 của thầy có `service/` (và cả `service/sort/`). Bộ này: **46/54 bài** |
+| **Thêm `exceptions`** | khi **đề bắt** có exception riêng | HD slide "Quy tắc đặt tên → Package". Bộ này: **2/54 bài** |
 | **Lớp pattern GoF** (interface `*Strategy` + lớp cài đặt, `*Factory`, `*Builder`…) | bài **≤ 60 LOC không thêm**; bài có họ đối tượng / nhiều cách tính / bài Long thì thêm | Với 40 dòng thuật toán, một interface + một lớp cài đặt là abstraction "chỉ vì SOLID nói vậy" — đúng thứ **ghi chú slide 26** của thầy cảnh báo (YAGNI). Thuật toán vẫn là hàm `private` trong service |
 
 Bài nhỏ vẫn có **MVC** (thầy bắt) và **Facade** (vai của controller). `HUONG-DAN.md` của những bài
