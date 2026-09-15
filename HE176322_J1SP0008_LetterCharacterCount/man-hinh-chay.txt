@@ -1,0 +1,8 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+hello world
+
+======================================================================
+Màn hình:
+Enter your content:
+{hello=1, world=1}
+{h=1, e=1, l=3, o=2, w=1, r=1, d=1}
