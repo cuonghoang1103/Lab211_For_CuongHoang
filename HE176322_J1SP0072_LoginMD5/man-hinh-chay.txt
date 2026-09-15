@@ -1,0 +1,55 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+NghiaNV
+nghia
+SkyLine
+0988666888
+nghianv@t.com
+Ha Noi
+26/06/2016
+2
+NghiaNV
+nghia
+N
+2
+NghiaNV
+Nghia
+2
+nghianv
+nghia
+N
+3
+
+======================================================================
+Màn hình:
+============ Login Program =========
+1. Add User
+2. Login
+3) Exit
+Please choice one option:---------- Add User --------
+Account:Password:Name:Phone:Email:Address:DOB:Account [NghiaNV] has been added with id 1.
+============ Login Program =========
+1. Add User
+2. Login
+3) Exit
+Please choice one option:------------- Login ----------------
+Account: Password: ------------ Wellcome -----------
+Hello NghiaNV
+Hi SkyLine, do you want change password now? Y/N:============ Login Program =========
+1. Add User
+2. Login
+3) Exit
+Please choice one option:------------- Login ----------------
+Account: Password: Login fail.
+============ Login Program =========
+1. Add User
+2. Login
+3) Exit
+Please choice one option:------------- Login ----------------
+Account: Password: ------------ Wellcome -----------
+Hello NghiaNV
+Hi SkyLine, do you want change password now? Y/N:============ Login Program =========
+1. Add User
+2. Login
+3) Exit
+Please choice one option:Goodbye.
