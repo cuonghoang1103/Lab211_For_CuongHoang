@@ -1,0 +1,51 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+Nghia
+FU1
+11
+-1
+
+10
+11
+-1
+
+10
+11
+-1
+
+10
+Y
+Nghia 2
+FU1
+10
+10
+10
+N
+
+======================================================================
+Màn hình:
+====== Management Student Program ======
+Name:Classes:Maths:Maths is less than equal ten
+Maths:Maths is greater than equal zero
+Maths:Maths is digit
+Maths:Chemistry:Chemistry is less than equal ten
+Chemistry:Chemistry is greater than equal zero
+Chemistry:Chemistry is digit
+Chemistry:Physics:Physics is less than equal ten
+Physics:Physics is greater than equal zero
+Physics:Physics is digit
+Physics:Do you want to enter more student information?(Y/N):Name:Classes:Maths:Chemistry:Physics:Do you want to enter more student information?(Y/N):
+------ Student1 Info ------
+Name:Nghia
+Classes:FU1
+AVG:10.0
+Type:A
+------ Student2 Info ------
+Name:Nghia 2
+Classes:FU1
+AVG:10.0
+Type:A
+--------Classification Info -----
+A: 100.0%
+B: 0.0%
+C: 0.0%
+D: 0.0%
