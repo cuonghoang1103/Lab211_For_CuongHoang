@@ -1,0 +1,5 @@
+CAR,C001,Camry,Black,35000.0,Toyota,Travel,2020
+MOTORBIKE,M001,Exciter 150,Blue,2500.0,Yamaha,150.0,true
+CAR,C002,Ranger,White,48000.0,Ford,Pickup,2022
+MOTORBIKE,M002,Vision,Red,1200.0,Honda,90.0,false
+CAR,C003,Civic,Silver,32000.5,Honda,Sport,2021

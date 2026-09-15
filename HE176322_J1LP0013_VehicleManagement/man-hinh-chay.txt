@@ -1,0 +1,183 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+6
+1
+2
+3
+5
+1
+i
+1
+zzz
+1
+
+cam
+2
+c002
+2
+C999
+2
+c1
+M002
+3
+8
+
+======================================================================
+Màn hình:
+
+===== VEHICLE MANAGEMENT =====
+1. Load data from file
+2. Add new vehicle
+3. Update vehicle by ID
+4. Delete vehicle by ID
+5. Search vehicle
+6. Show vehicle list
+7. Store data to file
+8. Quit
+==============================
+Your choice: --- Load data from file ---
+Loaded 5 vehicle(s) from vehicles.txt
+
+===== VEHICLE MANAGEMENT =====
+1. Load data from file
+2. Add new vehicle
+3. Update vehicle by ID
+4. Delete vehicle by ID
+5. Search vehicle
+6. Show vehicle list
+7. Store data to file
+8. Quit
+==============================
+Your choice: 
+===== SHOW VEHICLE LIST =====
+1. Show all
+2. Show all (descending by price)
+3. Back to main menu
+=============================
+Your choice: --- All vehicles in the show room ---
+ID     Name             Color           Price Brand      Kind       Details
+----------------------------------------------------------------------------------------
+C001   Camry            Black       35,000.00 Toyota     Car        Type: Travel, Year: 2020
+M001   Exciter 150      Blue         2,500.00 Yamaha     Motorbike  Speed: 150.0km/h, License: Yes
+C002   Ranger           White       48,000.00 Ford       Car        Type: Pickup, Year: 2022
+M002   Vision           Red          1,200.00 Honda      Motorbike  Speed: 90.0km/h, License: No
+C003   Civic            Silver      32,000.50 Honda      Car        Type: Sport, Year: 2021
+----------------------------------------------------------------------------------------
+Total: 5 vehicle(s)
+
+===== SHOW VEHICLE LIST =====
+1. Show all
+2. Show all (descending by price)
+3. Back to main menu
+=============================
+Your choice: --- All vehicles, most expensive first ---
+ID     Name             Color           Price Brand      Kind       Details
+----------------------------------------------------------------------------------------
+C002   Ranger           White       48,000.00 Ford       Car        Type: Pickup, Year: 2022
+C001   Camry            Black       35,000.00 Toyota     Car        Type: Travel, Year: 2020
+C003   Civic            Silver      32,000.50 Honda      Car        Type: Sport, Year: 2021
+M001   Exciter 150      Blue         2,500.00 Yamaha     Motorbike  Speed: 150.0km/h, License: Yes
+Tin tin tin
+M002   Vision           Red          1,200.00 Honda      Motorbike  Speed: 90.0km/h, License: No
+Tin tin tin
+----------------------------------------------------------------------------------------
+Total: 5 vehicle(s)
+
+===== SHOW VEHICLE LIST =====
+1. Show all
+2. Show all (descending by price)
+3. Back to main menu
+=============================
+Your choice: 
+===== VEHICLE MANAGEMENT =====
+1. Load data from file
+2. Add new vehicle
+3. Update vehicle by ID
+4. Delete vehicle by ID
+5. Search vehicle
+6. Show vehicle list
+7. Store data to file
+8. Quit
+==============================
+Your choice: 
+===== SEARCH VEHICLE =====
+1. Search by name
+2. Search by id
+3. Back to main menu
+==========================
+Your choice: --- Search vehicle by name ---
+Enter a part of the name: ID     Name             Color           Price Brand      Kind       Details
+----------------------------------------------------------------------------------------
+M002   Vision           Red          1,200.00 Honda      Motorbike  Speed: 90.0km/h, License: No
+M001   Exciter 150      Blue         2,500.00 Yamaha     Motorbike  Speed: 150.0km/h, License: Yes
+C003   Civic            Silver      32,000.50 Honda      Car        Type: Sport, Year: 2021
+----------------------------------------------------------------------------------------
+Total: 3 vehicle(s)
+
+===== SEARCH VEHICLE =====
+1. Search by name
+2. Search by id
+3. Back to main menu
+==========================
+Your choice: --- Search vehicle by name ---
+Enter a part of the name: No vehicle found.
+
+===== SEARCH VEHICLE =====
+1. Search by name
+2. Search by id
+3. Back to main menu
+==========================
+Your choice: --- Search vehicle by name ---
+Enter a part of the name: Search text must not be empty.
+Enter a part of the name: ID     Name             Color           Price Brand      Kind       Details
+----------------------------------------------------------------------------------------
+C001   Camry            Black       35,000.00 Toyota     Car        Type: Travel, Year: 2020
+----------------------------------------------------------------------------------------
+Total: 1 vehicle(s)
+
+===== SEARCH VEHICLE =====
+1. Search by name
+2. Search by id
+3. Back to main menu
+==========================
+Your choice: --- Search vehicle by id ---
+Enter id: ID     Name             Color           Price Brand      Kind       Details
+----------------------------------------------------------------------------------------
+C002   Ranger           White       48,000.00 Ford       Car        Type: Pickup, Year: 2022
+
+===== SEARCH VEHICLE =====
+1. Search by name
+2. Search by id
+3. Back to main menu
+==========================
+Your choice: --- Search vehicle by id ---
+Enter id: Vehicle does not exist
+
+===== SEARCH VEHICLE =====
+1. Search by name
+2. Search by id
+3. Back to main menu
+==========================
+Your choice: --- Search vehicle by id ---
+Enter id: ID must be one letter followed by 3 digits, for example C001.
+Enter id: ID     Name             Color           Price Brand      Kind       Details
+----------------------------------------------------------------------------------------
+M002   Vision           Red          1,200.00 Honda      Motorbike  Speed: 90.0km/h, License: No
+
+===== SEARCH VEHICLE =====
+1. Search by name
+2. Search by id
+3. Back to main menu
+==========================
+Your choice: 
+===== VEHICLE MANAGEMENT =====
+1. Load data from file
+2. Add new vehicle
+3. Update vehicle by ID
+4. Delete vehicle by ID
+5. Search vehicle
+6. Show vehicle list
+7. Store data to file
+8. Quit
+==============================
+Your choice: Goodbye.
