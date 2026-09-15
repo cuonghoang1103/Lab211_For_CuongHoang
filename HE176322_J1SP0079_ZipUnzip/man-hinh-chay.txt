@@ -1,0 +1,51 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+data
+archive
+backup
+2
+archive/backup.zip
+restored
+1
+restored
+archive
+copy.ZIP
+3
+
+======================================================================
+Màn hình:
+========= Zipper program =========
+1. Compression
+2. Extraction
+3. Exit
+Please choice one option: ---------- Compression --------
+Enter Source Folder: Enter Destination Folder: Enter Name: ------------ Result -----------
+File name docs/guide.txt
+File name hello.txt
+File name image.bin
+Successfully
+========= Zipper program =========
+1. Compression
+2. Extraction
+3. Exit
+Please choice one option: ---------- Extraction ---------
+Enter Source file: Enter Destination Folder: ------------ Result -----------
+File name docs/guide.txt
+File name hello.txt
+File name image.bin
+Successfully
+========= Zipper program =========
+1. Compression
+2. Extraction
+3. Exit
+Please choice one option: ---------- Compression --------
+Enter Source Folder: Enter Destination Folder: Enter Name: ------------ Result -----------
+File name docs/guide.txt
+File name hello.txt
+File name image.bin
+Successfully
+========= Zipper program =========
+1. Compression
+2. Extraction
+3. Exit
+Please choice one option: 
