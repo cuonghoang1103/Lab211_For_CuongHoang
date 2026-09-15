@@ -1,0 +1,157 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+2
+1
+VN
+Viet Nam
+abc
+-5
+331698
+Nice
+2
+1
+IDN
+Indonesia
+1860360
+Nice
+1
+LA
+Laos
+236800
+Nice
+3
+Viet Nam
+3
+nam
+3
+Japan
+4
+2
+5
+
+======================================================================
+Màn hình:
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : There is no country in the list.
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : Enter code of country:
+Enter name of country:
+Enter total Area:
+You must input a number.
+Enter total Area:
+Total area must be greater than 0.
+Enter total Area:
+Enter terrain of country:
+Successful
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : ID              Name            Total Area      Terrain
+VN              Viet Nam        331698.0        Nice
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : Enter code of country:
+Enter name of country:
+Enter total Area:
+Enter terrain of country:
+Successful
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : Enter code of country:
+Enter name of country:
+Enter total Area:
+Enter terrain of country:
+Successful
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : Enter the name you want to search for:
+ID              Name            Total Area      Terrain
+VN              Viet Nam        331698.0        Nice
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : Enter the name you want to search for:
+ID              Name            Total Area      Terrain
+VN              Viet Nam        331698.0        Nice
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : Enter the name you want to search for:
+No country found with the name [Japan].
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : ID              Name            Total Area      Terrain
+IDN             Indonesia       1860360.0       Nice
+LA              Laos            236800.0        Nice
+VN              Viet Nam        331698.0        Nice
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : ID              Name            Total Area      Terrain
+LA              Laos            236800.0        Nice
+                               MENU
+==========================================================================
+1. Input the information of 11 countries in East Asia
+2. Display the information of country you've just input
+3. Search the information of country by user-entered name
+4. Display the information of countries sorted name in ascending order
+5. Exit
+==========================================================================
+Enter your choice : 
