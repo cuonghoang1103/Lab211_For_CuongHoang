@@ -1,0 +1,28 @@
+package utils;
+
+import constants.Constants;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+/**
+ * Writing a date and a plan time the way the brief's table does.
+ *
+ * @author HE176322
+ */
+public final class FormatUtils {
+
+    // Private constructor: every method is called through the class name.
+    private FormatUtils() {
+    }
+
+    // Writes a date as dd-MM-yyyy.
+    public static String formatDate(Date date) {
+        return new SimpleDateFormat(Constants.DATE_FORMAT).format(date);
+    }
+
+    // Writes the plan window as "from-to", one decimal each.
+    public static String formatTime(double planFrom, double planTo) {
+        return String.format(Locale.US, Constants.TIME_FORMAT, planFrom, planTo);
+    }
+}
