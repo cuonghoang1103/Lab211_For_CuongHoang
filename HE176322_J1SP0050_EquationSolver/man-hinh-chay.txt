@@ -1,0 +1,39 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+a
+4
+5
+2
+a
+4
+4
+1
+3
+
+======================================================================
+Màn hình:
+========= Equation Program =========
+1. Calculate Superlative Equation
+2. Calculate Quadratic Equation
+3. Exit
+Please choice one option: ----- Calculate Equation -----
+Enter A: Please input number
+Enter A: Enter B: Solution: x = -1.250
+Number is Odd:5.0, -1.25
+Number is Even:4.0
+Number is Perfect Square:4.0
+========= Equation Program =========
+1. Calculate Superlative Equation
+2. Calculate Quadratic Equation
+3. Exit
+Please choice one option: ----- Calculate Quadratic Equation -----
+Enter A: Please input number
+Enter A: Enter B: Enter C: Solution: x1 = -0.500 and x2 = -0.500
+Odd Number(s):1.0, -0.5, -0.5
+Number is Even:4.0, 4.0
+Number is Perfect Square:4.0, 4.0, 1.0
+========= Equation Program =========
+1. Calculate Superlative Equation
+2. Calculate Quadratic Equation
+3. Exit
+Please choice one option: Goodbye.
