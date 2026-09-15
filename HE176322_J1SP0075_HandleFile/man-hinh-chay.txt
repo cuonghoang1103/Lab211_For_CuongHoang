@@ -1,0 +1,112 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+data
+1
+test.txt
+1
+abc
+2
+data
+2
+test
+3
+a
+2
+nosuch
+data
+4
+input data
+text.txt
+test.txt
+5
+test.txt
+6
+
+======================================================================
+Màn hình:
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:---------- Check Path ---------
+Enter Path:Path to Directory
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:---------- Check Path ---------
+Enter Path:Path to file
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:---------- Check Path ---------
+Enter Path:Path doesn't exist
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:------- Get file name with type java --------
+Enter Path:Main.java
+Student.java
+Result 2 file!
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:------- Get file name with type java --------
+Enter Path:Path doesn't exist
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:--------- Get file with size greater than input --------
+Enter Size(Integer):Value of size is digit
+Enter Size(Integer):Enter Path:Path doesn't exist
+Enter Path:report.txt
+Result 1 files!
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:------ Write more content to file ----
+Enter Content:Enter Path:Path doesn't exist
+Enter Path:Write done
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:---- Read file an count characters ----
+Enter Path:Total:3
+============ File Processing =========
+1. Check Path
+2. Get file name with type java
+3. Get file with size greater than input
+4. Write more content to file
+5. Read file and count characters
+6. Exit
+Please choice one option:
