@@ -1,0 +1,98 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+DOC 1
+Nghia
+Orthopedics
+3
+1
+DOC 2
+Phuong
+Obstetrics
+2
+1
+DOC 3
+Lien
+orthodontic
+1
+1
+DOC 1
+Someone
+Cardiology
+4
+2
+DOC 9
+3
+DOC 9
+4
+
+5
+
+======================================================================
+Màn hình:
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: --------- Add Doctor ----------
+Enter Code: Enter Name: Enter Specialization: Enter Availability: Add doctor successfully.
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: --------- Add Doctor ----------
+Enter Code: Enter Name: Enter Specialization: Enter Availability: Add doctor successfully.
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: --------- Add Doctor ----------
+Enter Code: Enter Name: Enter Specialization: Enter Availability: Add doctor successfully.
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: --------- Add Doctor ----------
+Enter Code: Enter Name: Enter Specialization: Enter Availability: Doctor code [DOC 1] is duplicate
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: --------- Update Doctor -------
+Enter Code: Doctor code doesn’t exist
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: --------- Delete Doctor -------
+Enter Code: Doctor code doesn’t exist
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: ---------- Search Doctor --------
+Enter text: --------- Result ------------
+Code      Name           Specialization      Availability
+DOC 1     Nghia          Orthopedics         3
+DOC 2     Phuong         Obstetrics          2
+DOC 3     Lien           orthodontic         1
+========= Doctor Management ==========
+1. Add Doctor
+2. Update Doctor
+3. Delete Doctor
+4. Search Doctor
+5. Exit
+Please choose an option: Goodbye.
