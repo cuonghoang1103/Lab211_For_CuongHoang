@@ -69,7 +69,7 @@ Chạy tay dữ liệu ví dụ của đề:
 | Nguyen Van B · Java | `nguyen van b␀JAVA` | mới → 1 |
 
 Rồi `Collections.sort(items, reportStrategy)` (tên, rồi course) → in. `LinkedHashMap` vì tra khoá **1 bước**
-(`get`) và giữ thứ tự gặp; `␀` (`Constants.KEY_SEPARATOR`) là ký tự không gõ được nên 2 cặp khác nhau không
+(`get`) và giữ thứ tự gặp; `␀` (`Constants.KEY_SEPARATOR`, trong code viết bằng escape `"\u0000"` cho **nhìn thấy được** — gõ thẳng ký tự NUL vào file là thứ không ai đọc ra, kể cả thầy) là ký tự không gõ được nên 2 cặp khác nhau không
 thể ra cùng một khoá.
 
 ### 2.4 Java dùng trong bài
