@@ -1,0 +1,116 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+x
+5
+2
+3
+535
+3
+2
+217
+2
+1
+27
+1
+2
+11011
+3
+2
+1G
+1
+2
+2
+2
+1
+0
+2
+1
+-27
+3
+1
+ff
+2
+2
+007
+0
+
+======================================================================
+Màn hình:
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: You must input a number.
+Choose the INPUT base: Please choose from 0 to 3.
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 535 (DEC) = 217 (HEX)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 217 (HEX) = 535 (DEC)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 27 (DEC) = 11011 (BIN)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 11011 (BIN) = 27 (DEC)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 1G is not a valid HEX number.
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 2 is not a valid BIN number.
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 0 (DEC) = 0 (BIN)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: -27 (DEC) = -11011 (BIN)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: ff (HEX) = 11111111 (BIN)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Choose the OUTPUT base: Enter the input value: 007 (DEC) = 7 (DEC)
+======= CHANGE BASE NUMBER SYSTEM =======
+1. Binary (base 2)
+2. Decimal (base 10)
+3. Hexadecimal (base 16)
+0. Exit
+=========================================
+Choose the INPUT base: Goodbye.
