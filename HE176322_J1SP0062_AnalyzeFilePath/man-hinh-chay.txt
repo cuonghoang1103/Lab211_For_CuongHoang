@@ -1,0 +1,13 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+C:\Windows\test.txt
+
+======================================================================
+Màn hình:
+===== Analysis Path Program =====
+Please input Path:
+----- Result Analysis -----
+Disk: C:
+Extension: txt
+File Name: test
+Path: C:\Windows
+Folders: [Windows]
