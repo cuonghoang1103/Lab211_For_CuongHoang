@@ -1,0 +1,32 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+11
+32
+12
+5
+5
+5
+
+======================================================================
+Màn hình:
+=====Calculator Shape Program=====
+Please input side width of Rectangle:
+Please input length of Rectangle:
+Please input radius of Circle:
+Please input side A of Triangle:
+Please input side B of Triangle:
+Please input side C of Triangle:
+-----Rectangle-----
+Width: 11.0
+Length: 32.0
+Area: 352.0
+Perimeter: 86.0
+-----Circle-----
+Radius: 12.0
+Area:452.3893421169302
+Perimeter:75.39822368615503
+-----Triangle-----
+Side A: 5.0
+Side B: 5.0
+Side C: 5.0
+Area:10.825317547305483
+Perimeter:15.0
