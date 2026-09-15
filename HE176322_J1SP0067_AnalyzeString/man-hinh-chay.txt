@@ -1,0 +1,16 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+321sdhkjDFGH!@#$%^22fdsf3
+
+======================================================================
+Màn hình:
+===== Analysis String program ====
+Input String: -----Result Analysis------
+Number of characters: 25
+Perfect Square Numbers: []
+Odd Numbers: [321, 3]
+Even Numbers: [22]
+All Numbers: [321, 22, 3]
+Uppercase Characters: DFGH
+Lowercase Characters: sdhkjfdsf
+Special Characters: !@#$%^
+All Characters: sdhkjDFGH!@#$%^fdsf
