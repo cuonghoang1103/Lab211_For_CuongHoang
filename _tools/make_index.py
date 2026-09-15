@@ -78,6 +78,19 @@ def main():
     out.append("| 5 | `HE176322_J1LP0013_VehicleManagement/` | Khuôn cho bài Long: kế thừa + interface + Factory + Template Method + Strategy + file |")
     out.append("| 6 | `HUONG-DAN.md` trong từng project | Đề · kiến thức · thiết kế · code từng bước · test · debug · câu hỏi |")
     out.append("")
+    out.append("## Tải một bài về máy\n")
+    out.append("Kho này là **source thật** của 54 bài, mỗi thư mục là một project NetBeans mở được ngay.\n")
+    out.append("| Cách | Làm gì |")
+    out.append("|---|---|")
+    out.append("| Tải cả kho | nút **Code ▸ Download ZIP** ở đầu trang GitHub |")
+    out.append("| Tải **một bài** | dán link thư mục bài đó vào [download-directory.github.io](https://download-directory.github.io/) |")
+    out.append("| Dùng git | `git clone https://github.com/cuonghoang1103/Lab211_For_CuongHoang.git` |")
+    out.append("")
+    out.append("Trong mỗi thư mục bài có: `src/` (code), `HUONG-DAN.md` (giải thích + câu vấn đáp), "
+               "`man-hinh-chay.png` và `man-hinh-chay.txt` (**màn hình chạy thật** của kịch bản kiểm), "
+               "`nbproject/` + `build.xml` (để NetBeans mở được).\n")
+    out.append("> ⚠️ Tên thư mục mang mã số **HE176322**. Nộp bài của mình thì đổi thành mã số của bạn "
+               "(thầy bắt đặt tên `RollNo_ExcerciseNo_Description`).\n")
     out.append("## Mở một project trong NetBeans\n")
     out.append("1. **File ▸ Open Project** → chọn thư mục `HE176322_...` (có biểu tượng cốc cà phê).")
     out.append("2. **F6** để chạy (lớp chạy: `main.Main`) · **Shift+F11** Clean and Build · **Ctrl+F5** Debug.")

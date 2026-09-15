@@ -13,6 +13,20 @@
 | 5 | `HE176322_J1LP0013_VehicleManagement/` | Khuôn cho bài Long: kế thừa + interface + Factory + Template Method + Strategy + file |
 | 6 | `HUONG-DAN.md` trong từng project | Đề · kiến thức · thiết kế · code từng bước · test · debug · câu hỏi |
 
+## Tải một bài về máy
+
+Kho này là **source thật** của 54 bài, mỗi thư mục là một project NetBeans mở được ngay.
+
+| Cách | Làm gì |
+|---|---|
+| Tải cả kho | nút **Code ▸ Download ZIP** ở đầu trang GitHub |
+| Tải **một bài** | dán link thư mục bài đó vào [download-directory.github.io](https://download-directory.github.io/) |
+| Dùng git | `git clone https://github.com/cuonghoang1103/Lab211_For_CuongHoang.git` |
+
+Trong mỗi thư mục bài có: `src/` (code), `HUONG-DAN.md` (giải thích + câu vấn đáp), `man-hinh-chay.png` và `man-hinh-chay.txt` (**màn hình chạy thật** của kịch bản kiểm), `nbproject/` + `build.xml` (để NetBeans mở được).
+
+> ⚠️ Tên thư mục mang mã số **HE176322**. Nộp bài của mình thì đổi thành mã số của bạn (thầy bắt đặt tên `RollNo_ExcerciseNo_Description`).
+
 ## Mở một project trong NetBeans
 
 1. **File ▸ Open Project** → chọn thư mục `HE176322_...` (có biểu tượng cốc cà phê).
