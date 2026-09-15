@@ -1,0 +1,35 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+NghiaNV
+Ha Noi
+abc
+-2000
+2000
+LienVT
+Ha Noi
+500
+TuanNT
+Ha Noi
+1000
+
+======================================================================
+Màn hình:
+=====Management Person programer=====
+Input Information of Person
+Please input name:Please input address:Please input salary:You must input digit.
+Please input salary:Salary is greater than zero
+Please input salary:Input Information of Person
+Please input name:Please input address:Please input salary:Input Information of Person
+Please input name:Please input address:Please input salary:Information of Person you have entered:
+Name:LienVT
+Address:Ha Noi
+Salary:500.0
+
+Information of Person you have entered:
+Name:TuanNT
+Address:Ha Noi
+Salary:1000.0
+
+Information of Person you have entered:
+Name:NghiaNV
+Address:Ha Noi
+Salary:2000.0
