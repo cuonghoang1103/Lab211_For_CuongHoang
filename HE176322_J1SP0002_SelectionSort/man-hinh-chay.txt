@@ -1,0 +1,23 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+abc
+
+-5
+0
+1001
+8
+
+======================================================================
+Màn hình:
+Enter number of array:
+You must input a number.
+Enter number of array:
+You must input a number.
+Enter number of array:
+Number must be between 1 and 1000.
+Enter number of array:
+Number must be between 1 and 1000.
+Enter number of array:
+Number must be between 1 and 1000.
+Enter number of array:
+Unsorted array: [3, 7, 7, 7, 7, 1, 4, 3]
+Sorted array: [1, 3, 3, 4, 7, 7, 7, 7]
