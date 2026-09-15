@@ -1,0 +1,104 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+data/notes.txt
+test
+1
+data/notes.txt
+Test
+1
+data/notes.txt
+TEST
+1
+data/notes.txt
+
+1
+data/nosuch.txt
+test
+1
+data
+test
+2
+data
+test
+2
+data
+Test
+2
+data
+zebra
+2
+nosuchfolder
+test
+3
+
+======================================================================
+Màn hình:
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Count Word --------
+Enter Path:Enter Word:Bout: 5
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Count Word --------
+Enter Path:Enter Word:Bout: 1
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Count Word --------
+Enter Path:Enter Word:Bout: 0
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Count Word --------
+Enter Path:Enter Word:Word must not be blank.
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Count Word --------
+Enter Path:Enter Word:File not found: data/nosuch.txt
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Count Word --------
+Enter Path:Enter Word:Not a file: data
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Find File By Word --------
+Enter Path:Enter Word:------------ File Name ------------
+notes.txt
+readme.txt
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Find File By Word --------
+Enter Path:Enter Word:------------ File Name ------------
+notes.txt
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Find File By Word --------
+Enter Path:Enter Word:------------ File Name ------------
+(no file contains this word)
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: -------- Find File By Word --------
+Enter Path:Enter Word:Folder not found: nosuchfolder
+============ Word Program =========
+1. Count Word In File
+2. Find File By Word
+3. Exit
+Your choice: 
