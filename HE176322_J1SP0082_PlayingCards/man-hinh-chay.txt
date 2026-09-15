@@ -1,0 +1,67 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+
+======================================================================
+Màn hình:
+========= DECK OF CARDS =========
+Deck created with 52 cards.
+1. 2 of Clubs
+2. 3 of Clubs
+3. 4 of Clubs
+4. 5 of Clubs
+5. 6 of Clubs
+6. 7 of Clubs
+7. 8 of Clubs
+8. 9 of Clubs
+9. 10 of Clubs
+10. Jack of Clubs
+11. Queen of Clubs
+12. King of Clubs
+13. Ace of Clubs
+14. 2 of Diamonds
+15. 3 of Diamonds
+16. 4 of Diamonds
+17. 5 of Diamonds
+18. 6 of Diamonds
+19. 7 of Diamonds
+20. 8 of Diamonds
+21. 9 of Diamonds
+22. 10 of Diamonds
+23. Jack of Diamonds
+24. Queen of Diamonds
+25. King of Diamonds
+26. Ace of Diamonds
+27. 2 of Hearts
+28. 3 of Hearts
+29. 4 of Hearts
+30. 5 of Hearts
+31. 6 of Hearts
+32. 7 of Hearts
+33. 8 of Hearts
+34. 9 of Hearts
+35. 10 of Hearts
+36. Jack of Hearts
+37. Queen of Hearts
+38. King of Hearts
+39. Ace of Hearts
+40. 2 of Spades
+41. 3 of Spades
+42. 4 of Spades
+43. 5 of Spades
+44. 6 of Spades
+45. 7 of Spades
+46. 8 of Spades
+47. 9 of Spades
+48. 10 of Spades
+49. Jack of Spades
+50. Queen of Spades
+51. King of Spades
+52. Ace of Spades
+=================================
+Total: 52 cards
+--- After shuffling, dealing 5 cards ---
+- Queen of Spades
+- 4 of Hearts
+- 7 of Clubs
+- 9 of Spades
+- 2 of Spades
+Cards left in the deck: 47
