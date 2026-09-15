@@ -1,0 +1,11 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+2
+100
+200
+500
+
+======================================================================
+Màn hình:
+======= Shopping program ==========
+input number of bill:input value of bill 1:input value of bill 2:input value of wallet:this is total of bill:300
+You can buy it.
