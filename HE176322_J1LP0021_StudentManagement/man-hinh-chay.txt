@@ -1,0 +1,115 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+S001
+Nguyen Van A
+1
+Java
+S002
+Nguyen Van A
+2
+Java
+S003
+Nguyen Van B
+1
+.Net
+S004
+Nguyen Van B
+3
+Java
+S005
+Tran Thi C
+1
+C/C++
+S006
+Le Van D
+2
+Java
+S007
+Le Van D
+3
+Java
+S008
+Le Van D
+1
+.Net
+S009
+Pham Thi E
+2
+C/C++
+S010
+Nguyen Van A
+3
+.Net
+N
+4
+2
+nguyen van
+5
+
+======================================================================
+Màn hình:
+WELCOME TO STUDENT MANAGEMENT
+1. Create
+2. Find and Sort
+3. Update/Delete
+4. Report
+5. Exit
+(Please choose 1 to Create, 2 to Find and Sort, 3 to Update/Delete, 4 to Report and 5 to Exit program).
+Enter your choice: ---------- Create Student ----------
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S001] has been added.
+At least 10 students are required - 1 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S002] has been added.
+At least 10 students are required - 2 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S003] has been added.
+At least 10 students are required - 3 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S004] has been added.
+At least 10 students are required - 4 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S005] has been added.
+At least 10 students are required - 5 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S006] has been added.
+At least 10 students are required - 6 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S007] has been added.
+At least 10 students are required - 7 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S008] has been added.
+At least 10 students are required - 8 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S009] has been added.
+At least 10 students are required - 9 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S010] has been added.
+Do you want to continue (Y/N)? WELCOME TO STUDENT MANAGEMENT
+1. Create
+2. Find and Sort
+3. Update/Delete
+4. Report
+5. Exit
+(Please choose 1 to Create, 2 to Find and Sort, 3 to Update/Delete, 4 to Report and 5 to Exit program).
+Enter your choice: -------------- Report --------------
+Le Van D | .Net | 1
+Le Van D | Java | 2
+Nguyen Van A | .Net | 1
+Nguyen Van A | Java | 2
+Nguyen Van B | .Net | 1
+Nguyen Van B | Java | 1
+Pham Thi E | C/C++ | 1
+Tran Thi C | C/C++ | 1
+WELCOME TO STUDENT MANAGEMENT
+1. Create
+2. Find and Sort
+3. Update/Delete
+4. Report
+5. Exit
+(Please choose 1 to Create, 2 to Find and Sort, 3 to Update/Delete, 4 to Report and 5 to Exit program).
+Enter your choice: ---------- Find and Sort ----------
+Enter student name (or a part of it): Student name         Semester   Course
+Nguyen Van A         1          Java
+Nguyen Van A         2          Java
+Nguyen Van A         3          .Net
+Nguyen Van B         1          .Net
+Nguyen Van B         3          Java
+WELCOME TO STUDENT MANAGEMENT
+1. Create
+2. Find and Sort
+3. Update/Delete
+4. Report
+5. Exit
+(Please choose 1 to Create, 2 to Find and Sort, 3 to Update/Delete, 4 to Report and 5 to Exit program).
+Enter your choice: Goodbye.
