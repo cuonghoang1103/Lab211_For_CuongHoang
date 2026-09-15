@@ -1,0 +1,93 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+2
+0
+
+======================================================================
+Màn hình:
+============ BEE SIMULATION ============
+1. Create bee list
+2. Attack bees
+0. Exit
+========================================
+Your choice: New bee list created: 10 Workers, 10 Queens, 10 Drones.
+No  Type    Health     Status
+------------------------------
+1  Worker  100.00 %   Alive
+2  Worker  100.00 %   Alive
+3  Worker  100.00 %   Alive
+4  Worker  100.00 %   Alive
+5  Worker  100.00 %   Alive
+6  Worker  100.00 %   Alive
+7  Worker  100.00 %   Alive
+8  Worker  100.00 %   Alive
+9  Worker  100.00 %   Alive
+10  Worker  100.00 %   Alive
+11  Queen   100.00 %   Alive
+12  Queen   100.00 %   Alive
+13  Queen   100.00 %   Alive
+14  Queen   100.00 %   Alive
+15  Queen   100.00 %   Alive
+16  Queen   100.00 %   Alive
+17  Queen   100.00 %   Alive
+18  Queen   100.00 %   Alive
+19  Queen   100.00 %   Alive
+20  Queen   100.00 %   Alive
+21  Drone   100.00 %   Alive
+22  Drone   100.00 %   Alive
+23  Drone   100.00 %   Alive
+24  Drone   100.00 %   Alive
+25  Drone   100.00 %   Alive
+26  Drone   100.00 %   Alive
+27  Drone   100.00 %   Alive
+28  Drone   100.00 %   Alive
+29  Drone   100.00 %   Alive
+30  Drone   100.00 %   Alive
+------------------------------
+Alive: 30   Dead: 0
+============ BEE SIMULATION ============
+1. Create bee list
+2. Attack bees
+0. Exit
+========================================
+Your choice: Attacking all bees (random damage 0-80% each)...
+No  Type     Dmg   Health     Status
+-------------------------------------
+1  Worker    13   87.00 %    Alive
+2  Worker    49   51.00 %    Dead
+3  Worker    25   75.00 %    Alive
+4  Worker    65   35.00 %    Dead
+5  Worker    53   47.00 %    Dead
+6  Worker     1   99.00 %    Alive
+7  Worker    25   75.00 %    Alive
+8  Worker    52   48.00 %    Dead
+9  Worker     5   95.00 %    Alive
+10  Worker    10   90.00 %    Alive
+11  Queen     75   25.00 %    Alive
+12  Queen     18   82.00 %    Alive
+13  Queen     62   38.00 %    Alive
+14  Queen     20   80.00 %    Alive
+15  Queen     20   80.00 %    Alive
+16  Queen     44   56.00 %    Alive
+17  Queen     58   42.00 %    Alive
+18  Queen     21   79.00 %    Alive
+19  Queen     67   33.00 %    Alive
+20  Queen     68   32.00 %    Alive
+21  Drone     13   87.00 %    Alive
+22  Drone     10   90.00 %    Alive
+23  Drone     77   23.00 %    Dead
+24  Drone     44   56.00 %    Alive
+25  Drone     48   52.00 %    Alive
+26  Drone     52   48.00 %    Dead
+27  Drone     45   55.00 %    Alive
+28  Drone     43   57.00 %    Alive
+29  Drone     27   73.00 %    Alive
+30  Drone     14   86.00 %    Alive
+-------------------------------------
+Alive: 24   Dead: 6
+============ BEE SIMULATION ============
+1. Create bee list
+2. Attack bees
+0. Exit
+========================================
+Your choice: Goodbye.
