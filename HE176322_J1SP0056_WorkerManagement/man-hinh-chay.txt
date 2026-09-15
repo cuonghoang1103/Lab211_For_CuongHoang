@@ -1,0 +1,85 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+W 1
+Nghia
+20
+1000
+Hanoi
+1
+W 3
+Lien
+20
+1400
+Danang
+2
+W 1
+100
+2
+W 1
+400
+3
+W 3
+100
+4
+5
+
+======================================================================
+Màn hình:
+======== Worker Management =========
+1. Add Worker
+2. Up salary
+3. Down salary
+4. Display Information salary
+5. Exit
+Enter your choice:--------- Add Worker ----------
+Enter Code:Enter Name:Enter Age:Enter Salary: Enter work location:Worker [W 1] has been added.
+======== Worker Management =========
+1. Add Worker
+2. Up salary
+3. Down salary
+4. Display Information salary
+5. Exit
+Enter your choice:--------- Add Worker ----------
+Enter Code:Enter Name:Enter Age:Enter Salary: Enter work location:Worker [W 3] has been added.
+======== Worker Management =========
+1. Add Worker
+2. Up salary
+3. Down salary
+4. Display Information salary
+5. Exit
+Enter your choice:------- Up/Down Salary --------
+Enter Code:Enter Salary:Salary has been adjusted.
+======== Worker Management =========
+1. Add Worker
+2. Up salary
+3. Down salary
+4. Display Information salary
+5. Exit
+Enter your choice:------- Up/Down Salary --------
+Enter Code:Enter Salary:Salary has been adjusted.
+======== Worker Management =========
+1. Add Worker
+2. Up salary
+3. Down salary
+4. Display Information salary
+5. Exit
+Enter your choice:------- Up/Down Salary --------
+Enter Code:Enter Salary:Salary has been adjusted.
+======== Worker Management =========
+1. Add Worker
+2. Up salary
+3. Down salary
+4. Display Information salary
+5. Exit
+Enter your choice:--------------------Display Information Salary-----------------------
+Code    Name        Age   Salary      Status  Date
+W 1     Nghia       20    1100        UP      15/09/2026
+W 1     Nghia       20    1500        UP      15/09/2026
+W 3     Lien        20    1300        DOWN    15/09/2026
+======== Worker Management =========
+1. Add Worker
+2. Up salary
+3. Down salary
+4. Display Information salary
+5. Exit
+Enter your choice:Goodbye.
