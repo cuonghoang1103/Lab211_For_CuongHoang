@@ -1,0 +1,22 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+10
+1
+20
+1
+30
+3
+2
+0
+
+======================================================================
+Màn hình:
+======= STACK DEMO (MyStack) =======
+1.Push   2.Pop   3.Get(peek)   4.Display   0.Exit
+====================================
+Choose: Enter value: Pushed 10.   Stack (top -> bottom): [10]
+Choose: Enter value: Pushed 20.   Stack (top -> bottom): [20, 10]
+Choose: Enter value: Pushed 30.   Stack (top -> bottom): [30, 20, 10]
+Choose: Get (top) = 30           (not removed)
+Choose: Popped 30.   Stack (top -> bottom): [20, 10]
+Choose: Goodbye!
