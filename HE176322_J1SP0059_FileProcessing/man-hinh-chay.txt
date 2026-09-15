@@ -1,0 +1,53 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+test.txt
+800
+2
+story.txt
+unique.txt
+1
+unique.txt
+0
+3
+
+======================================================================
+Màn hình:
+========== File Processing =========
+1. Find person info
+2. Copy Text to new file
+3. Exit
+Enter your choice: --------- Person info ---------
+Enter Path:Enter Money:------------- Result ----------
+Name		Address	Money
+Nghia		Ha Noi		1000.0
+Thanh		Ha Noi		1200.0
+Phuong		Ha Noi		1300.0
+
+Max: Phuong
+Min: Nghia
+========== File Processing =========
+1. Find person info
+2. Copy Text to new file
+3. Exit
+Enter your choice: ------------- Copy text --------------
+Enter Source: Enter new file name: Copy done...
+========== File Processing =========
+1. Find person info
+2. Copy Text to new file
+3. Exit
+Enter your choice: --------- Person info ---------
+Enter Path:Enter Money:------------- Result ----------
+Name		Address	Money
+the				0.0
+cat				0.0
+and				0.0
+dog				0.0
+sees				0.0
+
+Max: sees
+Min: the
+========== File Processing =========
+1. Find person info
+2. Copy Text to new file
+3. Exit
+Enter your choice: Goodbye.

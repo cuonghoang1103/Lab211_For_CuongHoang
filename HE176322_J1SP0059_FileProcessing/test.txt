@@ -1,0 +1,7 @@
+Nghia;Ha Noi;1000
+Thanh;Ha Noi;1200
+Phuong;Ha Noi;1300
+Hoang;Da Nang;abc
+Lan;Hue;700
+Minh;Hai Phong;
+Tuan;Vinh;-50
