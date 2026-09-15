@@ -1,0 +1,45 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+2
+3
+2
+3
+2
+a
+1
+2
+2
+2
+3
+1
+32
+3
+2
+21
+23
+4
+
+======================================================================
+Màn hình:
+=======Calculator program======
+1. Addition Matrix
+2. Subtraction Matrix
+3. Multiplication Matrix
+4. Quit
+Your choice:-------- Addition --------
+Enter Row Matrix 1:Enter Column Matrix 1:Enter Matrix1[1][1]:Enter Matrix1[1][2]:Enter Matrix1[1][3]:Enter Matrix1[2][1]:Values of matrix must be the number
+Enter Matrix1[2][1]:Enter Matrix1[2][2]:Enter Matrix1[2][3]:Enter Row Matrix 2:Enter Column Matrix 2:Enter Matrix2[1][1]:Enter Matrix2[1][2]:Enter Matrix2[1][3]:Enter Matrix2[2][1]:Enter Matrix2[2][2]:Enter Matrix2[2][3]:-------- Result --------
+[2][3][2]
+[1][2][2]
++
+[1][32][3]
+[2][21][23]
+=
+[3][35][5]
+[3][23][25]
+=======Calculator program======
+1. Addition Matrix
+2. Subtraction Matrix
+3. Multiplication Matrix
+4. Quit
+Your choice:Bye.
