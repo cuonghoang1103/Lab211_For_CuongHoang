@@ -1,0 +1,48 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+Cat
+Con Meo
+3
+Cat
+2
+Cat
+3
+cat
+4
+
+======================================================================
+Màn hình:
+======== Dictionary program ========
+1. Add Word
+2. Delete Word
+3. Translate
+4. Exit
+Your choice: ------------- Add -------------
+Enter English: Enter Vietnamese: Successful
+======== Dictionary program ========
+1. Add Word
+2. Delete Word
+3. Translate
+4. Exit
+Your choice: ------------- Translate ------------
+Enter English: Vietnamese: Con Meo
+======== Dictionary program ========
+1. Add Word
+2. Delete Word
+3. Translate
+4. Exit
+Your choice: ------------ Delete ----------------
+Enter English: Successful
+======== Dictionary program ========
+1. Add Word
+2. Delete Word
+3. Translate
+4. Exit
+Your choice: ------------- Translate ------------
+Enter English: Empty - this word is not in the dictionary.
+======== Dictionary program ========
+1. Add Word
+2. Delete Word
+3. Translate
+4. Exit
+Your choice: Bye
