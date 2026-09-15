@@ -1,0 +1,37 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+abc
+
+-5
+0
+1001
+8
+x
+3.5
+
+99999999999
+3
+
+======================================================================
+Màn hình:
+Enter number of array:
+You must input a number.
+Enter number of array:
+You must input a number.
+Enter number of array:
+Number must be between 1 and 1000.
+Enter number of array:
+Number must be between 1 and 1000.
+Enter number of array:
+Number must be between 1 and 1000.
+Enter number of array:
+Enter search value:
+You must input a number.
+Enter search value:
+You must input a number.
+Enter search value:
+You must input a number.
+Enter search value:
+You must input a number.
+Enter search value:
+The array: [7, 3, 3, 5, 0, 0, 2, 4]
+Found 3 at index: 1
