@@ -1,0 +1,60 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+Raul Gonzalez
+Star
+Spain
+09
+1234567890
+2
+3
+a
+1
+2
+4
+
+======================================================================
+Màn hình:
+========= Contact program =========
+1. Add a Contact
+2. Display all Contact
+3. Delete a Contact
+4. Exit
+Please choice one option: Your choice: -------- Add a Contact --------
+Enter Name: Enter Group: Enter Address: Enter Phone: Please input Phone flow
+• 1234567890
+• 123-456-7890
+• 123-456-7890 x1234
+• 123-456-7890 ext1234
+• (123)-456-7890
+• 123.456.7890
+• 123 456 7890
+Enter Phone: Successful
+========= Contact program =========
+1. Add a Contact
+2. Display all Contact
+3. Delete a Contact
+4. Exit
+Please choice one option: Your choice: --------------------------------- Display all Contact ----------------------------
+ID  Name              First Name  Last Name   Group   Address     Phone
+1   Raul Gonzalez     Raul        Gonzalez    Star    Spain       1234567890
+========= Contact program =========
+1. Add a Contact
+2. Display all Contact
+3. Delete a Contact
+4. Exit
+Please choice one option: Your choice: ------- Delete a Contact -------
+Enter ID: ID is digit
+Enter ID: Successful
+========= Contact program =========
+1. Add a Contact
+2. Display all Contact
+3. Delete a Contact
+4. Exit
+Please choice one option: Your choice: --------------------------------- Display all Contact ----------------------------
+No found contact
+========= Contact program =========
+1. Add a Contact
+2. Display all Contact
+3. Delete a Contact
+4. Exit
+Please choice one option: Your choice: 
