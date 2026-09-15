@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="HE176322_J1SP0073_HandyExpense" default="default" basedir=".">
+    <description>Builds, tests, and runs the LAB211 project HE176322_J1SP0073_HandyExpense.</description>
+    <import file="nbproject/build-impl.xml"/>
+</project>

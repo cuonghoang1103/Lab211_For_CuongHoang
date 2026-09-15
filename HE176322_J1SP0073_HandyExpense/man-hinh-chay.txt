@@ -1,0 +1,101 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+x
+9
+2
+1
+31-Feb-2009
+11-Apr-2009
+abc
+100.10
+Tuition fee
+1
+20-Apr-2009
+250.20
+Rent house
+1
+30-Apr-2009
+200.30
+Food
+2
+3
+9
+3
+2
+2
+4
+
+======================================================================
+Màn hình:
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: You must input a number.
+Your choice: Please input a number in [1, 4].
+Your choice: ---------Display all expenses------------
+There is no expense to display.
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: -------- Add an expense--------
+Enter Date: Date must be in format dd-MMM-yyyy, e.g. 11-Apr-2009.
+Enter Date: Enter Amount: Amount must be a number.
+Enter Amount: Enter Content: Add an expense successful
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: -------- Add an expense--------
+Enter Date: Enter Amount: Enter Content: Add an expense successful
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: -------- Add an expense--------
+Enter Date: Enter Amount: Enter Content: Add an expense successful
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: ---------Display all expenses------------
+ID   Date          Amount       Content
+1    11-Apr-2009   100.1        Tuition fee
+2    20-Apr-2009   250.2        Rent house
+3    30-Apr-2009   200.3        Food
+Total: 550.6
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: --------Delete an expense------
+Enter ID: Delete an expense fail
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: --------Delete an expense------
+Enter ID: Delete an expense successful
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: ---------Display all expenses------------
+ID   Date          Amount       Content
+1    11-Apr-2009   100.1        Tuition fee
+3    30-Apr-2009   200.3        Food
+Total: 300.4
+=======Handy Expense program======
+1. Add an expense
+2. Display all expenses
+3. Delete an expense
+4. Quit
+Your choice: Bye.
