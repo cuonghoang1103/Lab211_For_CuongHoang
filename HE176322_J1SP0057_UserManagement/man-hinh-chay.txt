@@ -1,0 +1,22 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+2
+12
+NghiaNV1
+12
+space@123
+3
+
+======================================================================
+Màn hình:
+====== USER MANAGEMENT SYSTEM ======
+1. Create a new account
+2. Login system
+3. Exit
+> Choose: Enter Username: You must enter least at 5 character, and no space!
+Enter Username: Enter Password: You must enter least at 6 character, and no space!
+Enter Password: Login successful!
+====== USER MANAGEMENT SYSTEM ======
+1. Create a new account
+2. Login system
+3. Exit
+> Choose: Goodbye.
