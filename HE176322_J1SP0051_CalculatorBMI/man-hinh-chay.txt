@@ -1,0 +1,41 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+1
+4
++
+4
+a
++
+16
+=
+2
+a
+70
+b
+170
+3
+
+======================================================================
+Màn hình:
+========= Calculator Program =========
+1. Normal Calculator
+2. BMI Calculator
+3. Exit
+Please choice one option: ----- Normal Calculator -----
+Enter number: Enter Operator: Enter number: Memory:8.0
+Enter Operator: Please input (+, -, *, /, ^)
+Enter Operator: Enter number: Memory:24.0
+Enter Operator: Result:24.0
+========= Calculator Program =========
+1. Normal Calculator
+2. BMI Calculator
+3. Exit
+Please choice one option: ----- BMI Calculator -----
+Enter Weight(kg): BMI is digit
+Enter Weight(kg): Enter Height(cm): BMI is digit
+Enter Height(cm): BMI Number: 24.22
+BMI Status: STANDARD
+========= Calculator Program =========
+1. Normal Calculator
+2. BMI Calculator
+3. Exit
+Please choice one option: 
