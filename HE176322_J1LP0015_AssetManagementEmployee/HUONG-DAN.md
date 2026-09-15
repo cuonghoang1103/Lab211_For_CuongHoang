@@ -122,7 +122,8 @@ HE176322_J1LP0015_AssetManagementEmployee/
     ├── dto/        LoginRequestDTO, LoginResponseDTO, AssetResponseDTO  ← chép từ P0014
     │               AssetRequestDTO (keyword), TransactionRequestDTO (id, assetID, quantity, employeeID),
     │               TransactionResponseDTO (không có cột nhân viên)      ← MỚI
-    ├── repository/ FileRepository<T> + 4 kho                            ← chép từ P0014
+    ├── repository/ FileRepository<T> (Template Method) + AssetRepository,
+    │               EmployeeRepository, RequestRepository, BorrowRepository  ← chép từ P0014
     ├── service/    AuthService (checkEmployee, getCurrentEmployeeID)    ← MỚI
     │               AssetService (search, getAllAssets)                  ← MỚI
     │               BorrowService (send / cancel / return)               ← MỚI
