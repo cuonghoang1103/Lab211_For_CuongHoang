@@ -1,0 +1,54 @@
+Phím đã gõ (mỗi dòng một lần Enter):
+BMV
+no color
+2400
+THURSDAY
+Y
+BMW
+no color
+2400
+THURSDAY
+Y
+BMW
+color
+2400
+THURSDAY
+Y
+BMW
+no color
+-200
+THURSDAY
+Y
+BMW
+no color
+a
+THURSDAY
+Y
+BMW
+no color
+2400
+FRIDAY
+N
+
+======================================================================
+Màn hình:
+===== Showroom car program =====
+Input Information of Car
+Name: Color: Price: Today: 
+Can’t sell Car
+Car break
+Do you want find more?(Y/N):Name: Color: Price: Today: 
+Sell Car
+Do you want find more?(Y/N):Name: Color: Price: Today: 
+Can’t sell Car
+Color Car does not exist
+Do you want find more?(Y/N):Name: Color: Price: Today: 
+Can’t sell Car
+Price greater than zero
+Do you want find more?(Y/N):Name: Color: Price: Today: 
+Can’t sell Car
+Price is digit
+Do you want find more?(Y/N):Name: Color: Price: Today: 
+Can’t sell Car
+Car can't sell today
+Do you want find more?(Y/N):
