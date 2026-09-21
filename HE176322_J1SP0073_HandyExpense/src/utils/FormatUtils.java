@@ -22,6 +22,8 @@ public final class FormatUtils {
     public static String formatMoney(double amount) {
         DecimalFormat format = new DecimalFormat(Constants.MONEY_FORMAT,
                 new DecimalFormatSymbols(Locale.US));
+
+        // a dot for the decimals on every machine (Locale.US), never "100,1"
         return format.format(amount);
     }
 }

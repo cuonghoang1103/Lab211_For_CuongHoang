@@ -8,7 +8,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
- * Reading and writing the data file, line by line.
+ * Reading and writing the data file, line by line. Main reads (at start-up); the
+ * repository writes (after every add or delete).
  *
  * @author HE176322
  */
@@ -20,33 +21,38 @@ public final class FileUtils {
 
     // Reads every line of a text file.
     public static ArrayList<String> readLines(String fileName) throws IOException {
-        ArrayList<String> lines = new ArrayList<>();
+        ArrayList<String> lineList = new ArrayList<>();
         File file = new File(fileName);
+
         // first run: no file yet, nothing to read
         if (!file.exists()) {
-            return lines;
+            return lineList;
         }
+
         // try-with-resources closes the reader even when reading fails
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
+
             // read until the end of the file
             while (line != null) {
-                lines.add(line);
+                lineList.add(line);
                 line = reader.readLine();
             }
         }
-        return lines;
+
+        return lineList;
     }
 
     // Rewrites a text file with the given lines.
-    public static void writeLines(String fileName, ArrayList<String> lines)
+    public static void writeLines(String fileName, ArrayList<String> lineList)
             throws IOException {
         // try-with-resources closes (and flushes) the writer in every case
         try (PrintWriter writer = new PrintWriter(fileName)) {
             // one line of text per expense
-            for (String line : lines) {
+            for (String line : lineList) {
                 writer.println(line);
             }
+
             // PrintWriter hides write errors; ask for them explicitly
             if (writer.checkError()) {
                 throw new IOException(fileName);

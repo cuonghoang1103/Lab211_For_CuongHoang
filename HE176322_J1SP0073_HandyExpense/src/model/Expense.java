@@ -1,6 +1,9 @@
 package model;
 
+import constants.Constants;
 import java.util.Date;
+import utils.DateUtils;
+import utils.FormatUtils;
 
 /**
  * MODEL: one expense - ID, date, amount of money, content.
@@ -11,10 +14,13 @@ public class Expense {
 
     // Unique ID, given automatically: largest ID + 1, the first is 1.
     private int id;
+
     // The day the money was spent.
     private Date date;
+
     // Amount of money; greater than 0.
     private double amount;
+
     // What the money was spent on.
     private String content;
 
@@ -70,9 +76,11 @@ public class Expense {
         this.content = content;
     }
 
-    // Polymorphism: overrides Object.toString(); returns the text, the view prints.
+    // Polymorphism: overrides Object.toString(); returns this expense as one table row in
+    // fixed-width columns - the text the view prints for option 2.
     @Override
     public String toString() {
-        return id + " " + amount + " " + content;
+        return String.format(Constants.ROW_FORMAT, id, DateUtils.formatDate(date),
+                FormatUtils.formatMoney(amount), content);
     }
 }

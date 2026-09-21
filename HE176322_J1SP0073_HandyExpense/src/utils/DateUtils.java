@@ -27,23 +27,29 @@ public final class DateUtils {
     // must exist (31-Feb-2009 is refused because the format is not lenient) and the whole
     // text must be used.
     public static Date parseDate(String text) throws Exception {
-        // wrong shape, e.g. 2009-04-11 or 11-Apr-09
-        if (text == null || !text.matches(Constants.DATE_REGEX)) {
-            throw new Exception(Message.INVALID_DATE);
-        }
         ParsePosition position = new ParsePosition(0);
-        Date date = createFormat().parse(text, position);
-        // not a real day, or characters left over
-        if (date == null || position.getIndex() != text.length()) {
+        Date date = null;
+
+        // wrong shape, e.g. 2009-04-11 or 11-Apr-09
+        if ((text == null) || !text.matches(Constants.DATE_REGEX)) {
             throw new Exception(Message.INVALID_DATE);
         }
+
+        date = createFormat().parse(text, position);
+
+        // not a real day, or characters left over
+        if ((date == null) || (position.getIndex() != text.length())) {
+            throw new Exception(Message.INVALID_DATE);
+        }
+
         return date;
     }
 
     // Creates the strict English dd-MMM-yyyy format.
     private static SimpleDateFormat createFormat() {
-        SimpleDateFormat format = new SimpleDateFormat(Constants.DATE_FORMAT,
-                Locale.ENGLISH);
+        SimpleDateFormat format = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.ENGLISH);
+
+        // strict: 31-Feb-2009 is refused instead of rolling over to March
         format.setLenient(false);
         return format;
     }

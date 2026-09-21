@@ -1,8 +1,9 @@
 # J1.S.P0073 — Handy Expense
 
 > Bài CRUD **có tệp dữ liệu**: danh sách chi tiêu được đọc từ `expenses.txt` lúc mở chương trình và
-> ghi lại sau **mỗi** lần thêm/xoá. Khung giống P0055, thêm `service` (ID tự tăng, tổng tiền) và
-> `utils/FileUtils`, `utils/DateUtils`.
+> ghi lại sau **mỗi** lần thêm/xoá. Khung giống P0054/P0055, thêm `service` (ID tự tăng, tổng tiền) và
+> `utils/FileUtils`, `utils/DateUtils`. Theo tờ checklist: **`Main` đọc tệp** (repository chỉ tách
+> dòng thành `Expense`), View nhận **`ExpenseResponseDTO` qua thuộc tính** và in **1 lần mỗi luồng**.
 
 | | |
 |---|---|
@@ -27,8 +28,8 @@
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
 | `boolean addExpense(List<Expense> list, Date date, double amount, String content)` | 4 tham số | `ExpenseService.addExpense(ExpenseRequestDTO)` → `ExpenseRepository.addExpense(Expense)` |
-| `void displayAll(List<Expense> list)` | in bảng | `ExpenseController.displayAll()` → `ExpenseView.displayAll()` (in là việc của view) |
-| `boolean deleteExpense(List<Expense> list, Expense exp)` | nhận `Expense` | `ExpenseService.deleteExpense(ExpenseRequestDTO)` → `ExpenseRepository.deleteExpense(Expense exp)` |
+| `void displayAll(List<Expense> list)` | in bảng | `ExpenseController.displayAll()` — lấy dòng + tổng từ `ExpenseService.getRowList()/getTotal()`, in bằng `ExpenseView.display()` (in là việc của view) |
+| `boolean deleteExpense(List<Expense> list, Expense exp)` | nhận `Expense` | `ExpenseService.deleteExpense(ExpenseRequestDTO)` (trả `false` khi không có ID) → `ExpenseRepository.deleteExpense(Expense exp)` |
 | Hai câu thông báo | `Delete an expense fail` · `Delete an expense successful` | `Message.DELETE_FAIL/SUCCESS` — **chép đúng** (không "failed", không dấu chấm) |
 
 ---
@@ -60,13 +61,18 @@ Tính từ danh sách (không giữ biến đếm) → **đúng cả sau khi đ�
 
 Mỗi dòng: `id|dd-MMM-yyyy|amount|content`, ví dụ `1|11-Apr-2009|100.1|Tuition fee`.
 
+**Ai đọc, ai ghi** (tờ checklist 1.1: *"đọc từ file … thực hiện ở Main"*): `Main.readData()` gọi
+`FileUtils.readLines` → đặt vào `ExpenseRequestDTO.lineList` → `controller.loadExpenses(requestDTO)` →
+service → `ExpenseRepository.loadExpenses` **tách từng dòng** thành `Expense` (`parseExpense`). Ghi lại
+tệp sau mỗi thêm/xoá vẫn do repository gọi `FileUtils.writeLines` (tờ giấy không nói "ghi").
+
 | Quyết định | Vì sao |
 |---|---|
 | dấu `|` chứ không `,` | nội dung hay có dấu phẩy; `split("\\|", 4)` → mọi thứ sau `|` thứ ba là content |
 | ghi **lại cả tệp** sau mỗi thay đổi | xoá một dòng giữa tệp chỉ có cách viết lại tệp |
 | thêm/xoá rồi ghi hỏng → **hoàn tác** | bộ nhớ và tệp không bao giờ lệch nhau |
 | dòng hỏng → **bỏ qua** | một dòng lỗi không làm chương trình chết |
-| `Double.toString` khi ghi | luôn dấu chấm — tệp đọc giống nhau trên mọi máy |
+| `String.valueOf(amount)` (= `Double.toString`) khi ghi, ghép bằng `String.join` | luôn dấu chấm — tệp đọc giống nhau trên mọi máy; không cộng chuỗi bằng `+` |
 
 ### 2.4 Java dùng trong bài
 
@@ -85,36 +91,47 @@ Mỗi dòng: `id|dd-MMM-yyyy|amount|content`, ví dụ `1|11-Apr-2009|100.1|Tuit
 HE176322_J1SP0073_HandyExpense/
 ├── expenses.txt              (tạo ra khi thêm chi tiêu đầu tiên)
 └── src/
-    ├── model/       Expense              id, Date, amount, content (JavaBean)
-    ├── dto/         ExpenseRequestDTO    date/amount/content hoặc id (main ──► controller)
-    │                ExpenseResponseDTO   1 dòng bảng, ngày đã thành chữ (controller ──► view)
-    ├── repository/  ExpenseRepository    ArrayList + load/findAll/findById/addExpense/deleteExpense + ghi tệp
-    ├── service/     ExpenseService       ID = max + 1, tổng tiền, đổi model → DTO
-    ├── controller/  ExpenseController    Facade: loadExpenses, addExpense, displayAll, deleteExpense
-    ├── view/        ExpenseView          displayAll (bảng + Total), showMessage
+    ├── model/       Expense              id, Date, amount, content (JavaBean); toString() = 1 dòng bảng
+    ├── dto/         ExpenseRequestDTO    date/amount/content, hoặc id, hoặc lineList của tệp (main ──► controller)
+    │                ExpenseResponseDTO   message, rowList, total (controller ──► view)
+    ├── repository/  ExpenseRepository    expenseList + loadExpenses(requestDTO)/findAll/findById/addExpense/deleteExpense + ghi tệp
+    ├── service/     ExpenseService       ID = max + 1 (generateNextId), tổng tiền, các dòng bảng
+    ├── controller/  ExpenseController    Facade: loadExpenses, addExpense, displayAll, deleteExpense — mỗi luồng display() 1 lần
+    ├── view/        ExpenseView          field responseDTO + setResponseDTO + display() (message, hoặc bảng + Total)
     ├── constants/   Message, Constants   câu chữ; tên tệp, định dạng, regex ngày
     ├── utils/       Validation           getChoice, getInt, getDate, getAmount, getContent
     │                DateUtils            formatDate / parseDate (English, strict)
-    │                FileUtils            readLines / writeLines
+    │                FileUtils            readLines (Main gọi) / writeLines (repository gọi)
     │                FormatUtils          formatMoney: "0.##" → 100 / 100.1
-    └── main/        Main                 menu + Scanner
+    └── main/        Main                 final + private Main(); đọc tệp; menu + Scanner + validate
 ```
 
 | Lớp | Vì sao ở đây |
 |---|---|
 | `ExpenseRepository` | Guide: *"Chứa data … các method CRUD"* — và đồng bộ với tệp |
 | `ExpenseService` | ID tự tăng và **tổng tiền** là *"tính toán nghiệp vụ (tính tổng, report)"* → service |
-| `FileUtils`, `DateUtils` | Guide: utils chứa *"validate, đọc/ghi file"*, static |
+| `FileUtils`, `DateUtils` | Guide: utils chứa *"validate, đọc/ghi file"*, static. `Main` gọi `readLines` (tờ checklist: đọc file ở Main); repository gọi `writeLines` |
 
 **Luồng Delete** (Controller ↔ Service ↔ Repository ↔ Model):
 
 ```
-Main: inputDelete(sc) ──► ExpenseRequestDTO(id) ──► controller.deleteExpense(dto)
-   controller ──► service.deleteExpense(dto)
-                     ├─ repository.findById(id)        → null? throw "Delete an expense fail"
-                     └─ repository.deleteExpense(exp)  → remove + ghi lại expenses.txt
-   controller ──► view.showMessage("Delete an expense successful")
+Main: inputDelete(sc) ──► ExpenseRequestDTO(id) ──► controller.deleteExpense(requestDTO)   ← gọi 1 lần
+   controller ──► service.deleteExpense(requestDTO)
+                     ├─ repository.findById(id)        → null? return false
+                     └─ repository.deleteExpense(exp)  → remove + ghi lại expenses.txt → true
+   controller: false → throw new Exception(Message.DELETE_FAIL)          ("Delete an expense fail")
+               true  → responseDTO.setMessage(Message.DELETE_SUCCESS)
+                       → view.setResponseDTO(responseDTO) → view.display()   ← render 1 lần
 Main: catch (Exception e) → in e.getMessage()
+```
+
+**Luồng khởi động** (đọc tệp ở `Main`):
+
+```
+Main: readData() = FileUtils.readLines("expenses.txt") ──► ExpenseRequestDTO(lineList)
+      controller.loadExpenses(requestDTO) ──► service ──► repository.loadExpenses(requestDTO)
+                     └─ parseExpense(từng dòng): dòng hỏng → bỏ qua; dòng tốt → expenseList
+Main: catch (IOException e) → in "Cannot read expenses.txt: ..." rồi vẫn vào menu (sổ rỗng)
 ```
 
 ### 3.1 Design Pattern
@@ -134,7 +151,7 @@ Main: catch (Exception e) → in e.getMessage()
 
 | | Ở đâu |
 |---|---|
-| **S** | `Expense` mô tả · `ExpenseRepository` lưu · `ExpenseService` luật · `ExpenseView` in · `FileUtils` tệp · `DateUtils` ngày |
+| **S** | `Expense` mô tả · `Main` nhập + đọc tệp · `ExpenseRepository` lưu · `ExpenseService` luật · `ExpenseView` in · `FileUtils` tệp · `DateUtils` ngày |
 | **O** | thêm cột mới không phải sửa `ExpenseController` (chỉ chuyển DTO) |
 | **D** (một phần) | `Main` chỉ biết controller + DTO; controller chỉ biết service |
 
@@ -146,15 +163,15 @@ Main: catch (Exception e) → in e.getMessage()
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/Expense.java` | 4 field + ctor rỗng + ctor đủ + get/set + `toString` |
-| 2 | `dto/ExpenseRequestDTO`, `ExpenseResponseDTO` | JavaBean; Response có `toString` định dạng cột |
-| 3 | `constants/Constants`, `Message` | tên tệp, `DATE_FORMAT`, `DATE_REGEX`, định dạng bảng; câu chữ |
+| 1 | `model/Expense.java` | 4 field (mỗi field một comment, cách nhau 1 dòng trống) + ctor rỗng + ctor đủ + get/set + `toString` = 1 dòng bảng (`Constants.ROW_FORMAT`) |
+| 2 | `dto/ExpenseRequestDTO`, `ExpenseResponseDTO` | JavaBean; Request: id, date, amount, content, `lineList`; Response: `message`, `rowList`, `total` |
+| 3 | `constants/Constants`, `Message` | tên tệp, `DATE_FORMAT`, `DATE_REGEX`, định dạng bảng; câu chữ, `TOTAL_FORMAT` |
 | 4 | `utils/DateUtils`, `FileUtils`, `FormatUtils` | `formatDate`/`parseDate`; `readLines`/`writeLines`; `formatMoney` |
-| 5 | `repository/ExpenseRepository.java` | `loadExpenses`, `findAll`, `findById`, `addExpense`, `deleteExpense`, `saveExpenses`, `toLine`, `toExpense` |
-| 6 | `service/ExpenseService.java` | `nextId`, `getTotal`, `addExpense`, `deleteExpense`, `getAllExpenses` |
-| 7 | `view/ExpenseView.java`, `controller/ExpenseController.java` | `displayAll`, `showMessage`; 4 hàm |
+| 5 | `repository/ExpenseRepository.java` | `loadExpenses(requestDTO)`, `findAll`, `findById`, `addExpense`, `deleteExpense`, `saveExpenses`, `formatLine`, `parseExpense` |
+| 6 | `service/ExpenseService.java` | `generateNextId`, `getTotal`, `getRowList`, `addExpense`, `deleteExpense`, `loadExpenses` |
+| 7 | `view/ExpenseView.java`, `controller/ExpenseController.java` | field `responseDTO` + `setResponseDTO` + `display()`; 4 hàm, mỗi luồng gọi `display()` **1 lần** |
 | 8 | `utils/Validation.java` | 5 hàm kiểm |
-| 9 | `main/Main.java` | `loadExpenses` đầu chương trình; menu; `inputExpense` 3 vòng hỏi lại; `inputDelete` |
+| 9 | `main/Main.java` | `final` + `private Main()`; biến khai báo đầu block; `readData` → `loadExpenses`; menu; `inputExpense` (`inputDate`, `inputAmount`, `inputContent`); `inputDelete` (`inputId`) |
 
 **Bẫy hay gặp:**
 
@@ -192,11 +209,11 @@ Main: catch (Exception e) → in e.getMessage()
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `Expense expense = new Expense(nextId(), ...)` trong `ExpenseService.addExpense` |
+| Breakpoint | dòng `Expense expense = new Expense(generateNextId(), ...)` trong `ExpenseService.addExpense` |
 | Chạy | **Ctrl+F5**, thêm 2 chi tiêu |
-| Bước | **F7** vào `nextId()` → xem `maxId` tăng qua vòng `for`; **F7** vào `expenseRepository.addExpense` → `saveExpenses` → `FileUtils.writeLines` |
-| Quan sát | tab **Variables**: `expenseList` (kích thước), `lines` (chuỗi sẽ ghi); mở `expenses.txt` sau khi F8 qua `writeLines` |
-| Xoá sai ID | breakpoint `if (exp == null)` trong `deleteExpense`: nhập 9 → F8 vào `throw`, rơi vào `catch` của `Main` |
+| Bước | **F7** vào `generateNextId()` → xem `maxId` tăng qua vòng `for`; **F7** vào `expenseRepository.addExpense` → `saveExpenses` → `FileUtils.writeLines` |
+| Quan sát | tab **Variables**: `expenseList` (kích thước), `lineList` (chuỗi sẽ ghi); mở `expenses.txt` sau khi F8 qua `writeLines` |
+| Xoá sai ID | breakpoint `if (exp == null)` trong `ExpenseService.deleteExpense`: nhập 9 → F8 thấy `return false`; về controller F8 vào `throw new Exception(Message.DELETE_FAIL)`, rơi vào `catch` của `Main` |
 
 ---
 
@@ -206,7 +223,7 @@ Main: catch (Exception e) → in e.getMessage()
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP? | **Đóng gói**: field `private` của `Expense`; `expenseList` `private` trong repository, bên ngoài chỉ nhận **bản sao** (`findAll`). **Kế thừa**: mọi lớp `extends Object`, ghi đè `toString()`. **Đa hình**: `println(expense)` gọi `toString()` của `ExpenseResponseDTO`. **Trừu tượng**: `Main` gọi `controller.addExpense(dto)` không biết có tệp. |
+| 4 tính chất OOP? | **Đóng gói**: field `private` của `Expense`; `expenseList` `private` trong repository, bên ngoài chỉ nhận **bản sao** (`findAll`). **Kế thừa**: mọi lớp `extends Object`, ghi đè `toString()`. **Đa hình**: `expense.toString()` trong `ExpenseService.getRowList` chạy bản **ghi đè** của `Expense` (1 dòng bảng). **Trừu tượng**: `Main` gọi `controller.addExpense(dto)` không biết có tệp. |
 | Sao `findAll` trả bản sao? | Nơi gọi sửa bản sao cũng không làm lệch sổ và tệp. |
 
 ### Access modifier / static / kiểu
@@ -214,20 +231,26 @@ Main: catch (Exception e) → in e.getMessage()
 | Chỗ | Vì sao |
 |---|---|
 | field | `private` |
-| hàm của repository (`loadExpenses`, `findAll`, `findById`, `addExpense`, `deleteExpense`) | `public` — service gọi; `saveExpenses`, `toLine`, `toExpense` **private** vì chỉ repository dùng |
-| `ExpenseService` 5 hàm | `public` — controller gọi; `nextId`, `toResponse` **private** |
-| `ExpenseController` 4 hàm, `ExpenseView.displayAll/showMessage/setX` | `public` — `Main` / controller gọi |
+| hàm của repository (`loadExpenses`, `findAll`, `findById`, `addExpense`, `deleteExpense`) | `public` — service gọi; `saveExpenses`, `formatLine`, `parseExpense` **private** vì chỉ repository dùng |
+| `ExpenseService` 5 hàm (`loadExpenses`, `addExpense`, `deleteExpense`, `getRowList`, `getTotal`) | `public` — controller gọi; `generateNextId` **private** |
+| `ExpenseController` 4 hàm, `ExpenseView.setResponseDTO/display` | `public` — `Main` / controller gọi |
 | `FileUtils`, `DateUtils`, `FormatUtils`, `Validation` | `public static` — utils; `DateUtils.createFormat` **private static** (chỉ dùng trong lớp) |
 | hàm trong `Main` | `private static` |
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
 | Sao **không** để `SimpleDateFormat` là field `static`? | Nó giữ trạng thái khi làm việc (không an toàn khi dùng chung) và cần gọi `setLenient(false)`; tạo mới mỗi lần trong `createFormat()` gọn và an toàn. |
-| **Bỏ `static` ở `FileUtils.readLines`?** | Lỗi biên dịch ở `FileUtils.readLines(...)`; phải bỏ `private` constructor và `new FileUtils()` ở repository. |
+| **Bỏ `static` ở `FileUtils.readLines`?** | Lỗi biên dịch ở `FileUtils.readLines(...)` trong `Main`; phải bỏ `private` constructor và `new FileUtils()` ở nơi gọi. |
 | `addExpense` trả `boolean`? | Đề: *"Return values: Add expense status"*; lỗi ghi tệp đi bằng `throw`. |
 | `displayAll` trả `void`? | In xong là hết việc — đúng đề. |
 | `getTotal` trả `double`? | Tiền có phần lẻ. |
 | **Sao `ArrayList` mà không `List`?** | `List` là interface, `ArrayList` là lớp cài bằng mảng động (duyệt theo thứ tự thêm, lấy theo chỉ số nhanh). Em khai báo kiểu cụ thể theo lời thầy; đề có ghi `List<Expense>` trong tham số nhưng tham số list đó **bị bỏ** (repository tự giữ list). |
+| Sao bài có repository? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. `ExpenseRepository` giữ `expenseList` + CRUD đơn giản (`findAll`, `findById`, `addExpense`, `deleteExpense`) và ghi tệp; tính toán (ID tự tăng, tổng) nằm ở `ExpenseService`. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: field `private ExpenseResponseDTO responseDTO` + `setResponseDTO(...)` + `display()` **không tham số**. Controller đặt `message` (thêm/xoá, sổ rỗng) hoặc `rowList` + `total` (bảng) rồi gọi `display()` **đúng 1 lần** mỗi luồng. |
+| Validate ở đâu? | Ở **`Main`** qua `utils/Validation` (`getChoice`, `getDate`, `getAmount`, `getContent`, `getInt`) — sai thì in lý do và hỏi lại ngay ô đó. ID không tồn tại **không** phải lỗi gõ mà là kết quả nghiệp vụ → service trả `false`, controller ném `Delete an expense fail`. |
+| Sao đọc tệp ở `Main` mà ghi tệp ở repository? | Tờ checklist 1.1: *"nhập dữ liệu/Validate/đọc từ file/mã hóa thực hiện ở Main"* — nên `Main.readData()` gọi `FileUtils.readLines` rồi đưa các dòng vào `ExpenseRequestDTO`. Tờ giấy không nói "ghi"; ghi phải chạy **sau mỗi** thêm/xoá, đúng lúc repository đổi `expenseList`, nên repository gọi `FileUtils.writeLines`. |
+| Sao service `deleteExpense` trả `false` mà không ném lỗi? | Đề: *"Return values: Delete the expense status"* — `false` = không có ID đó. Controller đổi `false` thành `throw new Exception(Message.DELETE_FAIL)`, `Main` in `e.getMessage()`. |
+| `Main` sao `final` và có `private Main()`? | Tờ checklist 3.4: class chỉ có hàm static thì phải `final` + private constructor. |
 | Sao hàm đề bắt không nhận `list`? | Guide: repository **giữ** dữ liệu; truyền list qua lại là "truyền dữ liệu qua lại" mà HD cấm (*"Đóng gói — Không truyền dữ liệu qua lại"*). |
 
 ---
@@ -239,7 +262,7 @@ Main: catch (Exception e) → in e.getMessage()
 | Đổi định dạng ngày `dd/MM/yyyy` | `Constants.DATE_FORMAT`, `DATE_REGEX`, `Message.INVALID_DATE` | mọi file khác |
 | Đổi tên tệp | `Constants.FILE_NAME` (+ `Message.LOAD_FAIL`) | mọi file khác |
 | Thêm menu "Sửa chi tiêu" | `Message.MENU`, `Constants`, `ExpenseRepository.updateExpense`, `ExpenseService`, `ExpenseController`, 1 `case` + hàm nhập ở `Main` | `Expense`, `FileUtils`, `DateUtils` |
-| Tổng theo tháng | 1 hàm mới ở `ExpenseService` + view + controller | repository, `FileUtils` |
+| Tổng theo tháng | 1 hàm mới ở `ExpenseService` + 1 field trong `ExpenseResponseDTO` + controller đặt + `display()` in | repository, `FileUtils` |
 
 ---
 
@@ -256,3 +279,25 @@ Main: catch (Exception e) → in e.getMessage()
 | Enter ID | bản cũ: chỉ nhận 1..2147483647 | nhận mọi số nguyên; không có → `Delete an expense fail` | đúng câu của đề cho ID không tồn tại |
 | Kịch bản test | bản cũ: run 1 dựa vào tệp run 0 để lại | `REPLACE_REFERENCE = True`: giữ nguyên run 0, viết run mới | verify chạy mỗi run trên bản sao sạch; tính lưu tệp kiểm tay (mục 5 #13) |
 | Kiến trúc | `bo/ui`, Scanner static trong `Validator` | MVC Guide, `FileUtils`/`DateUtils` trong utils | luật thầy |
+| Đọc tệp | bản cũ: `ExpenseRepository.loadExpenses()` tự gọi `FileUtils.readLines` | `Main.readData()` đọc → `ExpenseRequestDTO.lineList` → repository chỉ tách dòng (`parseExpense`) | tờ checklist 1.1: đọc file ở Main |
+| View | bản cũ: `displayAll()` + `showMessage(String)`, controller gọi view 2–3 lần | field `responseDTO` + `setResponseDTO` + `display()` không tham số, 1 lần/luồng | tờ checklist 1.1 |
+| `ExpenseResponseDTO` | bản cũ: 1 dòng bảng (id, date, amount, content + `toString`) | 1 câu trả lời: `message`, `rowList`, `total`; 1 dòng bảng là `Expense.toString()` | khuôn P0054; Guide: *"cần output gì thì thêm hàm toString()"* ở model |
+| Tiêu đề Display | bản cũ: view in | `Main` in (như tiêu đề Add/Delete) | màn hình **không đổi** |
+| Service `deleteExpense` | bản cũ: ném lỗi khi không có ID | trả `false`; controller ném `Delete an expense fail` | đúng *"Delete the expense status"* của đề; màn hình không đổi |
+| Tên | `nextId`, `toLine`, `toExpense`, `getAllExpenses`, `lines`, `parts`, `result` | `generateNextId`, `formatLine`, `parseExpense`, `getRowList`, `lineList`, `partArray`, `rowList` | checklist 1.4 (method mở đầu bằng động từ), 1.5 |
+| `Main` | `public class Main`, biến khai báo giữa block | `public final class Main` + `private Main()`; biến gom đầu block, khởi tạo luôn | checklist 3.4, 2.6, 3.7 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỗ trong code |
+|---|---|
+| **1.1** MVC + repository | `repository/ExpenseRepository` (`expenseList`). Luồng: `Main` → `ExpenseRequestDTO` → `ExpenseController` → `ExpenseService` → `ExpenseRepository` → `Expense`. Controller không import `model`; `Main` đọc tệp (`readData`) và validate; `ExpenseView` nhận `ExpenseResponseDTO` qua field, `display()` 1 lần/luồng; lỗi `throw new Exception(Message.X)`, `Main` in `e.getMessage()` |
+| **1.4** tên method | `generateNextId`, `formatLine`, `parseExpense`, `getRowList`, `readData` — mở đầu bằng động từ |
+| **1.5** tên biến | `expenseList`, `lineList`, `rowList`, `partArray`; `requestDTO`, `responseDTO`; `findById`, `getId` (không `ID`) |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `Main.main` (`requestDTO = null`, `running = true`, `choice = 0`), mọi `inputX` (`String line = "";`), `Validation.getAmount` (`double amount = 0;`), `DateUtils.parseDate` (`Date date = null;`), `ExpenseRepository.loadExpenses` (`Expense expense = null;`) |
+| **2.8** dòng trống | trước mọi comment (cả comment field trong `Constants`, `Message`, DTO, model), sau vùng khai báo biến, sau `}` của mỗi khối trước câu lệnh tiếp |
+| **3.3** ngoặc | `Validation.getChoice`: `if ((choice < min) \|\| (choice > max))`; `DateUtils.parseDate`: `if ((text == null) \|\| ...)`, `if ((date == null) \|\| (position.getIndex() != text.length()))` |
+| **3.4** class chỉ có static | `public final class Main` + `private Main()`; `Validation`, `DateUtils`, `FileUtils`, `FormatUtils`, `Constants`, `Message` cũng `final` + private constructor |
+| **3.8** không cộng chuỗi | `ExpenseRepository.formatLine` dùng `String.join`; `Expense.toString()` và dòng Total dùng `String.format` |

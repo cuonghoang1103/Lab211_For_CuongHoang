@@ -1,72 +1,58 @@
 package dto;
 
-import constants.Constants;
-import utils.FormatUtils;
+import java.util.ArrayList;
 
 /**
- * DTO carrying one row of the expense table FROM the controller OUT TO the view.
+ * DTO carrying the answer of one menu option FROM the controller OUT TO the view - a
+ * JavaBean. Add and delete fill the message; display fills the rows and the total (or the
+ * message when the book is empty).
  *
  * @author HE176322
  */
 public class ExpenseResponseDTO {
 
-    // Column ID.
-    private int id;
-    // Column Date.
-    private String date;
-    // Column Amount.
-    private double amount;
-    // Column Content.
-    private String content;
+    // The one-line result, e.g. "Add an expense successful"; null when the answer is a
+    // table.
+    private String message;
 
-    // JavaBean constructor: an empty row, filled through the setters.
+    // The table rows, one per expense (the text of Expense.toString()); null when the
+    // answer is a message.
+    private ArrayList<String> rowList;
+
+    // The total of all amounts, printed under the rows.
+    private double total;
+
+    // JavaBean constructor: an empty answer, filled through the setters.
     public ExpenseResponseDTO() {
     }
 
-    // Returns the ID.
-    public int getId() {
-        return id;
+    // Returns the one-line result.
+    public String getMessage() {
+        return message;
     }
 
-    // Sets the ID.
-    public void setId(int id) {
-        this.id = id;
+    // Sets the one-line result.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Returns the date text.
-    public String getDate() {
-        return date;
+    // Returns the table rows.
+    public ArrayList<String> getRowList() {
+        return rowList;
     }
 
-    // Sets the date text.
-    public void setDate(String date) {
-        this.date = date;
+    // Sets the table rows.
+    public void setRowList(ArrayList<String> rowList) {
+        this.rowList = rowList;
     }
 
-    // Returns the amount.
-    public double getAmount() {
-        return amount;
+    // Returns the total.
+    public double getTotal() {
+        return total;
     }
 
-    // Sets the amount.
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    // Returns the content.
-    public String getContent() {
-        return content;
-    }
-
-    // Sets the content.
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    // One table row in fixed-width columns.
-    @Override
-    public String toString() {
-        return String.format(Constants.ROW_FORMAT, id, date,
-                FormatUtils.formatMoney(amount), content);
+    // Sets the total.
+    public void setTotal(double total) {
+        this.total = total;
     }
 }
