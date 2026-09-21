@@ -1,5 +1,6 @@
 package service;
 
+import dto.StudentDTO;
 import dto.StudentRequestDTO;
 import dto.StudentResponseDTO;
 import java.util.ArrayList;
@@ -7,49 +8,61 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import model.Student;
+import repository.StudentRepository;
 
 /**
- * SERVICE and Strategy CONTEXT: turns the typed students into models, sorts them with the
- * comparator it was given, and returns what the view shows.
+ * SERVICE and Strategy CONTEXT: keeps the typed students in the repository, sorts them
+ * with the comparator it was given, and returns what the view shows. Called only by the
+ * controller; no print, no keyboard.
  *
  * @author HE176322
  */
 public class StudentService {
 
+    // Keeps the students the service works on (Service -> Repository -> Model).
+    private StudentRepository studentRepository;
+
     // The ordering rule (the Strategy); StudentComparator in this program.
     private Comparator<Student> studentComparator;
 
-    // Creates the service with the ordering it must use.
+    // Creates the service with an empty repository and the ordering it must use.
     public StudentService(Comparator<Student> studentComparator) {
+        studentRepository = new StudentRepository();
         this.studentComparator = studentComparator;
     }
 
-    // Builds the students from the requests, sorts them with sortStudent and copies them
-    // into response DTOs for the view.
-    public ArrayList<StudentResponseDTO> getSortedStudents(
-            ArrayList<StudentRequestDTO> requests) {
-        ArrayList<Student> students = new ArrayList<>();
-        // one model object per typed student, same order
-        for (StudentRequestDTO request : requests) {
-            students.add(new Student(request.getName(), request.getClasses(),
-                    request.getMark()));
+    // Stores the typed students in the repository, sorts them with sortStudent and copies
+    // them into rows for the view.
+    public StudentResponseDTO getSortedStudents(StudentRequestDTO requestDTO) {
+        // brief: sortStudent returns List<Student>, so the sorted list keeps that type
+        List<Student> sortedList = null;
+        StudentResponseDTO responseDTO = new StudentResponseDTO();
+        ArrayList<StudentDTO> rowList = new ArrayList<>();
+
+        // one model object per typed student, same order, kept by the repository
+        for (StudentDTO studentDTO : requestDTO.getStudentList()) {
+            studentRepository.addStudent(studentDTO);
         }
-        // brief: sortStudent returns List<Student>
-        List<Student> sorted = sortStudent(students);
-        ArrayList<StudentResponseDTO> responses = new ArrayList<>();
-        // copy each sorted student into the DTO the view is allowed to see
-        for (Student student : sorted) {
-            responses.add(new StudentResponseDTO(student.getName(),
-                    student.getClasses(), student.getMark()));
+
+        // the brief's sortStudent works on the list the repository holds
+        sortedList = sortStudent(studentRepository.getStudentList());
+
+        // copy each sorted student into the row the view is allowed to see
+        for (Student student : sortedList) {
+            rowList.add(new StudentDTO(student.getName(), student.getClasses(),
+                    student.getMark()));
         }
-        return responses;
+
+        // the rows go to the view inside the response
+        responseDTO.setStudentList(rowList);
+        return responseDTO;
     }
 
     // The brief's Function 1 method: sorts the list with Collections.sort and the
-    // comparator.
+    // comparator (name from A to Z) and returns it.
     // brief: List<Student> sortStudent(List<Student> students)
-    private List<Student> sortStudent(List<Student> students) {
-        Collections.sort(students, studentComparator);
-        return students;
+    private List<Student> sortStudent(List<Student> studentList) {
+        Collections.sort(studentList, studentComparator);
+        return studentList;
     }
 }

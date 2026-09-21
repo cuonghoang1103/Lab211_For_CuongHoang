@@ -1,57 +1,30 @@
 package dto;
 
+import java.util.ArrayList;
+
 /**
- * DTO carrying one sorted student FROM the controller OUT TO the view.
+ * DTO carrying the result FROM the controller OUT TO the view: the students sorted by
+ * name from A to Z, as rows the view is allowed to see.
  *
  * @author HE176322
  */
 public class StudentResponseDTO {
 
-    // Name shown on the "Name:" line.
-    private String name;
-    // Class shown on the "Classes:" line.
-    private String classes;
-    // Mark shown on the "Mark:" line.
-    private float mark;
+    // The sorted students, Student 1 first.
+    private ArrayList<StudentDTO> studentList;
 
-    // JavaBean constructor: an empty row, filled through the setters.
+    // JavaBean constructor: an empty response, filled through the setter.
     public StudentResponseDTO() {
+        studentList = new ArrayList<>();
     }
 
-    // Creates the response with every field filled in.
-    public StudentResponseDTO(String name, String classes, float mark) {
-        this.name = name;
-        this.classes = classes;
-        this.mark = mark;
+    // Returns the sorted students.
+    public ArrayList<StudentDTO> getStudentList() {
+        return studentList;
     }
 
-    // Returns the name.
-    public String getName() {
-        return name;
-    }
-
-    // Sets the name.
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Returns the class.
-    public String getClasses() {
-        return classes;
-    }
-
-    // Sets the class.
-    public void setClasses(String classes) {
-        this.classes = classes;
-    }
-
-    // Returns the mark.
-    public float getMark() {
-        return mark;
-    }
-
-    // Sets the mark.
-    public void setMark(float mark) {
-        this.mark = mark;
+    // Sets the sorted students.
+    public void setStudentList(ArrayList<StudentDTO> studentList) {
+        this.studentList = studentList;
     }
 }

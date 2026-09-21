@@ -2,50 +2,67 @@ package main;
 
 import constants.Message;
 import controller.StudentController;
+import dto.StudentDTO;
 import dto.StudentRequestDTO;
 import java.util.ArrayList;
 import java.util.Scanner;
 import utils.Validation;
 
 /**
- * MAIN: the work flow - Function 1 (input students until N), then one call to the
- * controller for Function 2 (sort and display).
+ * MAIN: the work flow - Function 1 (input and validate students until N), then one call
+ * to the controller for Function 2 (sort and display).
  *
  * @author HE176322
  */
-public class Main {
+public final class Main {
 
-    // Starts the program.
+    // Private constructor: Main only has static methods (checklist 3.4).
+    private Main() {
+    }
+
+    // Starts the program: reads the students, then calls the controller once.
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         StudentController controller = new StudentController();
-        ArrayList<StudentRequestDTO> requests = new ArrayList<>();
-        System.out.println(Message.TITLE);
+        StudentRequestDTO requestDTO = new StudentRequestDTO();
+        ArrayList<StudentDTO> studentList = new ArrayList<>();
         boolean more = true;
+
+        // Function 1: the title of the brief's screen, once
+        System.out.println(Message.TITLE);
+
         // one student per turn, until the user answers N
         while (more) {
-            requests.add(inputStudent(sc));
+            studentList.add(inputStudent(sc));
             more = inputYesNo(sc);
         }
-        controller.displaySortedStudents(requests);
+
+        // Function 2 (auto next): sort and display - the controller is called once
+        requestDTO.setStudentList(studentList);
+        controller.displaySortedStudents(requestDTO);
     }
 
     // Reads one student: name, class and mark.
-    private static StudentRequestDTO inputStudent(Scanner sc) {
+    private static StudentDTO inputStudent(Scanner sc) {
+        StudentDTO studentDTO = new StudentDTO();
+
+        // the brief's line before each student, then its three fields
         System.out.println(Message.INPUT_INFO);
-        StudentRequestDTO dto = new StudentRequestDTO();
-        dto.setName(inputName(sc));
-        dto.setClasses(inputClasses(sc));
-        dto.setMark(inputMark(sc));
-        return dto;
+        studentDTO.setName(inputName(sc));
+        studentDTO.setClasses(inputClasses(sc));
+        studentDTO.setMark(inputMark(sc));
+        return studentDTO;
     }
 
     // Asks for the name until it is not blank.
     private static String inputName(Scanner sc) {
+        String line = "";
+
         // keep asking until the name is not blank
         while (true) {
             System.out.print(Message.INPUT_NAME);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a blank line prints "Name must not be empty." and loops again
             try {
                 return Validation.getNonBlank(line, Message.NAME_EMPTY);
@@ -58,10 +75,13 @@ public class Main {
 
     // Asks for the class until it is not blank.
     private static String inputClasses(Scanner sc) {
+        String line = "";
+
         // keep asking until the class is not blank
         while (true) {
             System.out.print(Message.INPUT_CLASSES);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a blank line prints "Class must not be empty." and loops again
             try {
                 return Validation.getNonBlank(line, Message.CLASS_EMPTY);
@@ -74,10 +94,13 @@ public class Main {
 
     // Asks for the mark until it is a number from 0 to 100.
     private static float inputMark(Scanner sc) {
+        String line = "";
+
         // keep asking until Validation accepts the mark
         while (true) {
             System.out.print(Message.INPUT_MARK);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong mark prints the reason and loops again
             try {
                 return Validation.getMark(line);
@@ -90,10 +113,13 @@ public class Main {
 
     // Asks whether another student follows, until the answer is Y or N.
     private static boolean inputYesNo(Scanner sc) {
+        String line = "";
+
         // keep asking until the answer is Y or N
         while (true) {
             System.out.print(Message.ASK_MORE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong answer prints "Please answer Y or N." and loops again
             try {
                 return Validation.getYesNo(line);

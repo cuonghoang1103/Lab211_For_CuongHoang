@@ -1,50 +1,30 @@
 package dto;
 
+import java.util.ArrayList;
+
 /**
- * DTO carrying one student typed by the user FROM main INTO the controller.
+ * DTO carrying what the user typed FROM main INTO the controller: every student entered
+ * in Function 1, in the order they were typed.
  *
  * @author HE176322
  */
 public class StudentRequestDTO {
 
-    // Name typed by the user.
-    private String name;
-    // Class typed by the user.
-    private String classes;
-    // Mark typed by the user (already validated).
-    private float mark;
+    // The students typed by the user, first typed first.
+    private ArrayList<StudentDTO> studentList;
 
-    // Creates an empty request; main fills it through the setters.
+    // Creates an empty request; main fills it through the setter.
     public StudentRequestDTO() {
+        studentList = new ArrayList<>();
     }
 
-    // Returns the name.
-    public String getName() {
-        return name;
+    // Returns the students typed.
+    public ArrayList<StudentDTO> getStudentList() {
+        return studentList;
     }
 
-    // Sets the name.
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Returns the class.
-    public String getClasses() {
-        return classes;
-    }
-
-    // Sets the class.
-    public void setClasses(String classes) {
-        this.classes = classes;
-    }
-
-    // Returns the mark.
-    public float getMark() {
-        return mark;
-    }
-
-    // Sets the mark.
-    public void setMark(float mark) {
-        this.mark = mark;
+    // Sets the students typed.
+    public void setStudentList(ArrayList<StudentDTO> studentList) {
+        this.studentList = studentList;
     }
 }

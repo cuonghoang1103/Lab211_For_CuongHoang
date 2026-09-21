@@ -11,8 +11,8 @@ N
 ======================================================================
 Màn hình:
 ====== Collection Sort Program ======
-Please input student information
-Name: Classes: Mark: Do you want to enter more student information?(Y/N):Please input student information
+Please input student information 
+Name: Classes: Mark: Do you want to enter more student information?(Y/N):Please input student information 
 Name: Classes: Mark: Do you want to enter more student information?(Y/N):-------------Student 1-------------
 Name: Lien
 Classes: FU1

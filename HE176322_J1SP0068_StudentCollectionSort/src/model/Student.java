@@ -1,5 +1,7 @@
 package model;
 
+import constants.Constants;
+
 /**
  * MODEL: one student - exactly the class the brief's Hint describes: private name, mark,
  * classes; a default constructor; a constructor with parameters; getters/setters.
@@ -10,8 +12,10 @@ public class Student {
 
     // Full name; the sort key (A to Z).
     private String name;
+
     // Mark from 0 to 100; float because the brief declares "float mark".
     private float mark;
+
     // Class of the student.
     private String classes;
 
@@ -59,6 +63,6 @@ public class Student {
     // Polymorphism: overrides Object.toString() so a student reads as one line.
     @Override
     public String toString() {
-        return name + " " + classes + " " + mark;
+        return String.format(Constants.STUDENT_FORMAT, name, classes, mark);
     }
 }
