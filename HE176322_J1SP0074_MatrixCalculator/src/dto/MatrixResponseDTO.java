@@ -10,10 +10,13 @@ public class MatrixResponseDTO {
 
     // The first matrix as text, one row per line.
     private String firstMatrix;
+
     // The operator: "+", "-" or "*".
     private String symbol;
+
     // The second matrix as text.
     private String secondMatrix;
+
     // The result matrix as text.
     private String resultMatrix;
 

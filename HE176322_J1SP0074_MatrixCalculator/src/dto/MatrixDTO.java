@@ -10,8 +10,9 @@ public class MatrixDTO {
 
     // 1 for the first matrix, 2 for the second.
     private int number;
-    // The values typed by the user, values[row][column].
-    private int[][] values;
+
+    // The values typed by the user, valueArray[row][column].
+    private int[][] valueArray;
 
     // JavaBean constructor: an empty matrix, filled through the setters.
     public MatrixDTO() {
@@ -33,12 +34,12 @@ public class MatrixDTO {
     }
 
     // Returns the values.
-    public int[][] getValues() {
-        return values;
+    public int[][] getValueArray() {
+        return valueArray;
     }
 
     // Sets the values.
-    public void setValues(int[][] values) {
-        this.values = values;
+    public void setValueArray(int[][] valueArray) {
+        this.valueArray = valueArray;
     }
 }

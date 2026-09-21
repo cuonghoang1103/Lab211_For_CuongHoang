@@ -10,8 +10,10 @@ public class MatrixRequestDTO {
 
     // The menu option: 1 addition, 2 subtraction, 3 multiplication.
     private int operation;
+
     // The matrix on the left of the operator.
     private MatrixDTO firstMatrix;
+
     // The matrix on the right of the operator.
     private MatrixDTO secondMatrix;
 

@@ -8,29 +8,22 @@ import model.Matrix;
  *
  * @author HE176322
  */
-public class AdditionOperation implements MatrixOperation {
+public class AdditionOperation implements IMatrixOperation {
 
-    // Holds the brief's three methods; this class uses additionMatrix.
+    // Holds the brief's three methods; this class uses addMatrix (the brief's
+    // additionMatrix).
     private MatrixCalculator calculator;
 
-    // Creates the operation.
+    // Creates the operation with the calculator it uses.
     public AdditionOperation(MatrixCalculator calculator) {
         this.calculator = calculator;
     }
 
-    // Addition needs the same number of rows AND columns.
+    // Adds the two matrixes with addMatrix (the brief's additionMatrix).
     @Override
-    public void checkSize(Matrix first, Matrix second) throws Exception {
-        // different shapes cannot be added cell by cell
-        if (!first.hasSameSize(second)) {
-            throw new Exception(Message.SIZE_NOT_SAME);
-        }
-    }
-
-    // Adds the two matrixes with the brief's additionMatrix.
-    @Override
-    public int[][] calculate(Matrix first, Matrix second) {
-        return calculator.additionMatrix(first.getValues(), second.getValues());
+    public int[][] calculate(Matrix firstMatrix, Matrix secondMatrix) {
+        return calculator.addMatrix(firstMatrix.getValueArray(),
+                secondMatrix.getValueArray());
     }
 
     // Returns the addition symbol.

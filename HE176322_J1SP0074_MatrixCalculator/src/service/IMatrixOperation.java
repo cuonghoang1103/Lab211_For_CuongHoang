@@ -7,13 +7,10 @@ import model.Matrix;
  *
  * @author HE176322
  */
-public interface MatrixOperation {
+public interface IMatrixOperation {
 
-    // Checks that the two shapes fit this operation.
-    void checkSize(Matrix first, Matrix second) throws Exception;
-
-    // Computes the result.
-    int[][] calculate(Matrix first, Matrix second);
+    // Computes the result of this operation on the two matrixes.
+    int[][] calculate(Matrix firstMatrix, Matrix secondMatrix);
 
     // Returns the operator printed between the two matrixes.
     String getSymbol();

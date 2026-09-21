@@ -1,53 +1,55 @@
 package service;
 
-import dto.MatrixDTO;
 import dto.MatrixRequestDTO;
 import dto.MatrixResponseDTO;
 import model.Matrix;
+import repository.MatrixRepository;
 
 /**
- * SERVICE and Strategy CONTEXT: turns the request into Matrix models, asks the factory
- * for the chosen operation, runs it and packs the result for the view.
+ * SERVICE and Strategy CONTEXT: keeps the two matrixes in the repository, asks the factory
+ * for the chosen operation, runs it and packs the result for the view. Called only by the
+ * controller; no print, no keyboard.
  *
  * @author HE176322
  */
 public class MatrixService {
 
-    // Creates the right MatrixOperation for a menu option.
-    private OperationFactory operationFactory = new OperationFactory();
+    // Creates the right IMatrixOperation for a menu option.
+    private OperationFactory operationFactory;
 
-    // Creates the service.
+    // Keeps the two matrixes typed by the user (Service -> Repository -> Model).
+    private MatrixRepository matrixRepository;
+
+    // Creates the service together with its factory and its repository.
     public MatrixService() {
+        operationFactory = new OperationFactory();
+        matrixRepository = new MatrixRepository();
     }
 
-    // Checks the two shapes BEFORE the user types the values of matrix 2, so a wrong size
-    // costs one line of typing instead of a whole matrix.
-    public void checkMatrixSize(MatrixRequestDTO requestDTO) throws Exception {
-        MatrixOperation operation
-                = operationFactory.createOperation(requestDTO.getOperation());
-        operation.checkSize(toMatrix(requestDTO.getFirstMatrix()),
-                toMatrix(requestDTO.getSecondMatrix()));
-    }
+    // Runs the chosen operation on the two matrixes of the request (main has already
+    // checked that their sizes fit it) and packs the result block for the view.
+    public MatrixResponseDTO calculateMatrix(MatrixRequestDTO requestDTO) {
+        MatrixResponseDTO responseDTO = new MatrixResponseDTO();
+        IMatrixOperation operation = null;
+        Matrix firstMatrix = null;
+        Matrix secondMatrix = null;
+        Matrix resultMatrix = null;
 
-    // Runs the chosen operation.
-    public MatrixResponseDTO calculateMatrix(MatrixRequestDTO requestDTO)
-            throws Exception {
-        MatrixOperation operation
-                = operationFactory.createOperation(requestDTO.getOperation());
-        Matrix first = toMatrix(requestDTO.getFirstMatrix());
-        Matrix second = toMatrix(requestDTO.getSecondMatrix());
-        operation.checkSize(first, second);
-        Matrix result = new Matrix(operation.calculate(first, second));
-        MatrixResponseDTO response = new MatrixResponseDTO();
-        response.setFirstMatrix(first.toString());
-        response.setSymbol(operation.getSymbol());
-        response.setSecondMatrix(second.toString());
-        response.setResultMatrix(result.toString());
-        return response;
-    }
+        // the repository turns the request into the two models and keeps them
+        matrixRepository.saveMatrixes(requestDTO);
+        firstMatrix = matrixRepository.getFirstMatrix();
+        secondMatrix = matrixRepository.getSecondMatrix();
 
-    // Copies the values the user typed into the model class.
-    private Matrix toMatrix(MatrixDTO matrixDTO) {
-        return new Matrix(matrixDTO.getValues());
+        // the factory picks the strategy of the option; it computes the result with the
+        // brief's method
+        operation = operationFactory.createOperation(requestDTO.getOperation());
+        resultMatrix = new Matrix(operation.calculate(firstMatrix, secondMatrix));
+
+        // the four parts of the result block, already as text (Matrix.toString)
+        responseDTO.setFirstMatrix(firstMatrix.toString());
+        responseDTO.setSymbol(operation.getSymbol());
+        responseDTO.setSecondMatrix(secondMatrix.toString());
+        responseDTO.setResultMatrix(resultMatrix.toString());
+        return responseDTO;
     }
 }

@@ -8,29 +8,22 @@ import model.Matrix;
  *
  * @author HE176322
  */
-public class MultiplicationOperation implements MatrixOperation {
+public class MultiplicationOperation implements IMatrixOperation {
 
-    // Holds the brief's three methods; this class uses multiplicationMatrix.
+    // Holds the brief's three methods; this class uses multiplyMatrix (the brief's
+    // multiplicationMatrix).
     private MatrixCalculator calculator;
 
-    // Creates the operation.
+    // Creates the operation with the calculator it uses.
     public MultiplicationOperation(MatrixCalculator calculator) {
         this.calculator = calculator;
     }
 
-    // (m x n) * (n x p): columns of the first must equal rows of the second.
+    // Multiplies with multiplyMatrix (the brief's multiplicationMatrix).
     @Override
-    public void checkSize(Matrix first, Matrix second) throws Exception {
-        // the shared dimension n must be the same on both sides
-        if (!first.canMultiplyWith(second)) {
-            throw new Exception(Message.SIZE_NOT_MULTIPLY);
-        }
-    }
-
-    // Multiplies with the brief's multiplicationMatrix.
-    @Override
-    public int[][] calculate(Matrix first, Matrix second) {
-        return calculator.multiplicationMatrix(first.getValues(), second.getValues());
+    public int[][] calculate(Matrix firstMatrix, Matrix secondMatrix) {
+        return calculator.multiplyMatrix(firstMatrix.getValueArray(),
+                secondMatrix.getValueArray());
     }
 
     // Returns the multiplication symbol.

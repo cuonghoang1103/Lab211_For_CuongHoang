@@ -8,29 +8,22 @@ import model.Matrix;
  *
  * @author HE176322
  */
-public class SubtractionOperation implements MatrixOperation {
+public class SubtractionOperation implements IMatrixOperation {
 
-    // Holds the brief's three methods; this class uses subtractionMatrix.
+    // Holds the brief's three methods; this class uses subtractMatrix (the brief's
+    // subtractionMatrix).
     private MatrixCalculator calculator;
 
-    // Creates the operation.
+    // Creates the operation with the calculator it uses.
     public SubtractionOperation(MatrixCalculator calculator) {
         this.calculator = calculator;
     }
 
-    // Subtraction needs the same number of rows AND columns.
+    // Subtracts with subtractMatrix (the brief's subtractionMatrix).
     @Override
-    public void checkSize(Matrix first, Matrix second) throws Exception {
-        // different shapes cannot be subtracted cell by cell
-        if (!first.hasSameSize(second)) {
-            throw new Exception(Message.SIZE_NOT_SAME);
-        }
-    }
-
-    // Subtracts with the brief's subtractionMatrix.
-    @Override
-    public int[][] calculate(Matrix first, Matrix second) {
-        return calculator.subtractionMatrix(first.getValues(), second.getValues());
+    public int[][] calculate(Matrix firstMatrix, Matrix secondMatrix) {
+        return calculator.subtractMatrix(firstMatrix.getValueArray(),
+                secondMatrix.getValueArray());
     }
 
     // Returns the subtraction symbol.
