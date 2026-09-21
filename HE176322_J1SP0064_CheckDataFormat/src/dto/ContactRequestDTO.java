@@ -10,8 +10,10 @@ public class ContactRequestDTO {
 
     // Phone number that passed checkPhone.
     private String phone;
+
     // Email that passed checkEmail.
     private String email;
+
     // Date text (dd/MM/yyyy) that passed checkDate.
     private String date;
 

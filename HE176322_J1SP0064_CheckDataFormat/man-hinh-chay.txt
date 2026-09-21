@@ -10,11 +10,11 @@ abc
 ======================================================================
 Màn hình:
 ====== Validate Progaram ======
-Phone number:Phone number must be 10 digits
-Phone number:Phone number must be number
-Phone number:Email:Email must be correct format
-Email:Date:Date to correct format(dd/MM/yyyy)
-Date:----- Result -----
+Phone number: Phone number must be 10 digits
+Phone number: Phone number must be number
+Phone number: Email: Email must be correct format
+Email: Date: Date to correct format(dd/MM/yyyy)
+Date: ----- Result -----
 Phone number: 0999998888
 Email: nghianv@ftico.com
 Date: 15/06/2015

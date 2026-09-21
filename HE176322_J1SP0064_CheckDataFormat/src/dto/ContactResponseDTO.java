@@ -10,8 +10,10 @@ public class ContactResponseDTO {
 
     // Phone number to show.
     private String phone;
+
     // Email to show.
     private String email;
+
     // Date to show, formatted dd/MM/yyyy.
     private String date;
 

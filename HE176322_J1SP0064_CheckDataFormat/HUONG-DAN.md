@@ -2,6 +2,13 @@
 
 > Nhập **số điện thoại, email, ngày** — mỗi ô hỏi lại tới khi đúng dạng. Có **3 hàm đề bắt**
 > (`checkPhone`, `checkEmail`, `checkDate`) với hợp đồng lạ: **trả về câu lỗi**, đúng thì trả **chuỗi rỗng**.
+>
+> **Bản 21/09/2026 — sửa theo tờ checklist giấy 25 mục của thầy** (mục 10): thêm
+> `repository/ContactRepository` giữ `Contact` (tờ giấy 1.1 *"Bắt buộc phải có repository"*); View nhận
+> `responseDTO` qua thuộc tính (`setResponseDTO`), `display()` không tham số; `Main` thành `final` +
+> constructor `private`; khai báo đầu block. **Đối chiếu lại đề từng ký tự:** trong .docx, chữ máy in màu
+> **đen** còn chữ người gõ màu **xanh**, và 3 câu nhắc màu đen là `Phone number: `, `Email: `, `Date: ` —
+> **có 1 dấu cách ở cuối** → chương trình in y hệt (mục 9). Màn hình chạy đổi đúng chỗ đó.
 
 | | |
 |---|---|
@@ -22,17 +29,17 @@ Màn hình (lỗi chính tả của màn hình đã sửa theo Guidelines — xe
 
 ```
 ====== Validate Progaram ======
-Phone number:099999888
+Phone number: 099999888
 Phone number must be 10 digits
-Phone number:abc
+Phone number: abc
 Phone number must be number
-Phone number:0999998888
-Email:abc
+Phone number: 0999998888
+Email: abc
 Email must be correct format
-Email:nghianv@ftico.com
-Date:abc
+Email: nghianv@ftico.com
+Date: abc
 Date to correct format(dd/MM/yyyy)
-Date:15/06/2015
+Date: 15/06/2015
 ----- Result -----
 Phone number: 0999998888
 Email: nghianv@ftico.com
@@ -108,11 +115,12 @@ HE176322_J1SP0064_CheckDataFormat/src/
 ├── model/      Contact              phone, email, Date date (JavaBean)
 ├── dto/        ContactRequestDTO    3 chuỗi đã qua kiểm   (main ──► controller)
 │               ContactResponseDTO   3 chuỗi để in         (controller ──► view)
-├── service/    ContactService       chuỗi ngày → Date → Contact → DTO
-├── controller/ ContactController    service ──► view
-├── view/       ContactView          in khối "----- Result -----"
-├── constants/  Message.java         câu chữ, 4 câu lỗi của đề, NO_ERROR = ""
-│               Constants.java       PHONE_PATTERN, PHONE_LENGTH, EMAIL_PATTERN, DATE_PATTERN, DATE_FORMAT
+├── repository/ ContactRepository    giữ Contact: saveContact / getContact
+├── service/    ContactService       chuỗi ngày → Date → Contact → repository → DTO
+├── controller/ ContactController    service ──► view (setResponseDTO + display 1 lần)
+├── view/       ContactView          field responseDTO; display() in khối "----- Result -----"
+├── constants/  Message.java         câu chữ, 4 câu lỗi của đề, NO_ERROR = "", RESULT_PHONE = "Phone number: %s"…
+│               Constants.java       PHONE_PATTERN, PHONE_LENGTH, EMAIL_PATTERN, DATE_PATTERN, DATE_FORMAT, CONTACT_FORMAT
 ├── utils/      Validation           getText, checkPhone, checkEmail, checkDate  ← 3 hàm đề bắt
 └── main/       Main                 Scanner, 3 vòng hỏi lại, gọi controller 1 lần
 ```
@@ -122,7 +130,7 @@ HE176322_J1SP0064_CheckDataFormat/src/
 | Sao 3 hàm đề bắt nằm ở `utils/Validation`? | Chúng **kiểm dữ liệu nhập** — Guide: utils *"chứa các functions dùng chung như validate"*. Nếu đặt ở service thì `Main` phải gọi controller **mỗi lần gõ sai** — trái luật *"mỗi workflow chỉ gọi controller 1 lần"*. |
 | Sao chúng trả `String` mà không `throw` như các bài khác? | **Đề bắt** hợp đồng *"returns the message if wrong, String empty if correct"* — giữ nguyên kiểu trả về. `Main` xem `error.isEmpty()` để biết nhận hay hỏi lại. |
 | Sao có `service` + `model` khi kiểm xong là xong? | Guide: controller không được thấy model. Service biến chuỗi ngày thành `Date` thật và tạo `Contact` — nơi chương trình **hiểu** dữ liệu chứ không chỉ kiểm hình dạng. Ngày in ra là ngày lịch đã đọc (text → `Date` → text). |
-| Sao không có `repository`? | Không lưu, không CRUD. |
+| Sao bài có `repository`? | Tờ checklist 1.1: *"**Bắt buộc phải có repository**"*. Repository = **dữ liệu** + CRUD đơn giản: ở đây là liên hệ người dùng đã nhập (model `Contact`), với `saveContact` / `getContact`. Đổi chữ ngày thành `Date` là nghiệp vụ nên nằm ở `ContactService` — đúng tầng *Controller ↔ Services ↔ Repository ↔ Model*. |
 
 **Luồng chạy:**
 
@@ -130,12 +138,13 @@ HE176322_J1SP0064_CheckDataFormat/src/
 Main: inputPhone ─┐  mỗi vòng: print prompt → đọc dòng → error = Validation.checkXxx(dòng)
       inputEmail ─┤            error rỗng → nhận; không → in error, hỏi lại
       inputDate  ─┘
-      ──► ContactRequestDTO ──► controller.saveContact(dto)            ← gọi controller ĐÚNG 1 lần
-   controller ──► service.createContact(dto)
-                     ├─ date = formatter.parse(dto.getDate())   (không lenient)
-                     ├─ contact = new Contact(phone, email, date)
-                     └─ response (ngày format lại dd/MM/yyyy)
-   controller ──► view.setResponse(response) ──► view.display()
+      ──► ContactRequestDTO ──► controller.saveContact(requestDTO)     ← gọi controller ĐÚNG 1 lần
+   controller ──► service.createContact(requestDTO)
+                     ├─ date = formatter.parse(requestDTO.getDate())   (không lenient)
+                     ├─ repository.saveContact(new Contact(phone, email, date))
+                     ├─ contact = repository.getContact()               (model)
+                     └─ responseDTO (ngày format lại dd/MM/yyyy)
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()  (render 1 lần)
 ```
 
 ### 3.1 Design Pattern trong bài
@@ -147,7 +156,7 @@ Ba phép kiểm do đề **đặt tên cố định** và nằm ở `utils` (b�
 |---|---|---|
 | **Name** | Model–View–Controller | Facade (Structural) |
 | **Problem** | nhập, kiểm, in trộn một chỗ → đổi câu in là đụng phép kiểm | `Main` phải biết `ContactService`, `ContactView` và thứ tự gọi |
-| **Solution** | `Contact` ~ JavaBean (Model) · `ContactView` ~ trang JSP · `ContactController` ~ Servlet; dữ liệu qua DTO | `ContactController.saveContact(dto)` là **một cửa**: service rồi view |
+| **Solution** | `Contact` ~ JavaBean (Model) · `ContactView` ~ trang JSP · `ContactController` ~ Servlet; dữ liệu qua DTO | `ContactController.saveContact(requestDTO)` là **một cửa**: service rồi view |
 | **Consequences** | ✅ đổi dạng in chỉ sửa `ContactView`; ❌ nhiều file | ✅ `Main` chỉ biết 1 lớp; ❌ controller chỉ được điều hướng, không kiểm |
 
 > Nếu thầy hỏi *"3 vòng nhập trong Main giống nhau, gộp được không?"* — gộp được bằng **Strategy**: một
@@ -159,7 +168,7 @@ Ba phép kiểm do đề **đặt tên cố định** và nằm ở `utils` (b�
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `Validation` chỉ kiểm · `ContactService` chỉ dựng `Contact` · `ContactView` chỉ in · `Main` chỉ hỏi |
+| **S** | `Validation` chỉ kiểm · `ContactService` chỉ dựng `Contact` · `ContactRepository` chỉ giữ `Contact` · `ContactView` chỉ in · `Main` chỉ hỏi |
 | **O** | thêm ô thứ 4 (vd. mã số thuế) = thêm 1 hàm `checkXxx` + 1 hàm nhập + 1 field DTO; 3 hàm kiểm cũ đứng yên |
 | **L / I / D** | bài không có kế thừa/interface — **không cố gượng** |
 
@@ -173,12 +182,13 @@ Ba phép kiểm do đề **đặt tên cố định** và nằm ở `utils` (b�
 |---|---|---|
 | 1 | `model/Contact.java` | `private String phone, email; private Date date` + constructor rỗng + constructor đủ + get/set + `toString` |
 | 2 | `dto/ContactRequestDTO.java`, `ContactResponseDTO.java` | JavaBean: constructor rỗng + get/set (3 chuỗi) |
-| 3 | `service/ContactService.java` | `createContact(dto)`: parse ngày, tạo `Contact`, trả DTO |
-| 4 | `view/ContactView.java` | `setResponse` · `display` |
-| 5 | `controller/ContactController.java` | `saveContact(dto)` |
-| 6 | `constants/Message.java`, `Constants.java` | 4 câu lỗi + 3 regex + định dạng ngày |
-| 7 | `utils/Validation.java` | `getText` · **`checkPhone`** · **`checkEmail`** · **`checkDate`** |
-| 8 | `main/Main.java` | `inputPhone` · `inputEmail` · `inputDate` + gọi controller **1 lần** |
+| 3 | `repository/ContactRepository.java` | field `contact` · `saveContact` · `getContact` |
+| 4 | `service/ContactService.java` | `createContact(requestDTO)`: parse ngày, tạo `Contact`, cất vào repository, trả DTO |
+| 5 | `view/ContactView.java` | field `responseDTO` · `setResponseDTO` · `display` |
+| 6 | `controller/ContactController.java` | `saveContact(requestDTO)` |
+| 7 | `constants/Message.java`, `Constants.java` | 3 câu nhắc (**có dấu cách cuối**) + 4 câu lỗi + 3 regex + định dạng ngày |
+| 8 | `utils/Validation.java` | `getText` · **`checkPhone`** · **`checkEmail`** · **`checkDate`** |
+| 9 | `main/Main.java` | `final` + `private Main()`; `inputPhone` · `inputEmail` · `inputDate` + gọi controller **1 lần** |
 
 **Bẫy hay gặp:**
 
@@ -225,7 +235,7 @@ Ba phép kiểm do đề **đặt tên cố định** và nằm ở `utils` (b�
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: 3 field `private` của `Contact` + get/set. **Kế thừa**: `Contact` `extends Object`, ghi đè `toString()`. **Đa hình**: `@Override toString()`; `phone + " " + email + " " + date` tự gọi `Date.toString()`. **Trừu tượng**: `Main` gọi `controller.saveContact(dto)` mà không biết có `Contact` hay `Date`. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: 3 field `private` của `Contact` + get/set. **Kế thừa**: `Contact` `extends Object`, ghi đè `toString()`. **Đa hình**: `@Override toString()`; `String.format(Constants.CONTACT_FORMAT, phone, email, date)` — `%s` tự gọi `Date.toString()`. **Trừu tượng**: `Main` gọi `controller.saveContact(requestDTO)` mà không biết có `Contact` hay `Date`. |
 | Sao model/DTO có constructor rỗng? | **MVC JSP**: JavaBean — field `private`, constructor rỗng `public`, get/set. |
 
 ### Access modifier, static, kiểu trả về
@@ -242,6 +252,10 @@ Ba phép kiểm do đề **đặt tên cố định** và nằm ở `utils` (b�
 | `saveContact` trả `void`? | Kết quả đã sang view in ra. |
 | Có dùng `List`/`Map` không? | Không — 3 ô cố định, 3 field. `List` là **interface**, `ArrayList` là **lớp** cài bằng mảng co giãn; khi cần danh sách em khai kiểu cụ thể `ArrayList<...>`. |
 | Hàm nào quá 2 tham số? | Không — tất cả 0–1 tham số (luật thầy V4). |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: controller gọi `contactView.setResponseDTO(responseDTO)` rồi `contactView.display()` — `display()` **không tham số**, gọi **1 lần** cho cả luồng (tờ checklist 1.1). |
+| Validate ở đâu? | Ở `Main` qua 3 hàm đề bắt trong `utils/Validation`: sai thì hàm **trả câu lỗi** (hợp đồng của đề), `Main` in câu đó rồi hỏi lại ô đó. Controller/service chỉ nhận 3 chuỗi đã hợp lệ trong `ContactRequestDTO`; service vẫn bắt `ParseException` rồi `throw new Exception(Message.DATE_INVALID)`, `Main` in `e.getMessage()`. |
+| Sao `Main` là `final` và có `private Main() { }`? | Tờ checklist 3.4: *"Class chỉ có static method thì phải có private contructor, và khai báo class là final"*. |
+| Sao câu nhắc có dấu cách cuối (`"Phone number: "`)? | Đối chiếu .docx: chữ máy in màu đen là `Phone number: ` (có dấu cách), chữ người gõ màu xanh là `099999888`. Em chép đúng từng ký tự của đề. |
 
 ### Ca biên
 
@@ -276,3 +290,30 @@ Ba phép kiểm do đề **đặt tên cố định** và nằm ở `utils` (b�
 | `checkXxx` | đề: hàm thường | `public static` trong `Validation` | Guide: utils phải static |
 | `checkDate` | bản cũ: chỉ `SimpleDateFormat` (nhận `5/6/2015`, `15/06/2015abc`) | regex `\d{2}/\d{2}/\d{4}` trước | đúng `dd/MM/yyyy`; chặn chuỗi thừa |
 | Kiến trúc | `FormatValidator` + `InputHelper` (Scanner) + `Function<>` trong `ui.Main` | MVC theo Guide, Scanner **chỉ ở `main`** | luật thầy |
+| Câu nhắc | bản cũ: `Phone number:` · `Email:` · `Date:` (không dấu cách) | `Phone number: ` · `Email: ` · `Date: ` | .docx: câu nhắc màu đen có dấu cách cuối ở 6/7 chỗ (chỉ `Phone number:abc` thiếu — coi là lỗi gõ của đề); file test `REPLACE_REFERENCE = True`, chép lại 2 kịch bản bản cũ có dấu cách |
+| Repository | bản trước 21/09: không có (*"không lưu, không CRUD"*) | `repository/ContactRepository` giữ `Contact` | tờ checklist 1.1 *"Bắt buộc phải có repository"* |
+| View | bản trước 21/09: `setResponse(response)` | `setResponseDTO(responseDTO)` + `display()` không tham số | tờ checklist 1.1 |
+| Nối chuỗi | `Message.LABEL_PHONE + …`, `phone + " " + …` trong `toString` | `String.format(Message.RESULT_…)`, `String.format(Constants.CONTACT_FORMAT, …)` | tờ checklist 3.8 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỗ trong code |
+|---|---|
+| 1.1 MVC + repository | `repository/ContactRepository` giữ model `Contact`; `ContactService` cất/đọc `Contact` qua repository; controller chỉ import DTO/service/view; `ContactView` nhận `responseDTO` qua `setResponseDTO`, `display()` gọi **1 lần**; mọi nhập + validate (3 hàm đề bắt) ở `Main` qua `utils/Validation` |
+| 1.4 method = động từ | `checkPhone`, `checkEmail`, `checkDate`, `getText`, `createContact`, `saveContact`, `inputPhone`… |
+| 1.5 tên biến | `requestDTO`/`responseDTO`, `contact`, `typedContact`; không có mảng/collection; không có `ID` |
+| 2.6 + 3.7 khai báo đầu block, có khởi tạo | mỗi hàm `input…` của `Main`: `String line = "";` và `String error = "";` ở đầu, trong `while` chỉ gán; `ContactService.createContact`: `formatter`, `date = null`, `contact = null`, `responseDTO` ở đầu; `Validation.checkDate`: `value`, `formatter` ở đầu |
+| 2.8 dòng trống | trước mọi comment (kể cả comment field trong `Constants`, `Message`, DTO, `Contact`), sau vùng khai báo, sau `}` trước câu lệnh kế |
+| 3.3 ngoặc | không có biểu thức trộn `&&`/`\|\|` hay ba ngôi; mỗi `if` một phép kiểm |
+| 3.4 | `public final class Main` + `private Main() { }`; `Validation`, `Constants`, `Message` cũng `final` + ctor private |
+| 3.8 | không cộng chuỗi: `ContactView` in bằng `String.format(Message.RESULT_…)`, `Contact.toString` bằng `String.format(Constants.CONTACT_FORMAT, …)` |
+
+**Chỗ cần hỏi thầy (đề đặt, tờ checklist bắt khác):** không có — 3 hàm đề bắt giữ đúng tên, tham số, kiểu
+trả về (chỉ thêm `static` vì nằm ở utils, như Guide bắt). Nên hỏi thầy một câu về **màn hình**: khối
+`----- Result -----` là của bản cũ (đề không nói in gì sau ô cuối) — nếu thầy muốn đúng y màn hình đề thì bỏ
+khối đó ở `ContactView.display()`.
+
+Kiểm lại: `python3 _tools/verify.py J1SP0064` · `python3 _tools/lint.py HE176322_J1SP0064_*` · `python3 _tools/soat_checklist.py HE176322_J1SP0064_*` → 0 `VI_PHAM`.
+`RUI_RO` còn lại chỉ là `String[] args` và tham số setter/constructor trùng tên field (`this.phone = phone`) — kiểu IDE sinh, được chấp nhận.

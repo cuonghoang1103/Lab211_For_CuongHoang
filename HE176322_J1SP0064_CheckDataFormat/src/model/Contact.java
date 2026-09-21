@@ -1,5 +1,6 @@
 package model;
 
+import constants.Constants;
 import java.util.Date;
 
 /**
@@ -12,8 +13,10 @@ public class Contact {
 
     // Phone number: exactly 10 digits; a String so a leading 0 is kept.
     private String phone;
+
     // Email address in name@domain.ext form.
     private String email;
+
     // The date the user typed, as a calendar date.
     private Date date;
 
@@ -61,6 +64,6 @@ public class Contact {
     // Polymorphism: overrides Object.toString(); returns the text, never prints it.
     @Override
     public String toString() {
-        return phone + " " + email + " " + date;
+        return String.format(Constants.CONTACT_FORMAT, phone, email, date);
     }
 }
