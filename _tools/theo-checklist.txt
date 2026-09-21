@@ -49,3 +49,4 @@ HE176322_J1SP0072_LoginMD5
 HE176322_J1SP0085_EmployeeManagement
 HE176322_J1LP0014_AssetManagementManager
 HE176322_J1LP0015_AssetManagementEmployee
+HE176322_J1LP0025_NormalizeText

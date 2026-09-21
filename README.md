@@ -2,7 +2,7 @@
 
 > **54 project** NetBeans, viết theo đúng kiến trúc `Guide.xlsx` của thầy + lời thầy dặn trên lớp. Mỗi project: code đã **biên dịch ở chế độ Java 8**, **chạy thật** với kịch bản gõ phím (đủ happy case + mọi thông báo lỗi), so màn hình **từng ký tự** dưới 2 locale, và qua bộ kiểm luật thầy.
 
-> ⛔ **Đang sửa cả 54 bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **50/54**. Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); ⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.
+> ⛔ **Đang sửa cả 54 bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **51/54**. Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); ⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.
 
 ## Đọc theo thứ tự này
 
@@ -105,7 +105,7 @@ Mọi project đều là **MVC** và controller đóng vai **Facade**. Cột *Pa
 | 350 | `J1.L.P0021` | [Create a Java console program to manage students](HE176322_J1LP0021_StudentManagement/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 16 | Strategy | ⏳ | ✅ |
 | 350 | `J1.L.P0022` | [Create a Java console program to manage Candidates of compan](HE176322_J1LP0022_CandidateManagement/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 26 | Strategy, Factory, Template Method | ⏳ | ✅ |
 | 350 | `J1.L.P0023` | [Create a Java console program to manage a Fruit Shop (Produc](HE176322_J1LP0023_FruitShop/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 17 | — | ⏳ | ✅ |
-| 450 | `J1.L.P0025` | [Create a Java console program to normalize text](HE176322_J1LP0025_NormalizeText/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 25 | — | ⏳ | ✅ |
+| 450 | `J1.L.P0025` | [Create a Java console program to normalize text](HE176322_J1LP0025_NormalizeText/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 25 | — | ✅ | ✅ |
 | 500 | `J1.L.P0013` | [The Vehicle Management](HE176322_J1LP0013_VehicleManagement/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 22 | Strategy, Factory, Template Method | ✅ | ✅ |
 | 500 | `J1.L.P0014` | [Asset Management](HE176322_J1LP0014_AssetManagementManager/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 32 | Strategy, Template Method | ✅ | ✅ |
 
