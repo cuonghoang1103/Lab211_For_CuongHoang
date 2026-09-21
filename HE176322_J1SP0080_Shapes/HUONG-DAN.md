@@ -44,7 +44,7 @@ No  Shape                          Area        Volume
 | `abstract Shape` + `abstract getArea()` + `toString()` | Function 1 | `model/Shape.java` (`toString()` khai lại `abstract` để **ép** mọi hình tự mô tả) |
 | `TwoDimensionalShape`, `ThreeDimensionalShape` + `abstract getVolume()` | Function 1 | `model/` |
 | 6 lớp cụ thể, mỗi lớp `toString()` riêng | *"Override toString() in each concrete class"* | `model/` |
-| Một mảng `Shape[]`, một vòng lặp, `instanceof` | Function 3 | `service/ShapeService.getShapeReport()` |
+| Một mảng `Shape[]`, một vòng lặp, `instanceof` | Function 3 | mảng giữ ở `repository/ShapeRepository` (`shapeArray`); vòng lặp + `instanceof` ở `service/ShapeService.getShapeReport()` |
 | 2 chữ số thập phân | *"Format every real number to two decimal places"* | `%.2f` với `Locale.US` |
 
 ---
@@ -68,7 +68,7 @@ No  Shape                          Area        Volume
 ### 2.2 `instanceof` và ép kiểu (run-time type identification)
 
 ```java
-Shape shape = shapes[i];                      // biến kiểu CHA, đối tượng thật là Sphere
+Shape shape = shapeArray[i];                  // biến kiểu CHA, đối tượng thật là Sphere
 shape.getArea();                              // được: getArea có ở Shape → chạy bản của Sphere
 if (shape instanceof ThreeDimensionalShape) { // hỏi: đối tượng thật có phải hình 3D không?
     ThreeDimensionalShape solid = (ThreeDimensionalShape) shape;   // ép xuống
@@ -105,17 +105,21 @@ HE176322_J1SP0080_Shapes/src/
 │               ThreeDimensionalShape (abstract)  + getVolume
 │               Circle, Square, Triangle, Sphere, Cube, Tetrahedron
 ├── dto/        ShapeResponseDTO       1 dòng: no, description, area, volume, threeDimensional
+│               ReportResponseDTO      cả bảng: ArrayList<ShapeResponseDTO> rowList (controller ──► view)
+├── repository/ ShapeRepository        giữ mảng Shape[] shapeArray của đề: saveShapeArray · getShapeArray
 ├── service/    ShapeFactory           ShapeType ──► new đúng lớp con
-│               ShapeService           tạo Shape[], vòng lặp + instanceof
-├── controller/ ShapeController        service ──► view
-├── view/       ShapeView              in bảng
-└── main/       Main                   gọi controller 1 lần
+│               ShapeService           tạo Shape[] → lưu repository → đọc lại, vòng lặp + instanceof
+├── controller/ ShapeController        service ──► view (setResponseDTO + display 1 lần)
+├── view/       ShapeView              field responseDTO; display() không tham số in bảng
+└── main/       Main                   final + private Main(); gọi controller 1 lần
 ```
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
 | Sao không có `RequestDTO`, `utils/Validation`, Scanner? | Đề: *"requires no input"*. Không có gì người dùng gõ → không có gì để gói hay kiểm. Thêm lớp rỗng là trừu tượng thừa (ghi chú slide 26 SOLID). |
-| Sao `service` mà không `repository`? | 6 hình là mẫu cố định: không thêm/sửa/xoá → không CRUD. Việc tính diện tích/thể tích + làm báo cáo là *"tính toán nghiệp vụ"*. |
+| Sao bài có `repository`? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. Dữ liệu của bài là **mảng `Shape[]` của đề** → `ShapeRepository` giữ `shapeArray` + CRUD đơn giản (`saveShapeArray`, `getShapeArray`), không tính, không in. Việc tính diện tích/thể tích + làm báo cáo là *"tính toán nghiệp vụ"* → `ShapeService`. Luồng: **Controller → Service → Repository → Model**. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: `ShapeView` có `private ReportResponseDTO responseDTO` + `setResponseDTO(...)`; `display()` **không tham số**. Controller gọi `setResponseDTO` rồi `display()` **đúng 1 lần** (tờ giấy 1.1). |
+| Validate ở đâu? | Không có gì để validate: đề không cho nhập. Nếu thầy cho nhập → `Main` + `utils/Validation` (mục 8). |
 | `instanceof` đặt ở đâu? | `ShapeService` — nó quyết định dữ liệu (có volume hay không) và ghi vào `ShapeResponseDTO.threeDimensional`. View chỉ đọc cờ đó để chọn format. |
 | `TwoDimensionalShape` rỗng có thừa không? | Không: nó là **kiểu** để hỏi "hình phẳng?" và đúng hình cây của đề. |
 
@@ -124,10 +128,12 @@ HE176322_J1SP0080_Shapes/src/
 ```
 Main ──► controller.displayShapes()
    controller ──► service.getShapeReport()
-                    ├─ createShapes(): for ShapeType t : values() → factory.createShape(t)  → Shape[6]
+                    ├─ createShapeArray(): for ShapeType t : values() → factory.createShape(t)  → Shape[6]
+                    ├─ repository.saveShapeArray(...) → shapeArray = repository.getShapeArray()
                     └─ for i: row.no, row.description = shape.toString(), row.area = shape.getArea()
                               if (shape instanceof ThreeDimensionalShape) row.volume = ((3D) shape).getVolume()
-   controller ──► view.setShapes(rows) ──► view.display()
+                       → ReportResponseDTO.rowList
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()   (1 lần)
 ```
 
 ### 3.1 Design Pattern — **Factory** (Simple Factory)
@@ -145,7 +151,7 @@ Controller còn là **Facade**: `Main` chỉ biết `displayShapes()`.
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | mỗi hình chỉ biết công thức của nó; factory chỉ tạo; service chỉ làm báo cáo; view chỉ in |
+| **S** | mỗi hình chỉ biết công thức của nó; factory chỉ tạo; repository chỉ giữ mảng; service chỉ làm báo cáo; view chỉ in |
 | **O** | thêm hình = thêm lớp (+1 case factory); vòng lặp trong service **không sửa** vì hỏi theo tầng trừu tượng |
 | **L** | mọi hình đứng được ở chỗ `Shape` trong vòng lặp; không hình phẳng nào bị ép viết `getVolume` giả |
 | **I** | `getVolume()` chỉ ở `ThreeDimensionalShape` — lớp không cần thì không bị ép (tinh thần Interface Segregation) |
@@ -162,14 +168,15 @@ Controller còn là **Facade**: `Main` chỉ biết `displayShapes()`.
 | 1 | `model/Shape.java` | `abstract double getArea()` + `@Override abstract String toString()` |
 | 2 | `model/TwoDimensionalShape.java`, `ThreeDimensionalShape.java` | `abstract class … extends Shape`; lớp 3D thêm `abstract double getVolume()` |
 | 3 | `model/` 6 lớp cụ thể | field `private` + constructor rỗng + constructor đủ + get/set (**Alt+Insert**) + công thức + `toString` |
-| 4 | `dto/ShapeResponseDTO.java` | JavaBean 5 field (`isThreeDimensional()` cho boolean) |
-| 5 | `constants/ShapeType.java` | enum 6 hằng, **đúng thứ tự bảng** |
-| 6 | `service/ShapeFactory.java` | `createShape(type)` — `switch` + `default` |
-| 7 | `service/ShapeService.java` | `createShapes()` (private) + `getShapeReport()` |
-| 8 | `view/ShapeView.java` | `setShapes` + `display` |
-| 9 | `controller/ShapeController.java` | `displayShapes()` |
-| 10 | `constants/Message.java`, `Constants.java` | chữ + số + format (gõ dần khi bước trên cần) |
-| 11 | `main/Main.java` | `new ShapeController().displayShapes()` |
+| 4 | `dto/ShapeResponseDTO.java`, `ReportResponseDTO.java` | JavaBean: 1 dòng 5 field (`isThreeDimensional()` cho boolean); cả bảng = `ArrayList<ShapeResponseDTO> rowList` |
+| 5 | `repository/ShapeRepository.java` | field `Shape[] shapeArray`; `saveShapeArray` · `getShapeArray` |
+| 6 | `constants/ShapeType.java` | enum 6 hằng, **đúng thứ tự bảng** |
+| 7 | `service/ShapeFactory.java` | `createShape(type)` — `switch` + `default` |
+| 8 | `service/ShapeService.java` | `createShapeArray()` (private) + `getShapeReport()` (lưu mảng vào repository, đọc lại, 1 vòng lặp) |
+| 9 | `view/ShapeView.java` | field `responseDTO` + `setResponseDTO` + `display()` |
+| 10 | `controller/ShapeController.java` | `displayShapes()`: `setResponseDTO` rồi `display()` 1 lần |
+| 11 | `constants/Message.java`, `Constants.java` | chữ + số + format (gõ dần khi bước trên cần) |
+| 12 | `main/Main.java` | `public final class Main` + `private Main()`; `controller.displayShapes()` 1 lần |
 
 **Bẫy hay gặp:**
 
@@ -226,12 +233,14 @@ Chương trình không nhập gì — chỉ có 1 kịch bản, chạy dưới 2
 | `getArea/getVolume/toString` `public` | service (lớp khác) gọi |
 | get/set + constructor rỗng `public` ở 6 hình và DTO | JavaBean (MVC JSP) |
 | `ShapeFactory.createShape` `public` | service gọi |
-| `ShapeService.createShapes` `private` | chỉ `getShapeReport` dùng |
+| `ShapeService.createShapeArray` `private` | chỉ `getShapeReport` dùng |
 | **không có `static` nào** ngoài `Constants/Message` và `Main.main` | model/service/controller cấm static (Guide); không có utils vì không có nhập liệu |
 | `ShapeType.values()` gọi qua tên kiểu | hàm static sẵn của mọi enum — gọi qua tên lớp đúng Code Conventions §10.2 |
 | `getArea` trả `double` | có π và căn |
 | `isThreeDimensional` trả `boolean` | câu hỏi có/không; JavaBean đặt tên `is…` cho boolean |
-| `getShapeReport` trả `ArrayList<ShapeResponseDTO>` | view duyệt theo thứ tự 1..6 |
+| `getShapeReport` trả `ReportResponseDTO` | cả bảng trong 1 đối tượng (`rowList`), view duyệt theo thứ tự 1..6 |
+| `ShapeRepository.saveShapeArray/getShapeArray` `public` | `ShapeService` (lớp khác) gọi |
+| `Main` `final` + constructor `private` | lớp chỉ có hàm `static` (tờ giấy 3.4) |
 
 ### ArrayList hay List? Mảng hay ArrayList?
 
@@ -239,6 +248,28 @@ Chương trình không nhập gì — chỉ có 1 kịch bản, chạy dưới 2
 |---|---|
 | Sao khai `ArrayList` mà không `List`? | `List` là interface, `ArrayList` là lớp cài đặt. Em chỉ thêm cuối và duyệt theo thứ tự — đúng thứ `ArrayList` làm nhanh — nên khai thẳng kiểu em dùng. Khai `List` chỉ khác ở chỗ đổi cài đặt dễ hơn; chạy như nhau. |
 | Sao mảng `Shape[]` cho hình, `ArrayList` cho dòng báo cáo? | Đề bắt *"a single Shape[] array"*; số hình biết trước (= số hằng enum). Danh sách dòng thì dựng dần. |
+
+### Kiến trúc theo tờ checklist
+
+| Câu hỏi | Trả lời mẫu |
+|---|---|
+| Sao bài có repository? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. `ShapeRepository` giữ **mảng `Shape[]` của đề** (`shapeArray`) + `saveShapeArray`/`getShapeArray`; không công thức, không in. `ShapeService` lấy mảng **từ repository** rồi mới chạy vòng lặp. |
+| View nhận dữ liệu thế nào? | Qua thuộc tính `responseDTO` (kiểu `ReportResponseDTO`, trong đó `rowList` là các dòng) + setter; `display()` không tham số, controller gọi **1 lần** cho cả luồng. Bản trước: `setShapes(ArrayList<ShapeResponseDTO>)`. |
+| Validate ở đâu? | Bài không nhập gì nên không có Validation. Luật chung: nhập + validate ở `Main` (qua `utils`), controller chỉ nhận DTO. |
+| Controller có đụng model không? | Không: `ShapeController` chỉ import `ReportResponseDTO`, `ShapeService`, `ShapeView`. `Shape`/`instanceof` nằm ở service. |
+| Main gọi controller mấy lần? | **1 lần** (`controller.displayShapes()`), đúng Guide *"Mỗi workflow chính chỉ gọi vào controller 1 lần"*. |
+
+### Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/ShapeRepository` (bắt buộc có, giữ `shapeArray`); `ShapeController` không import `model`; `ShapeView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần**; `Main` gọi controller **1 lần** |
+| **1.5** tên collection / mảng | `shapeArray` (repository, service), `typeArray` (`ShapeService.createShapeArray`), `rowList` (`ReportResponseDTO`, `ShapeService`) — bản trước là `shapes`, `types`, `rows` |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `ShapeService.getShapeReport`: `responseDTO`, `rowList`, `shapeArray = null` ở đầu hàm; `shape`, `row` ở đầu thân `for`; `ShapeView.display`: `area` đầu thân `for`, `volume` đầu khối `if` |
+| **2.8** dòng trống | giữa các field (mọi lớp, cả `Constants`/`Message`/`ShapeType`), trước mọi comment đứng sau dòng code (cả comment `case` trong `ShapeFactory`), sau vùng khai báo biến, sau `}` trước câu lệnh tiếp |
+| **3.3** ngoặc | `Triangle.getArea`: `(base * height) / 2`; `Tetrahedron.getVolume`: `… / (Constants.TETRAHEDRON_VOLUME_FACTOR * Math.sqrt(2))` |
+| **3.4** lớp chỉ có static | `Main` (`final` + `private Main()`), `Constants`, `Message` |
+| **3.8** cộng chuỗi | không có `+` trên chuỗi: mọi dòng in bằng `String.format(Constants.HEADER_FORMAT / ROW_2D_FORMAT / ROW_3D_FORMAT, …)` |
 
 ---
 
@@ -261,8 +292,13 @@ Chương trình không nhập gì — chỉ có 1 kịch bản, chạy dưới 2
 | Độ rộng cột | bản cũ `%-3s %-30s %10s %10s` (Area kết thúc cột 45) | đo từ mẫu của đề (Area kết thúc cột 39) | **màn hình đề** thắng → test `REPLACE_REFERENCE = True` |
 | Header lệch 1 ô so với dòng số (`No  Shape` vs `1  Circle`), dấu `-` nằm giữa cột thể tích | có trong mẫu đề | giữ **y hệt** bằng 3 format riêng | đề là nguồn sự thật từng ký tự |
 | `BUILD SUCCESSFUL (total time: 1 second)` | có trong mẫu đề | không in | đó là dòng NetBeans in sau khi chạy, không phải chương trình |
-| Tạo mảng | đề: `Shape[] shapes = { new Circle(2), … }` | vẫn là `Shape[]`, nhưng từng phần tử tạo qua `ShapeFactory` theo `ShapeType` | Design Pattern (QUY-TAC-THAY §9 V7) — thêm hình không sửa service |
+| Tạo mảng | đề: `Shape[] shapes = { new Circle(2), … }` | vẫn là `Shape[]` (tên `shapeArray`), từng phần tử tạo qua `ShapeFactory` theo `ShapeType` | Design Pattern (QUY-TAC-THAY §9 V7) — thêm hình không sửa service; tên theo tờ giấy 1.5 |
 | In trong vòng lặp | đề: `System.out.println(s)` ngay trong vòng | service làm dữ liệu, **view** in | Guide: chỉ view/main được in |
 | Không có `RequestDTO`, `utils/Validation` | khung chuẩn có | bỏ | đề không có nhập liệu (AGENT-BRIEF: bài không nhập được bỏ RequestDTO; Validation không có gì để kiểm) |
 | Field | bản cũ `private final`, không setter | có setter + constructor rỗng | JavaBean — MVC JSP (V10) |
 | Kiến trúc | `entity/ui`, `printf` trong `Main` | MVC theo Guide | luật thầy |
+| Repository | bản 14/09: **không có** (*"6 hình là mẫu cố định: không CRUD"*) | `repository/ShapeRepository` giữ `Shape[] shapeArray` (`saveShapeArray`, `getShapeArray`); service lấy mảng từ đây | tờ checklist 1.1: *"Bắt buộc phải có repository"* |
+| View | bản 14/09: `setShapes(ArrayList<ShapeResponseDTO>)` | `setResponseDTO(ReportResponseDTO)` — `ReportResponseDTO` (mới) chứa `rowList` | tờ giấy 1.1: view nhận qua **thuộc tính (ResponseDTO)** |
+| Tên | `shapes`, `types`, `rows`, `createShapes` | `shapeArray`, `typeArray`, `rowList`, `createShapeArray` | tờ giấy 1.5 (mảng → `Array`, collection → `List`) |
+| `Main` | `public class Main` | `public final class Main` + `private Main()` | tờ giấy 3.4 |
+| Dòng trống, ngoặc | field/hằng liền nhau; `base * height / 2` | 1 dòng trống trước mọi comment; `(base * height) / 2` | tờ giấy 2.8, 3.3 — màn hình **không đổi** |

@@ -1,7 +1,8 @@
 package dto;
 
 /**
- * DTO carrying ONE row of the report FROM the controller OUT TO the view.
+ * DTO carrying ONE row of the report FROM the controller OUT TO the view (inside
+ * ReportResponseDTO).
  *
  * @author HE176322
  */
@@ -9,12 +10,16 @@ public class ShapeResponseDTO {
 
     // Row number, from 1.
     private int no;
+
     // The shape's toString().
     private String description;
+
     // Area (surface area for a solid).
     private double area;
+
     // Volume; meaningful only when threeDimensional is true.
     private double volume;
+
     // True for a ThreeDimensionalShape: the view then prints the volume.
     private boolean threeDimensional;
 

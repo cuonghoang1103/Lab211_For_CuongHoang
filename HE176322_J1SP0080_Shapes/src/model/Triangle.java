@@ -12,6 +12,7 @@ public class Triangle extends TwoDimensionalShape {
 
     // Length of the base.
     private double base;
+
     // Height measured from the base.
     private double height;
 
@@ -45,11 +46,11 @@ public class Triangle extends TwoDimensionalShape {
         this.height = height;
     }
 
-    // Area of a triangle: A = 1/2 * base * height, written base * height / 2 so no
+    // Area of a triangle: A = 1/2 * base * height, written (base * height) / 2 so no
     // fraction literal is needed.
     @Override
     public double getArea() {
-        return base * height / 2;
+        return (base * height) / 2;
     }
 
     // Description for the report.

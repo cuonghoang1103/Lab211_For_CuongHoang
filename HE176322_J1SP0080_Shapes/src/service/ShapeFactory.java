@@ -31,21 +31,27 @@ public class ShapeFactory {
             // two-dimensional: circle of radius 2
             case CIRCLE:
                 return new Circle(Constants.CIRCLE_RADIUS);
+
             // two-dimensional: square of side 3
             case SQUARE:
                 return new Square(Constants.SQUARE_SIDE);
+
             // two-dimensional: triangle of base 4 and height 5
             case TRIANGLE:
                 return new Triangle(Constants.TRIANGLE_BASE, Constants.TRIANGLE_HEIGHT);
+
             // three-dimensional: sphere of radius 2
             case SPHERE:
                 return new Sphere(Constants.SPHERE_RADIUS);
+
             // three-dimensional: cube of side 3
             case CUBE:
                 return new Cube(Constants.CUBE_SIDE);
+
             // three-dimensional: regular tetrahedron of side 4
             case TETRAHEDRON:
                 return new Tetrahedron(Constants.TETRAHEDRON_SIDE);
+
             // a new ShapeType nobody taught the factory to build
             default:
                 throw new IllegalArgumentException(String.format(Message.UNKNOWN_SHAPE,

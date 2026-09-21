@@ -8,11 +8,17 @@ import controller.ShapeController;
  *
  * @author HE176322
  */
-public class Main {
+public final class Main {
 
-    // Starts the program: one call prints the whole report.
+    // Private constructor: Main only has static methods (checklist 3.4).
+    private Main() {
+    }
+
+    // Starts the program: one call builds the shapes and prints the whole report.
     public static void main(String[] args) {
         ShapeController controller = new ShapeController();
+
+        // the only flow: the controller is called once, the report is printed once
         controller.displayShapes();
     }
 }
