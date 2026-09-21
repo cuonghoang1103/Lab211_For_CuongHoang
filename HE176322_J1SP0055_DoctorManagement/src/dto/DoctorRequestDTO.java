@@ -9,12 +9,16 @@ public class DoctorRequestDTO {
 
     // Code typed by the user; identifies the doctor to add/update/delete.
     private String code;
+
     // Name typed by the user; empty on update means "keep the old name".
     private String name;
+
     // Specialization typed by the user; empty on update means "keep".
     private String specialization;
+
     // Availability typed by the user.
     private Integer availability;
+
     // Text to look for in code, name or specialization (search only).
     private String searchText;
 

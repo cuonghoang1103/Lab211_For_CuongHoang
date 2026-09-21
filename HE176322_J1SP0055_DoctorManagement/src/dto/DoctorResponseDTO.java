@@ -1,82 +1,44 @@
 package dto;
 
-import constants.Constants;
+import java.util.LinkedHashMap;
 
 /**
- * DTO carrying one doctor FROM the controller OUT TO the view - a JavaBean (private
- * fields, public no-argument constructor, getters/setters).
+ * DTO carrying the answer of one menu option FROM the controller OUT TO the view - a
+ * JavaBean (private fields, public no-argument constructor, getters/setters). Add, update
+ * and delete fill the message; search fills the doctor map.
  *
  * @author HE176322
  */
 public class DoctorResponseDTO {
 
-    // Code shown in the first column.
-    private String code;
-    // Name shown in the second column.
-    private String name;
-    // Specialization shown in the third column.
-    private String specialization;
-    // Availability shown in the last column.
-    private int availability;
+    // The one-line result, e.g. "Add doctor successfully."; null for a search.
+    private String message;
 
-    // JavaBean constructor: an empty row, filled through the setters.
+    // The doctors a search found: code -> table row (the text of Doctor.toString()); null
+    // when the answer is a message, empty when nobody matched.
+    private LinkedHashMap<String, String> doctorMap;
+
+    // JavaBean constructor: an empty answer, filled through the setters.
     public DoctorResponseDTO() {
     }
 
-    // Creates the response with every column filled in.
-    public DoctorResponseDTO(String code, String name, String specialization,
-            int availability) {
-        this.code = code;
-        this.name = name;
-        this.specialization = specialization;
-        this.availability = availability;
+    // Returns the one-line result.
+    public String getMessage() {
+        return message;
     }
 
-    // Returns the code.
-    public String getCode() {
-        return code;
+    // Sets the one-line result.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Sets the code.
-    public void setCode(String code) {
-        this.code = code;
+    // Returns the doctors found.
+    public LinkedHashMap<String, String> getDoctorMap() {
+        return doctorMap;
     }
 
-    // Returns the name.
-    public String getName() {
-        return name;
-    }
-
-    // Sets the name.
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Returns the specialization.
-    public String getSpecialization() {
-        return specialization;
-    }
-
-    // Sets the specialization.
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
-    }
-
-    // Returns the availability.
-    public int getAvailability() {
-        return availability;
-    }
-
-    // Sets the availability.
-    public void setAvailability(int availability) {
-        this.availability = availability;
-    }
-
-    // One table row, already padded into fixed-width columns, so the view only has to
-    // print it.
-    @Override
-    public String toString() {
-        return String.format(Constants.ROW_FORMAT, code, name, specialization,
-                availability);
+    // Sets the doctors found.
+    public void setDoctorMap(LinkedHashMap<String, String> doctorMap) {
+        this.doctorMap = doctorMap;
     }
 }

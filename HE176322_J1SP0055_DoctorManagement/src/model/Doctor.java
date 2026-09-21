@@ -1,5 +1,7 @@
 package model;
 
+import constants.Constants;
+
 /**
  * MODEL: describes one doctor, and nothing else.
  *
@@ -9,10 +11,13 @@ public class Doctor {
 
     // Unique code of the doctor.
     private String code;
+
     // Full name of the doctor.
     private String name;
+
     // Medical specialization.
     private String specialization;
+
     // Number of available shifts; the brief requires it to be >= 0.
     private int availability;
 
@@ -68,9 +73,10 @@ public class Doctor {
         this.availability = availability;
     }
 
-    // Polymorphism: overrides Object.toString() so a doctor turns into one readable line.
+    // Polymorphism: overrides Object.toString() - one table row, already padded into
+    // fixed-width columns (Guide: "cần output gì thì thêm hàm toString()").
     @Override
     public String toString() {
-        return code + " " + name + " " + specialization + " " + availability;
+        return String.format(Constants.ROW_FORMAT, code, name, specialization, availability);
     }
 }

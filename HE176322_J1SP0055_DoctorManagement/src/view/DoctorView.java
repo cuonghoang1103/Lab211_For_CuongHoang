@@ -3,43 +3,56 @@ package view;
 import constants.Constants;
 import constants.Message;
 import dto.DoctorResponseDTO;
-import java.util.LinkedHashMap;
 
 /**
- * VIEW: the only place (with main) allowed to print results.
+ * VIEW: the only place (with main) allowed to print results. It receives the data through
+ * its attribute (the ResponseDTO, as in the Guide sample), never through the parameters of
+ * display().
  *
  * @author HE176322
  */
 public class DoctorView {
 
-    // The rows to display, handed over by the controller.
-    private LinkedHashMap<String, DoctorResponseDTO> doctorMap;
+    // The answer to print, handed over by the controller.
+    private DoctorResponseDTO responseDTO;
 
-    // Receives the rows the next display() call will print.
-    public void setDoctorMap(LinkedHashMap<String, DoctorResponseDTO> doctorMap) {
-        this.doctorMap = doctorMap;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(DoctorResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
+    }
+
+    // Prints what the controller set: the one-line result of add/update/delete, or the
+    // search result.
+    public void display() {
+        // add, update and delete answer with one line
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
+        }
+
+        // a search answers with its result
+        if (responseDTO.getDoctorMap() != null) {
+            displayResult();
+        }
     }
 
     // Prints the search result: a title, then either "No doctor found." or a header and
     // one line per doctor.
-    public void display() {
+    private void displayResult() {
         System.out.println(Message.TITLE_RESULT);
-        // nobody matched the search text
-        if (doctorMap == null || doctorMap.isEmpty()) {
-            System.out.println(Message.NOT_FOUND);
-            return;
-        }
-        System.out.println(String.format(Constants.HEADER_FORMAT, Message.LABEL_CODE,
-                Message.LABEL_NAME, Message.LABEL_SPECIALIZATION,
-                Message.LABEL_AVAILABILITY));
-        // one line per doctor; toString() of the DTO is already padded
-        for (DoctorResponseDTO doctor : doctorMap.values()) {
-            System.out.println(doctor);
-        }
-    }
 
-    // Prints a one-line result such as "Add doctor successfully.".
-    public void showMessage(String message) {
-        System.out.println(message);
+        // nobody matched the search text
+        if (responseDTO.getDoctorMap().isEmpty()) {
+            System.out.println(Message.NOT_FOUND);
+        } else {
+            // the header, with the same column widths as the rows
+            System.out.println(String.format(Constants.HEADER_FORMAT, Message.LABEL_CODE,
+                    Message.LABEL_NAME, Message.LABEL_SPECIALIZATION,
+                    Message.LABEL_AVAILABILITY));
+
+            // one line per doctor; Doctor.toString() already padded it
+            for (String row : responseDTO.getDoctorMap().values()) {
+                System.out.println(row);
+            }
+        }
     }
 }
