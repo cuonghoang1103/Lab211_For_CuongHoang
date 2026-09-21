@@ -28,8 +28,8 @@
 |---|---|---|
 | Lớp `Employee` 10 thuộc tính + get/set + `toString()` | Design hints | `model/Employee.java` (+ `EmployeeBuilder`) |
 | Phone chỉ chữ số · Email có `@` và tên miền · DOB ngày hợp lệ `yyyy-MM-dd` · Sex `Male`/`Female` · Salary > 0 | bảng field | `utils/Validation` (`getPhone`, `getEmail`, `getDob`, `getSex`, `getSalary`) |
-| `addEmployee`, `updateEmployee(id)`, `removeEmployee(id)`, `searchByName(name)`, `sortBySalary()`, `display()` | sơ đồ `EmployeeManager` | `EmployeeController` (cùng tên) → `EmployeeRepository` / `EmployeeService`; `display()` ở `EmployeeView` |
-| `List<Employee>` (một `ArrayList`) | Design hints | `ArrayList<Employee>` trong `EmployeeRepository` |
+| `addEmployee`, `updateEmployee(id)`, `removeEmployee(id)`, `searchByName(name)`, `sortBySalary()`, `display()` | sơ đồ `EmployeeManager` | `EmployeeController` (cùng tên, nhận DTO) → `EmployeeRepository` / `EmployeeService`; repository giữ **đúng 1 tham số của đề**: `removeEmployee(String id)`, `searchByName(String name)`; `display()` ở `EmployeeView` |
+| `- employees : List<Employee>` (một `ArrayList`) | sơ đồ + Design hints | `ArrayList<Employee> employeeList` trong `EmployeeRepository` (comment `// brief: employees : List<Employee>` ngay trên field) |
 | Sort bằng `Comparator` | Design hints | `SalaryComparator implements Comparator<Employee>` |
 
 ---
@@ -42,7 +42,7 @@
 public int compare(Employee first, Employee second) {
     return Double.compare(first.getSalary(), second.getSalary());   // âm / 0 / dương
 }
-Collections.sort(sorted, comparator);   // Collections.sort biết CÁCH sắp, comparator quyết định AI ĐỨNG TRƯỚC
+Collections.sort(sortedList, comparator);   // Collections.sort biết CÁCH sắp, comparator quyết định AI ĐỨNG TRƯỚC
 ```
 
 Chạy tay ví dụ của đề (John 1500, Bob 1800, Anna 1200):
@@ -60,8 +60,8 @@ Không dùng `a - b` với `double` (ép về `int` mất phần lẻ: 1500.4 vs
 ### 2.2 Tìm "chứa chuỗi" không phân biệt hoa thường
 
 ```java
-employee.getFirstName().toLowerCase().contains(keyword.toLowerCase())
-    || employee.getLastName().toLowerCase().contains(keyword.toLowerCase())
+employee.getFirstName().toLowerCase().contains(keyword) ||
+        employee.getLastName().toLowerCase().contains(keyword)   // keyword đã toLowerCase()
 ```
 
 `jo` khớp **Jo**hn (first name) và **Jo**hnson (last name).
@@ -94,36 +94,48 @@ Mọi hàm kiểm ô nhận thêm tham số **`current`**: `null` khi **Add** (�
 
 ```
 HE176322_J1SP0085_EmployeeManagement/src/
-├── model/      Employee (JavaBean 10 thuộc tính), EmployeeBuilder (Builder)
-├── dto/        EmployeeRequestDTO  (giá trị đã kiểm + keyword)   main ──► controller
-│               EmployeeResponseDTO (1 nhân viên, ngày đã là chữ) controller ──► view / main
-├── repository/ EmployeeRepository  ArrayList<Employee>: add/find/update/remove/searchByName
+├── model/      Employee (JavaBean 10 thuộc tính + toString, formatSearchRow, formatSortRow),
+│               EmployeeBuilder (Builder: setId … setAgency, build)
+├── dto/        EmployeeRequestDTO  (giá trị ĐÃ KIỂM + keyword)            main ──► controller
+│               EmployeeResponseDTO (message | detail | searchRowList | sortRowList)  ──► view
+├── repository/ EmployeeRepository  ArrayList<Employee> employeeList: add/load/update/remove/search
 ├── service/    EmployeeService     sortBySalary (Context của Strategy)
 │               SalaryComparator    implements Comparator<Employee> (ConcreteStrategy)
 ├── controller/ EmployeeController  điều hướng repository / service ↔ view; cắm strategy
-├── view/       EmployeeView        display() (bảng sort), displaySearch(), showMessage
-├── utils/      Validation (kiểm), FormatUtils (lương, ngày ra chữ)
+├── view/       EmployeeView        field responseDTO + setResponseDTO + display() không tham số
+├── utils/      Validation (kiểm, ném lỗi), FormatUtils (lương, ngày ra chữ)
 ├── constants/  Message, Constants
-└── main/       Main                menu + Scanner + mỗi ô một vòng hỏi lại
+└── main/       Main (final + private ctor) — menu + Scanner + mỗi ô một vòng hỏi lại
 ```
 
 | Lớp | Làm gì | Vì sao ở đây |
 |---|---|---|
-| `EmployeeRepository` | giữ danh sách + CRUD + tìm | Guide: *"Chứa data … CRUD"* |
+| `EmployeeRepository` | giữ `employeeList` + CRUD + tìm | tờ giấy 1.1: *"Bắt buộc phải có repository"*, *"chỉ chứa data và CRUD"* |
 | `EmployeeService` | sắp xếp | Guide: service = *"tính toán nghiệp vụ"* ngoài CRUD; luồng **Controller ↔ Service ↔ Repository** (service lấy bản sao list từ repository) |
 | `SalaryComparator` | luật "ai lương thấp đứng trước" | tách thuật toán khỏi service (Strategy) |
 | `EmployeeBuilder` | lắp `Employee` 10 thuộc tính | chỉ biết `Employee` → package model |
+| `Employee.toString / formatSearchRow / formatSortRow` | chữ của 1 nhân viên cho view | Guide: *"Cần output gì thì thêm hàm toString() để trả lại repository -> controller … truyền vào view"* |
 
-**Luồng Update** (khó nhất):
+**Luồng chạy** (Main → RequestDTO → Controller → Service/Repository → Model; ResponseDTO → View **1 lần**).
+Mỗi case gọi controller **1 lần**; lần gọi **chỉ để kiểm** (ném lỗi, **không** render) nằm trong hàm nhập
+của Main, chỉ ở chỗ màn hình bắt báo **ngay**:
 
 ```
-Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: rỗng thì báo, không hỏi Id)
-      đọc Id ─► controller.findEmployee(dto)          (kiểm trước: trả giá trị cũ để in trong [ ])
-      in "Press Enter to keep the value in brackets."
-      9 ô, mỗi ô: in "Nhãn : [cũ] " ─► Validation.getX(dòng gõ, cũ)  (trống → giữ cũ; sai → báo, hỏi lại)
-      ─► controller.updateEmployee(dto)                ← lời gọi chính, 1 lần
-            repository.updateEmployee(dto) → set 9 field → toResponse
-            view: "=> Employee E002 updated successfully." + dòng Employee{...}
+Add     Main.inputAdd: tiêu đề ─► inputNewId (Id trống → hỏi lại; controller.checkNewId → trùng thì
+        "=> Employee id E001 already exists." rồi hỏi lại Id)  ← chỉ để kiểm (đề: "Validate every input
+        as it is entered … make sure the Id is not already used")
+        ─► 9 ô, mỗi ô kiểm ngay ─► controller.addEmployee(dto) ─► repository ─► view (1 lần)
+Update  Main.inputUpdate: tiêu đề ─► controller.checkNotEmpty()        ← chỉ để kiểm (rỗng thì báo ngay)
+        ─► inputCurrent: đọc Id ─► controller.loadEmployee(currentDTO) ← chỉ để kiểm (đề: "tell the user
+           when no match is found"); repository chép giá trị cũ vào currentDTO để in trong [ ]
+        ─► "Press Enter to keep the value in brackets." ─► 9 ô: "Nhãn : [cũ] " (trống → giữ cũ)
+        ─► controller.updateEmployee(dto) ─► repository: set 9 field, trả toString()
+        ─► responseDTO: message "=> Employee E002 updated successfully." + detail ─► view (1 lần)
+Remove  Main.inputRemove: tiêu đề ─► controller.checkNotEmpty() ← chỉ để kiểm ─► đọc Id
+        ─► controller.removeEmployee(dto): không có Id → ném "=> No employee found with id …"
+Search  Main.inputSearch: tiêu đề ─► controller.checkNotEmpty() ← chỉ để kiểm ─► đọc chuỗi
+        ─► controller.searchByName(dto) ─► repository: các dòng formatSearchRow() ─► view (1 lần)
+Sort    controller.sortBySalary(): rỗng → ném; service sắp bản sao ─► formatSortRow() ─► view (1 lần)
 ```
 
 ### 3.1 Design Pattern
@@ -134,8 +146,8 @@ Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: 
 |---|---|
 | **Name** | Builder |
 | **Problem** | `Employee` có **10 thuộc tính**, 7 cái là `String` liền nhau. Constructor 10 tham số gọi đảo firstName ↔ lastName hay phone ↔ email vẫn biên dịch — sai âm thầm. |
-| **Solution** | `EmployeeBuilder` = **Builder** (`withId` … `withAgency`, `build`). `Employee` = **Product**. `EmployeeRepository.addEmployee` = **Director**. |
-| **Consequences** | ✅ Mỗi giá trị **có tên**; thêm thuộc tính = thêm 1 hàm `withX`. ❌ Thêm 1 lớp; không `static` (model cấm) nên là lớp riêng. |
+| **Solution** | `EmployeeBuilder` = **Builder** (`setId` … `setAgency` — mỗi hàm trả về chính builder để nối tiếp — và `build`). `Employee` = **Product**. `EmployeeRepository.addEmployee` = **Director**. |
+| **Consequences** | ✅ Mỗi giá trị **có tên**; thêm thuộc tính = thêm 1 hàm `setX`. ❌ Thêm 1 lớp; không `static` (model cấm) nên là lớp riêng. |
 
 **Strategy** (Behavioral)
 
@@ -167,24 +179,26 @@ Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: 
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/Employee.java` | 10 field private + constructor rỗng + get/set (**Alt+Insert**) + `toString` |
-| 2 | `model/EmployeeBuilder.java` | field `employee`; 10 hàm `withX`; `build()` |
+| 1 | `model/Employee.java` | 10 field private + constructor rỗng + get/set (**Alt+Insert**) + `toString` · `formatSearchRow` · `formatSortRow` (+ `formatFullName` private) |
+| 2 | `model/EmployeeBuilder.java` | field `employee`; 10 hàm `setX` trả `this`; `build()` |
 | 3 | `dto/EmployeeRequestDTO.java` | 10 field + `keyword` + get/set |
-| 4 | `dto/EmployeeResponseDTO.java` | 10 field (dob là `String`) + get/set + `getFullName` · `getSalaryText` · `toString` |
-| 5 | `repository/EmployeeRepository.java` | `isEmpty` · `isExistEmployee` · `addEmployee` · `findEmployee` · `updateEmployee` · `removeEmployee` · `searchByName` · `getEmployees` · `toResponse` · `findById` (private) |
+| 4 | `dto/EmployeeResponseDTO.java` | `message` · `detail` · `searchRowList` · `sortRowList` + get/set |
+| 5 | `repository/EmployeeRepository.java` | `isEmpty` · `isExistEmployee(id)` · `addEmployee` · `loadEmployee` · `updateEmployee` · `removeEmployee(id)` · `searchByName(name)` · `getEmployeeList` · `findById` (private) |
 | 6 | `service/SalaryComparator.java`, `EmployeeService.java` | `compare`; `sortBySalary` |
 | 7 | `constants/Message.java`, `Constants.java` | menu, nhãn đệm 11 ký tự, lỗi; regex, định dạng |
 | 8 | `utils/Validation.java`, `FormatUtils.java` | các hàm kiểm (input, current); `formatSalary`, `formatDate` |
-| 9 | `view/EmployeeView.java` | `setEmployees` · `display` · `displaySearch` · `showMessage` |
-| 10 | `controller/EmployeeController.java` | `checkNotEmpty` · `checkNewId` · `addEmployee` · `findEmployee` · `updateEmployee` · `removeEmployee` · `searchByName` · `sortBySalary` |
-| 11 | `main/Main.java` | menu, 5 workflow, `inputEmployee`, `prompt`, `inputId`, `inputNewId`, `inputKeyword`, 9 hàm `inputX` |
+| 9 | `view/EmployeeView.java` | field `responseDTO` · `setResponseDTO` · `display()` |
+| 10 | `controller/EmployeeController.java` | `checkNotEmpty` · `checkNewId` · `addEmployee` · `loadEmployee` · `updateEmployee` · `removeEmployee` · `searchByName` · `sortBySalary` |
+| 11 | `main/Main.java` | menu, `inputAdd` · `inputUpdate` · `inputCurrent` · `inputRemove` · `inputSearch` · `inputEmployee` · `prompt` · `inputId` · `inputNewId` · `inputKeyword` · 9 hàm `inputX` |
 
 **Bẫy hay gặp:**
 
-1. Sort **thẳng danh sách gốc** → mất thứ tự nhập. Bài sort **bản sao** (`getEmployees()` trả `new ArrayList<>(employees)`).
+1. Sort **thẳng danh sách gốc** → mất thứ tự nhập. Bài sort **bản sao** (`getEmployeeList()` trả `new ArrayList<>(employeeList)`).
 2. Kiểm trùng Id **sau** khi hỏi đủ 10 ô → người dùng gõ phí 9 ô. Bài kiểm **ngay** sau ô Id (`checkNewId`).
 3. `%.2f` không `Locale.US` → `1500,00` trên máy lab.
 4. `a.getSalary() - b.getSalary()` ép `int` → so sai khi chênh dưới 1.
+5. Controller gọi view 2 lần (câu "updated" rồi dòng `Employee{...}`) → trái *"render 1 lần/luồng"*: cả hai đi
+   trong **một** `EmployeeResponseDTO` (`message` + `detail`), `display()` in cả hai.
 
 ---
 
@@ -216,9 +230,9 @@ Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: 
 |---|---|
 | Breakpoint | dòng `return Double.compare(...)` trong `SalaryComparator.compare` |
 | Chạy | **Ctrl+F5**, thêm 3 nhân viên, chọn 5 |
-| Bước | mỗi lần dừng, **Variables** hiện `first`, `second` → thấy `Collections.sort` gọi comparator nhiều lần; **Ctrl+F7** ra ngoài `EmployeeService.sortBySalary`, mở `sorted` xem thứ tự mới, mở `employeeRepository.employees` thấy **thứ tự gốc không đổi** |
+| Bước | mỗi lần dừng, **Variables** hiện `first`, `second` → thấy `Collections.sort` gọi comparator nhiều lần; **Ctrl+F7** ra ngoài `EmployeeService.sortBySalary`, mở `sortedList` xem thứ tự mới, mở `employeeRepository.employeeList` thấy **thứ tự gốc không đổi** |
 | Xem Builder | breakpoint ở `.build()` trong `EmployeeRepository.addEmployee`, mở `employee` thấy đủ 10 thuộc tính |
-| Xem Update | breakpoint trong `Validation.getField`: gõ Enter → nhánh `current != null` trả giá trị cũ |
+| Xem Update | breakpoint trong `EmployeeRepository.loadEmployee` (thấy giá trị cũ chép vào `requestDTO`), rồi trong `Validation.getField`: gõ Enter → nhánh `current != null` trả giá trị cũ |
 
 ---
 
@@ -228,19 +242,19 @@ Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: 
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: 10 field `private` trong `Employee`; Id không đổi khi Update (repository chỉ set 9 field còn lại). **Kế thừa**: `SalaryComparator implements Comparator<Employee>`; mọi lớp `extends Object`. **Đa hình**: `Collections.sort` gọi `compare` qua biến kiểu `Comparator` — chạy bản của `SalaryComparator`; `toString()` `@Override` trong `Employee`, `EmployeeResponseDTO`. **Trừu tượng**: `EmployeeService` chỉ biết `Comparator`, không biết luật so sánh. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: 10 field `private` trong `Employee`; Id không đổi khi Update (repository chỉ set 9 field còn lại). **Kế thừa**: `SalaryComparator implements Comparator<Employee>`; mọi lớp `extends Object`. **Đa hình**: `Collections.sort` gọi `compare` qua biến kiểu `Comparator` — chạy bản của `SalaryComparator`; `toString()` `@Override` trong `Employee`. **Trừu tượng**: `EmployeeService` chỉ biết `Comparator`, không biết luật so sánh. |
 
 ### Access modifier / static / kiểu trả về
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| `findById` sao `private`? | Chỉ repository dùng. |
-| `toResponse` sao `public`? | `EmployeeService` cần đổi model → DTO sau khi sắp; viết **một chỗ**, hai nơi dùng. |
+| `findById`, `formatFullName` sao `private`? | Chỉ lớp của nó dùng. |
+| `formatSearchRow`/`formatSortRow` sao nằm ở model? | Guide: *"Cần output gì thì thêm hàm toString() để trả lại repository -> controller"*. Model biết chữ của chính nó; repository/service chỉ gom các dòng, view in. |
 | `prompt`, `inputX` trong Main sao `private static`? | `private`: chỉ `Main` dùng. `static`: `main` là static nên chỉ gọi thẳng được hàm static; **biến** thì không static (Guide cấm) — `Scanner` là biến cục bộ truyền vào. |
 | **Bỏ `static` ở `Validation.getSalary`?** | `Validation.getSalary(...)` lỗi biên dịch; phải bỏ `private` constructor, `new Validation()` trong `Main` rồi gọi qua đối tượng. |
 | `removeEmployee` (repository) trả `boolean`? | Có xoá được hay không → controller quyết định báo lỗi. |
-| `findEmployee` (controller) trả `EmployeeResponseDTO`? | Main cần **giá trị cũ** để in trong `[ ]`; DTO chứ không phải `Employee` vì main không được chạm model. |
-| `getDob` trả `Date`, DTO phản hồi lại giữ `String`? | Model giữ ngày **thật** (so/sắp được); view chỉ cần **chữ** để in. |
+| `loadEmployee` (controller) để làm gì? | Main cần **giá trị cũ** để in trong `[ ]`. Repository chép giá trị đã lưu vào chính `EmployeeRequestDTO` Main đưa (DTO chở data main ↔ controller); Main không chạm `Employee`. Không có Id thì ném `=> No employee found with id …`. |
+| `getDob` trả `Date`, màn hình in chữ? | Model giữ ngày **thật** (so/sắp được); chữ `yyyy-MM-dd` do `FormatUtils.formatDate` viết khi cần in. |
 | `getSalary` trả `double`? | Lương có phần lẻ (`2500.5`). |
 | **Sao `ArrayList` mà không `List`?** | Đề gợi ý *"List<Employee> (an ArrayList)"*. `List` là **interface** (hợp đồng), `ArrayList` là **lớp cài đặt** bằng mảng động (lấy theo chỉ số nhanh; xoá giữa phải dời phần tử). Em khai báo đúng lớp em dùng. |
 | Sao `Comparator<Employee>` (interface) mà không `SalaryComparator`? | Đây là **chỗ cố ý** phụ thuộc trừu tượng: service nhận **mọi** comparator (DIP). Khác `ArrayList`: ở đó em không cần thay lớp cài đặt. |
@@ -249,7 +263,10 @@ Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: 
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| Update gọi controller 3 lần? | `checkNotEmpty` và `findEmployee` là **kiểm trước** (đề: rỗng/không thấy Id thì báo ngay; cần giá trị cũ cho `[ ]`). Việc cập nhật chỉ gọi `updateEmployee` **1 lần**. Add tương tự: `checkNewId` kiểm trước, `addEmployee` 1 lần. |
+| Update gọi controller 3 lần? | Case 2 trong `Main.main` gọi `updateEmployee` **đúng 1 lần** (render 1 lần). `checkNotEmpty` (trong `inputUpdate`) và `loadEmployee` (trong `inputCurrent`) là 2 lần gọi **chỉ để kiểm** — ném lỗi, **không** render — vì màn hình bắt báo **ngay**: danh sách rỗng thì không hỏi Id; Id không có thì không hỏi 9 ô (đề: *"tell the user when no match is found"*), và cần giá trị cũ cho `[ ]`. Add: `checkNewId` trong `inputNewId` (đề: *"Validate every input as it is entered … make sure the Id is not already used"*). Remove/Search: `checkNotEmpty`. |
+| Sao bài có repository? | Tờ giấy 1.1: *"Bắt buộc phải có repository"*. `EmployeeRepository` giữ `employeeList` + CRUD/tìm; sort là thuật toán nên ở `EmployeeService`: Controller → Service → Repository → Model. Controller không import `model`. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: `private EmployeeResponseDTO responseDTO` + `setResponseDTO(...)`, rồi `display()` **không tham số** — đúng code mẫu của thầy. Mỗi hàm controller gọi `display()` **đúng 1 lần**. Hết `showMessage(String)`, `setEmployees`, `displaySearch()`. |
+| Validate ở đâu? | Ở **Main** qua `utils/Validation` (từng ô, sai thì in lỗi và hỏi lại ngay). Kiểm cần **dữ liệu** (Id trùng, Id không có, danh sách rỗng) thì controller/repository ném `Exception(Message.X)`, `main` bắt và in `e.getMessage()`. |
 | Sao sort ở service mà search ở repository? | Search là **tìm dữ liệu đã lưu** (như P0055). Sort là **thuật toán** có thể thay → service + Strategy. |
 | Độ phức tạp? | Tìm theo Id `O(n)`; search `O(n)`; sort `O(n log n)` (TimSort, stable). |
 | Pattern gì? | **Builder**, **Strategy**, **Facade**, **Repository**, **MVC** — mục 3.1. |
@@ -264,8 +281,8 @@ Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: 
 | Sắp theo **tên** | thêm `NameComparator` + 1 dòng controller (+ chữ `TITLE_SORT`) | `EmployeeService` |
 | Phone 10 số | `Constants.PHONE_REGEX = "\\d{10}"` + chữ `PHONE_INVALID` | `Validation` |
 | DOB `dd/MM/yyyy` | `Constants.DOB_FORMAT` + chữ `DOB_INVALID` | mọi file khác |
-| Thêm field `position` | `Employee`, `EmployeeBuilder.withPosition`, 2 DTO, `Message` (nhãn), `Validation` nếu có luật, `EmployeeRepository` (add/update/toResponse), `Main.inputEmployee` + `inputPosition` | `EmployeeService`, `SalaryComparator` |
-| Menu "Hiện tất cả" | `Message.MENU`, `Constants`, `EmployeeController.displayAll` (dùng `repository.getEmployees` + `toResponse`), `case` trong Main | model |
+| Thêm field `position` | `Employee` (+ `toString`/dòng bảng nếu cần in), `EmployeeBuilder.setPosition`, `EmployeeRequestDTO`, `Message` (nhãn), `Validation` nếu có luật, `EmployeeRepository` (add/load/update), `Main.inputEmployee` + `inputPosition` | `EmployeeService`, `SalaryComparator` |
+| Menu "Hiện tất cả" | `Message.MENU`, `Constants`, `EmployeeRepository.getRowList` (mỗi nhân viên `formatSortRow()`), `EmployeeController.displayAll` (đặt vào `responseDTO.sortRowList` hoặc field mới, `display()` 1 lần), `case` trong Main | model |
 
 ---
 
@@ -280,3 +297,25 @@ Main: in tiêu đề ─► controller.checkNotEmpty()        (kiểm trước: 
 | Salary | bản cũ nhận `Infinity` | từ chối (`Salary must be a number.`) | không phải số lương |
 | Màn Update / Remove / thông báo lỗi | đề không vẽ | theo bản tham chiếu: `[giá trị cũ]`, `=> ...` | đề im lặng → giữ đúng bản đã chấm |
 | Kiến trúc | `bo/ui`, Scanner trong `Validator` | MVC theo Guide, Scanner **chỉ ở main** | luật thầy |
+| View | `setEmployees(list)` + `display()` + `displaySearch()` + `showMessage(String)`; Update gọi view 2 lần | `setResponseDTO(dto)` + `display()` không tham số, **1 lần/luồng**; Update: `message` + `detail` trong một DTO | tờ giấy 1.1: *View nhận qua thuộc tính*, *render 1 lần/luồng* |
+| Giá trị cũ khi Update | `findEmployee` trả `EmployeeResponseDTO` cho Main | `loadEmployee` chép giá trị cũ vào `EmployeeRequestDTO` của Main | ResponseDTO chỉ đi controller → view (Guide); Main ↔ controller đi bằng RequestDTO |
+| Dòng bảng | view tự ghép từ `EmployeeResponseDTO` 10 field | model viết dòng (`formatSearchRow`, `formatSortRow`, `toString`), repository/service gom thành `ArrayList<String>` | Guide: *"thêm hàm toString() để trả lại repository -> controller -> view"* |
+| Tham số repository | `removeEmployee(dto)`, `searchByName(dto)` | `removeEmployee(String id)`, `searchByName(String name)` — **đúng 1 tham số của đề** | tờ giấy 1.1: repository nhận *"param nếu số param < 3"* |
+| Tên | `employees`, `result`, `sorted`, `withX`, `ID` | `employeeList` (comment `// brief: employees : List<Employee>`), `rowList`, `sortedList`, `setX`, `Id` | tờ giấy 1.5, 1.4. **Đề đặt `employees`, tờ checklist bắt đuôi `List` — hỏi thầy nếu thầy muốn giữ tên đề.** |
+| `Main` | `public class Main` | `public final class Main` + `private Main()` | tờ giấy 3.4 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỗ trong code |
+|---|---|
+| **1.1** MVC + repository | `repository/EmployeeRepository` (bắt buộc có repository); sort qua `service/EmployeeService`; `EmployeeController` không import `model`; `EmployeeView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần/luồng**; mỗi case trong `Main.main` gọi controller 1 lần (lần gọi **chỉ để kiểm** ở `inputNewId`, `inputUpdate`, `inputCurrent`, `inputRemove`, `inputSearch` — lý do ở mục 3) |
+| **1.3 / 1.4** | `SalaryComparator`, `EmployeeService` là danh từ; builder `setId` … `setAgency`, model `formatSearchRow`/`formatSortRow` (động từ) |
+| **1.5** | `employeeList`, `rowList`, `sortedList`, `searchRowList`, `sortRowList`; `Id` (không `ID`) ở mọi tên |
+| **2.6 / 3.7** | biến local ở đầu block và khởi tạo luôn: `int choice = 0;`, `String line = "";` đầu mỗi `inputX`, `Date dob = null;`, `double salary = 0;` trong `Validation` |
+| **2.8** | 1 dòng trống trước mọi comment (cả comment của field), sau vùng khai báo biến, sau `}` của mỗi khối |
+| **2.3** | `if (… .contains(keyword) \|\|` xuống dòng **sau** `\|\|` (`EmployeeRepository.searchByName`) |
+| **3.3** | `if ((choice < min) \|\| (choice > max))` trong `Validation.getChoice` |
+| **3.4** | `public final class Main` + `private Main()`; `Validation`, `FormatUtils`, `Constants`, `Message` cũng `final` + private constructor |
+| **3.8** | không `String +=`, không `+` nối chuỗi: `prompt` dùng `String.format(Message.CURRENT_VALUE, label, current)`, tên đầy đủ dùng `Constants.FULL_NAME_FORMAT` |

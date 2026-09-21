@@ -12,24 +12,33 @@ import utils.FormatUtils;
  */
 public class Employee {
 
-    // Unique ID.
+    // Unique Id.
     private String id;
+
     // First name.
     private String firstName;
+
     // Last name.
     private String lastName;
+
     // Phone number: digits only.
     private String phone;
+
     // Email address.
     private String email;
+
     // Address.
     private String address;
+
     // Date of birth, parsed from yyyy-MM-dd.
     private Date dob;
+
     // "Male" or "Female".
     private String sex;
+
     // Salary, greater than 0.
     private double salary;
+
     // Agency (department).
     private String agency;
 
@@ -37,12 +46,12 @@ public class Employee {
     public Employee() {
     }
 
-    // Returns the ID.
+    // Returns the Id.
     public String getId() {
         return id;
     }
 
-    // Sets the ID.
+    // Sets the Id.
     public void setId(String id) {
         this.id = id;
     }
@@ -137,11 +146,29 @@ public class Employee {
         this.agency = agency;
     }
 
-    // Polymorphism: overrides Object.toString() (the brief: "an overridden toString()").
+    // The full name as the tables show it: first name, a space, last name.
+    private String formatFullName() {
+        return String.format(Constants.FULL_NAME_FORMAT, firstName, lastName);
+    }
+
+    // One row of the brief's search table: Id, First name, Last name, Salary, Agency.
+    public String formatSearchRow() {
+        return String.format(Constants.SEARCH_ROW, id, firstName, lastName,
+                FormatUtils.formatSalary(salary), agency);
+    }
+
+    // One row of the brief's list sorted by salary: Id, Name, Salary, Agency.
+    public String formatSortRow() {
+        return String.format(Constants.SORT_ROW, id, formatFullName(),
+                FormatUtils.formatSalary(salary), agency);
+    }
+
+    // Polymorphism: overrides Object.toString() (the brief: "an overridden toString()") -
+    // every field on one line, shown after an update.
     @Override
     public String toString() {
-        return String.format(Constants.EMPLOYEE_FORMAT, id, firstName + " " + lastName,
-                phone, email, address, FormatUtils.formatDate(dob), sex,
-                FormatUtils.formatSalary(salary), agency);
+        return String.format(Constants.EMPLOYEE_FORMAT, id, formatFullName(), phone, email,
+                address, FormatUtils.formatDate(dob), sex, FormatUtils.formatSalary(salary),
+                agency);
     }
 }

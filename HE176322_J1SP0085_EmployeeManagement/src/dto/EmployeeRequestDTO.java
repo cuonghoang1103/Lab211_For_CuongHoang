@@ -3,32 +3,44 @@ package dto;
 import java.util.Date;
 
 /**
- * DTO carrying what the user typed, FROM main INTO the controller.
+ * DTO carrying what the user typed (already checked by main) FROM main INTO the controller.
+ * On Update it also carries the other way the stored values of the employee, which main
+ * shows in brackets.
  *
  * @author HE176322
  */
 public class EmployeeRequestDTO {
 
-    // ID typed.
+    // Id typed.
     private String id;
+
     // First name typed.
     private String firstName;
+
     // Last name typed.
     private String lastName;
+
     // Phone typed.
     private String phone;
+
     // Email typed.
     private String email;
+
     // Address typed.
     private String address;
+
     // Date of birth typed.
     private Date dob;
+
     // Sex typed.
     private String sex;
+
     // Salary typed.
     private double salary;
+
     // Agency typed.
     private String agency;
+
     // Search text typed.
     private String keyword;
 
@@ -36,12 +48,12 @@ public class EmployeeRequestDTO {
     public EmployeeRequestDTO() {
     }
 
-    // Returns the ID.
+    // Returns the Id.
     public String getId() {
         return id;
     }
 
-    // Sets the ID.
+    // Sets the Id.
     public void setId(String id) {
         this.id = id;
     }

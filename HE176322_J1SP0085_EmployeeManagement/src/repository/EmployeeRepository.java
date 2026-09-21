@@ -1,71 +1,95 @@
 package repository;
 
 import dto.EmployeeRequestDTO;
-import dto.EmployeeResponseDTO;
 import java.util.ArrayList;
 import model.Employee;
 import model.EmployeeBuilder;
-import utils.FormatUtils;
 
 /**
- * REPOSITORY: holds the employees and performs the CRUD of the brief on them - add, find,
- * update, remove - plus the search by name.
+ * REPOSITORY: holds the employees (the list of the brief's EmployeeManager) and the simple
+ * CRUD of the brief on them - add, find, update, remove - plus the search by name. No
+ * keyboard, no print; what the view shows leaves as the text of the model (toString and
+ * its rows).
  *
  * @author HE176322
  */
 public class EmployeeRepository {
 
-    // The "database" of employees, in the order they were added.
-    private ArrayList<Employee> employees = new ArrayList<>();
+    // brief: employees : List<Employee> - named with "List" (checklist 1.5). The employees,
+    // in the order they were added.
+    private ArrayList<Employee> employeeList;
 
     // Creates an empty repository.
     public EmployeeRepository() {
+        employeeList = new ArrayList<>();
     }
 
     // Tells whether no employee is stored.
     public boolean isEmpty() {
-        return employees.isEmpty();
+        return employeeList.isEmpty();
     }
 
-    // Tells whether an employee with this Id is stored (any case).
-    public boolean isExistEmployee(EmployeeRequestDTO requestDTO) {
-        return findById(requestDTO.getId()) != null;
+    // Tells whether an employee with this Id is stored (whatever the case).
+    public boolean isExistEmployee(String id) {
+        return findById(id) != null;
     }
 
-    // Stores a new employee built from the request with the Builder.
+    // The brief's addEmployee: stores a new employee, built from the request (every value
+    // already checked by main) with the Builder.
     public void addEmployee(EmployeeRequestDTO requestDTO) {
         Employee employee = new EmployeeBuilder()
-                .withId(requestDTO.getId())
-                .withFirstName(requestDTO.getFirstName())
-                .withLastName(requestDTO.getLastName())
-                .withPhone(requestDTO.getPhone())
-                .withEmail(requestDTO.getEmail())
-                .withAddress(requestDTO.getAddress())
-                .withDob(requestDTO.getDob())
-                .withSex(requestDTO.getSex())
-                .withSalary(requestDTO.getSalary())
-                .withAgency(requestDTO.getAgency())
+                .setId(requestDTO.getId())
+                .setFirstName(requestDTO.getFirstName())
+                .setLastName(requestDTO.getLastName())
+                .setPhone(requestDTO.getPhone())
+                .setEmail(requestDTO.getEmail())
+                .setAddress(requestDTO.getAddress())
+                .setDob(requestDTO.getDob())
+                .setSex(requestDTO.getSex())
+                .setSalary(requestDTO.getSalary())
+                .setAgency(requestDTO.getAgency())
                 .build();
-        employees.add(employee);
+
+        // Create of CRUD
+        employeeList.add(employee);
     }
 
-    // Finds the employee with the request's Id.
-    public EmployeeResponseDTO findEmployee(EmployeeRequestDTO requestDTO) {
+    // First step of Update: copies the stored values of the employee with the request's Id
+    // into the request, so main can show them in brackets. False when no employee has it.
+    public boolean loadEmployee(EmployeeRequestDTO requestDTO) {
         Employee employee = findById(requestDTO.getId());
-        // unknown Id: nothing to return
+
+        // unknown Id: nothing to load
         if (employee == null) {
-            return null;
+            return false;
         }
-        return toResponse(employee);
+
+        // the stored spelling of the Id, then the nine values the form offers to keep
+        requestDTO.setId(employee.getId());
+        requestDTO.setFirstName(employee.getFirstName());
+        requestDTO.setLastName(employee.getLastName());
+        requestDTO.setPhone(employee.getPhone());
+        requestDTO.setEmail(employee.getEmail());
+        requestDTO.setAddress(employee.getAddress());
+        requestDTO.setDob(employee.getDob());
+        requestDTO.setSex(employee.getSex());
+        requestDTO.setSalary(employee.getSalary());
+        requestDTO.setAgency(employee.getAgency());
+        return true;
     }
 
-    // Replaces the nine changeable fields of an employee.
-    public EmployeeResponseDTO updateEmployee(EmployeeRequestDTO requestDTO) {
+    // The brief's updateEmployee(id): replaces the nine changeable fields of the employee
+    // with the request's Id; returns it on one line (its toString), or null when no
+    // employee has that Id.
+    public String updateEmployee(EmployeeRequestDTO requestDTO) {
         Employee employee = findById(requestDTO.getId());
+
         // unknown Id: nothing to update
         if (employee == null) {
             return null;
         }
+
+        // the Id itself never changes
         employee.setFirstName(requestDTO.getFirstName());
         employee.setLastName(requestDTO.getLastName());
         employee.setPhone(requestDTO.getPhone());
@@ -75,65 +99,55 @@ public class EmployeeRepository {
         employee.setSex(requestDTO.getSex());
         employee.setSalary(requestDTO.getSalary());
         employee.setAgency(requestDTO.getAgency());
-        return toResponse(employee);
+        return employee.toString();
     }
 
-    // Removes the employee with the request's Id.
-    public boolean removeEmployee(EmployeeRequestDTO requestDTO) {
-        Employee employee = findById(requestDTO.getId());
+    // The brief's removeEmployee(id): deletes the employee with this Id; false when no
+    // employee has it.
+    public boolean removeEmployee(String id) {
+        Employee employee = findById(id);
+
         // unknown Id: nothing removed
         if (employee == null) {
             return false;
         }
-        return employees.remove(employee);
+
+        return employeeList.remove(employee);
     }
 
-    // The brief's searchByName: employees whose first OR last name contains the text,
-    // ignoring upper/lower case ("sm" finds Smith, "JO" finds John).
-    public ArrayList<EmployeeResponseDTO> searchByName(EmployeeRequestDTO requestDTO) {
-        String keyword = requestDTO.getKeyword().toLowerCase();
-        ArrayList<EmployeeResponseDTO> result = new ArrayList<>();
+    // The brief's searchByName(name): one row of the search table for every employee whose
+    // first OR last name contains the text, ignoring upper/lower case ("sm" finds Smith).
+    public ArrayList<String> searchByName(String name) {
+        String keyword = name.toLowerCase();
+        ArrayList<String> rowList = new ArrayList<>();
+
         // look at every employee once
-        for (Employee employee : employees) {
+        for (Employee employee : employeeList) {
             // keep the employee when either name contains the text
-            if (employee.getFirstName().toLowerCase().contains(keyword)
-                    || employee.getLastName().toLowerCase().contains(keyword)) {
-                result.add(toResponse(employee));
+            if (employee.getFirstName().toLowerCase().contains(keyword) ||
+                    employee.getLastName().toLowerCase().contains(keyword)) {
+                rowList.add(employee.formatSearchRow());
             }
         }
-        return result;
+
+        return rowList;
     }
 
-    // A COPY of the list, for the service to sort.
-    public ArrayList<Employee> getEmployees() {
-        return new ArrayList<>(employees);
+    // A COPY of the list, for the service to sort: the stored order never changes.
+    public ArrayList<Employee> getEmployeeList() {
+        return new ArrayList<>(employeeList);
     }
 
-    // Copies a model object into the DTO the view may see, with the date as text.
-    public EmployeeResponseDTO toResponse(Employee employee) {
-        EmployeeResponseDTO response = new EmployeeResponseDTO();
-        response.setId(employee.getId());
-        response.setFirstName(employee.getFirstName());
-        response.setLastName(employee.getLastName());
-        response.setPhone(employee.getPhone());
-        response.setEmail(employee.getEmail());
-        response.setAddress(employee.getAddress());
-        response.setDob(FormatUtils.formatDate(employee.getDob()));
-        response.setSex(employee.getSex());
-        response.setSalary(employee.getSalary());
-        response.setAgency(employee.getAgency());
-        return response;
-    }
-
-    // Finds an employee by Id, ignoring upper/lower case.
+    // Finds an employee by Id, ignoring upper/lower case; null when none.
     private Employee findById(String id) {
         // look at every employee once
-        for (Employee employee : employees) {
+        for (Employee employee : employeeList) {
             // same Id, whatever the case
             if (employee.getId().equalsIgnoreCase(id)) {
                 return employee;
             }
         }
+
         return null;
     }
 }

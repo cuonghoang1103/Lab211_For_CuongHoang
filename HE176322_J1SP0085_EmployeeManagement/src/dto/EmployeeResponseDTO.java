@@ -1,155 +1,70 @@
 package dto;
 
-import constants.Constants;
-import utils.FormatUtils;
+import java.util.ArrayList;
 
 /**
- * DTO carrying one employee FROM the controller OUT TO the view (and to main, which shows
- * the old values in brackets on Update) - a JavaBean.
+ * DTO carrying the answer of one menu option FROM the controller OUT TO the view - a
+ * JavaBean. Add, update and remove fill the message (update also the employee on one line);
+ * search fills the rows of its table (or the message when nobody matches); sort fills the
+ * rows of the sorted list.
  *
  * @author HE176322
  */
 public class EmployeeResponseDTO {
 
-    // ID.
-    private String id;
-    // First name.
-    private String firstName;
-    // Last name.
-    private String lastName;
-    // Phone.
-    private String phone;
-    // Email.
-    private String email;
-    // Address.
-    private String address;
-    // Date of birth as yyyy-MM-dd.
-    private String dob;
-    // Sex.
-    private String sex;
-    // Salary.
-    private double salary;
-    // Agency.
-    private String agency;
+    // The one-line result, e.g. "=> Employee E001 added successfully."; null for a table.
+    private String message;
 
-    // JavaBean constructor: an empty response, filled through the setters.
+    // The employee just updated, on one line (the text of Employee.toString()).
+    private String detail;
+
+    // The rows of the search table, one per matching employee; null for other answers.
+    private ArrayList<String> searchRowList;
+
+    // The rows of the list sorted by salary, one per employee; null for other answers.
+    private ArrayList<String> sortRowList;
+
+    // JavaBean constructor: an empty answer, filled through the setters.
     public EmployeeResponseDTO() {
     }
 
-    // Returns the ID.
-    public String getId() {
-        return id;
+    // Returns the one-line result.
+    public String getMessage() {
+        return message;
     }
 
-    // Sets the ID.
-    public void setId(String id) {
-        this.id = id;
+    // Sets the one-line result.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Returns the first name.
-    public String getFirstName() {
-        return firstName;
+    // Returns the employee just updated, on one line.
+    public String getDetail() {
+        return detail;
     }
 
-    // Sets the first name.
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    // Sets the employee just updated, on one line.
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 
-    // Returns the last name.
-    public String getLastName() {
-        return lastName;
+    // Returns the rows of the search table.
+    public ArrayList<String> getSearchRowList() {
+        return searchRowList;
     }
 
-    // Sets the last name.
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    // Sets the rows of the search table.
+    public void setSearchRowList(ArrayList<String> searchRowList) {
+        this.searchRowList = searchRowList;
     }
 
-    // Returns the phone.
-    public String getPhone() {
-        return phone;
+    // Returns the rows of the sorted list.
+    public ArrayList<String> getSortRowList() {
+        return sortRowList;
     }
 
-    // Sets the phone.
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    // Returns the email.
-    public String getEmail() {
-        return email;
-    }
-
-    // Sets the email.
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    // Returns the address.
-    public String getAddress() {
-        return address;
-    }
-
-    // Sets the address.
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    // Returns the date of birth.
-    public String getDob() {
-        return dob;
-    }
-
-    // Sets the date of birth.
-    public void setDob(String dob) {
-        this.dob = dob;
-    }
-
-    // Returns the sex.
-    public String getSex() {
-        return sex;
-    }
-
-    // Sets the sex.
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    // Returns the salary.
-    public double getSalary() {
-        return salary;
-    }
-
-    // Sets the salary.
-    public void setSalary(double salary) {
-        this.salary = salary;
-    }
-
-    // Returns the agency.
-    public String getAgency() {
-        return agency;
-    }
-
-    // Sets the agency.
-    public void setAgency(String agency) {
-        this.agency = agency;
-    }
-
-    // The "Name" column of the sorted list: first and last name together.
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
-
-    // The salary written like the brief's screen: two decimals, a point.
-    public String getSalaryText() {
-        return FormatUtils.formatSalary(salary);
-    }
-
-    // Every field on one line, shown after an update.
-    @Override
-    public String toString() {
-        return String.format(Constants.EMPLOYEE_FORMAT, id, getFullName(), phone,
-                email, address, dob, sex, getSalaryText(), agency);
+    // Sets the rows of the sorted list.
+    public void setSortRowList(ArrayList<String> sortRowList) {
+        this.sortRowList = sortRowList;
     }
 }
