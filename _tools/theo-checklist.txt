@@ -1,0 +1,14 @@
+# Thư mục bài đã sửa theo tờ checklist giấy 21/09/2026 và qua đủ 3 phép kiểm (verify, lint, soat_checklist = 0 VI PHAM).
+HE176322_J1SP0001_BubbleSort
+HE176322_J1SP0002_SelectionSort
+HE176322_J1SP0003_InsertionSort
+HE176322_J1SP0004_QuickSort
+HE176322_J1SP0007_UndirectedGraph
+HE176322_J1SP0052_EastAsiaCountries
+HE176322_J1SP0054_ContactManagement
+HE176322_J1SP0059_FileProcessing
+HE176322_J1SP0070_EbankLogin
+HE176322_J1SP0076_FormatCSV
+HE176322_J1SP0082_PlayingCards
+HE176322_J1SP0083_MyStack
+HE176322_J1SP0084_LargeNumber

@@ -11,7 +11,7 @@ Thầy review **theo thứ tự**. Sai cửa 1 thì thầy không xem tới cử
 
 | Cửa | Thầy kiểm gì | Tự kiểm trước thế nào |
 |---|---|---|
-| **1. Cấu trúc MVC** | có đủ package theo Guide không | mở cây project: `constants · controller · dto · main · model · (repository) · (service) · utils · view` |
+| **1. Cấu trúc MVC** | có đủ package theo Guide không | mở cây project: `constants · controller · dto · main · model · repository · (service) · utils · view` — **repository bắt buộc** (tờ checklist 1.1) |
 | **2. Convention** | tên class/hàm/biến, thụt lề, ngoặc | **Alt+Shift+F** từng file; tên class là danh từ PascalCase, hàm là động từ camelCase |
 | **3. Comment** | mỗi hàm + mỗi `if`/`for`/`switch`/`case`/`try` có comment | lướt từng file: khối nào không có dòng `//` ở trên là thiếu |
 | **4. Debug** | đặt breakpoint, đi từng bước, đọc biến | tập trước theo mục 6 của `HUONG-DAN.md` bài đó |
@@ -181,16 +181,24 @@ Ba nhóm (slide thầy):
 
 ---
 
-## 5. Checklist 10 dòng trước khi giơ tay
+## 5. Trước khi giơ tay — tờ checklist 25 mục
 
-- [ ] Tên project `HE176322_<Mã>_<Tên>`; mở ra thấy đủ package MVC
-- [ ] `Scanner` chỉ ở `main`; `System.out` chỉ ở `main` và `view`
-- [ ] Mọi câu chữ nằm trong `constants/Message` — không chuỗi lẻ ở class khác
-- [ ] Mọi field `private`; `static` chỉ ở `utils`, `constants`, hàm trong `main`
-- [ ] Không hàm nào 3 tham số trở lên (trừ `utils` kiểu `getChoice(input, min, max)` và constructor)
-- [ ] Khai báo `ArrayList`/`HashMap`, không `List`/`Map` (trừ chỗ đề bắt)
-- [ ] Mỗi hàm + mỗi if/else/switch/case/for/while/try/catch có comment
-- [ ] **Alt+Shift+F** tất cả file
+Thầy review bằng tờ **"Coding check sheet"** giấy: tự soát, điền **"O"** từng mục, **cả cột "O" mới xin
+review**. 25 mục nguyên văn: [`TO-CHECKLIST-THAY.md`](TO-CHECKLIST-THAY.md). Những dòng hay trượt nhất:
+
+- [ ] Tên project `HE176322_<Mã>_<Tên>`; có đủ package, **có `repository/`** (1.1, 1.2)
+- [ ] `Scanner` chỉ ở `main`; **Main nhập + validate** qua `utils`; mỗi `case` gọi controller **1 lần** (1.1)
+- [ ] Controller không import `model`, không `System.out`; View có field `ResponseDTO` + setter +
+      `display()` **không tham số**, gọi **1 lần/luồng** (1.1)
+- [ ] Mọi câu chữ ở `Message`, mọi số/regex ở `Constants` (2.10, 2.11)
+- [ ] Mọi field `private`; `static` chỉ ở `utils`, `constants`, hàm trong `main`; class chỉ có hàm
+      static (kể cả `Main`) là `final` + constructor `private` (3.4)
+- [ ] Tên: `…List` / `…Set` / `…Map` / `…Array`, `Id` không `ID`, interface `I…`, exception `…Exception` (1.3, 1.5)
+- [ ] Khai báo **đầu block** và **khởi tạo luôn** (`String line = "";`) (2.6, 3.7)
+- [ ] **Dòng trống** trước mọi comment, sau vùng khai báo, giữa các khối — Alt+Shift+F không làm hộ (2.8)
+- [ ] Ngoặc quanh từng phép so sánh: `if ((a < min) || (a > max))` (3.3); không `String +=` (3.8)
+- [ ] Mỗi hàm (cả getter/setter) + mỗi if/else/switch/case/for/while/try/catch có comment (1.6)
+- [ ] **Alt+Shift+F** tất cả file · dòng ≤ 100 ký tự (2.1, 2.3)
 - [ ] Đi hết bảng test: mọi happy case + mọi thông báo lỗi của đề
 - [ ] Tập 1 lần debug theo mục 4, và trả lời thành tiếng 5 câu ở mục 3
 
@@ -203,7 +211,9 @@ cd ~/Documents/Source_Lab211_ForCuongThai
 python3 _tools/verify.py J1SP0055              # kiểm 1 bài
 python3 _tools/verify.py --netbeans            # kiểm cả 54 bài + build NetBeans
 python3 _tools/lint.py HE176322_J1SP0055_DoctorManagement   # chỉ kiểm luật thầy
+python3 _tools/soat_checklist.py HE176322_J1SP0070_EbankLogin   # soát 25 mục tờ giấy
 ```
 
 Tự gõ lại một bài rồi chạy `lint.py` lên project **của em** — nó chỉ ra đúng chỗ thiếu comment, sai
-tầng, chuỗi hardcode… trước khi thầy thấy.
+tầng, chuỗi hardcode… trước khi thầy thấy. Rồi chạy `soat_checklist.py`: **0 VI PHAM** là đủ điều kiện
+điền "O" cả 25 mục (dòng "rui ro" thì đọc lại và tự quyết).

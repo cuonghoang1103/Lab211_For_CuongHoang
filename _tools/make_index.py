@@ -68,15 +68,25 @@ def main():
                "trên lớp. Mỗi project: code đã **biên dịch ở chế độ Java 8**, **chạy thật** với kịch bản "
                "gõ phím (đủ happy case + mọi thông báo lỗi), so màn hình **từng ký tự** dưới 2 locale, "
                "và qua bộ kiểm luật thầy.\n" % len(rows))
+    done = set()
+    listed = os.path.join(ROOT, "_tools", "theo-checklist.txt")
+    if os.path.exists(listed):
+        with open(listed, encoding="utf-8") as fh:
+            done = {ln.strip() for ln in fh if ln.strip() and not ln.startswith("#")}
+    out.append("> ⛔ **Đang sửa cả %d bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **%d/%d**. "
+               "Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); "
+               "⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.\n"
+               % (len(rows), len(done & {r[2] for r in rows}), len(rows)))
     out.append("## Đọc theo thứ tự này\n")
     out.append("| # | File | Để làm gì |")
     out.append("|---|---|---|")
-    out.append("| 1 | [`QUY-TAC-THAY.md`](QUY-TAC-THAY.md) | Luật của thầy — **mỗi dòng có nguồn nguyên văn** |")
-    out.append("| 2 | [`CACH-REVIEW.md`](CACH-REVIEW.md) | 5 cửa review, ngân hàng câu hỏi vấn đáp, debug, checklist |")
-    out.append("| 3 | `HE176322_J1SP0055_DoctorManagement/` | **Bài thầy bắt làm buổi 1** — khuôn cho mọi bài |")
-    out.append("| 4 | `HE176322_J1SP0001_BubbleSort/` | Khuôn cho bài thuật toán nhỏ: MVC + Facade, **không thêm lớp pattern thừa** |")
-    out.append("| 5 | `HE176322_J1LP0013_VehicleManagement/` | Khuôn cho bài Long: kế thừa + interface + Factory + Template Method + Strategy + file |")
-    out.append("| 6 | `HUONG-DAN.md` trong từng project | Đề · kiến thức · thiết kế · code từng bước · test · debug · câu hỏi |")
+    out.append("| 1 | [`TO-CHECKLIST-THAY.md`](TO-CHECKLIST-THAY.md) | **Tờ checklist giấy 25 mục** — thầy review bằng đúng tờ này; chuẩn cao nhất |")
+    out.append("| 2 | [`QUY-TAC-THAY.md`](QUY-TAC-THAY.md) | Luật của thầy — **mỗi dòng có nguồn nguyên văn** (mục 0: chỗ tờ giấy chặt hơn Guide) |")
+    out.append("| 3 | [`CACH-REVIEW.md`](CACH-REVIEW.md) | 5 cửa review, ngân hàng câu hỏi vấn đáp, debug, danh sách kiểm trước khi giơ tay |")
+    out.append("| 4 | `HE176322_J1SP0070_EbankLogin/` | **Mẫu chuẩn theo tờ checklist (25/25)**: Main validate, repository, View nhận ResponseDTO |")
+    out.append("| 5 | `HE176322_J1SP0001_BubbleSort/` | Khuôn cho bài thuật toán nhỏ: repository giữ mảng, service chạy thuật toán |")
+    out.append("| 6 | `HE176322_J1SP0054_ContactManagement/` | Khuôn cho bài quản lý: một ResponseDTO (câu kết quả + danh sách dòng) |")
+    out.append("| 7 | `HUONG-DAN.md` trong từng project | Đề · kiến thức · thiết kế · code từng bước · test · debug · câu hỏi |")
     out.append("")
     out.append("## Tải một bài về máy\n")
     out.append("Kho này là **source thật** của 54 bài, mỗi thư mục là một project NetBeans mở được ngay.\n")
@@ -109,15 +119,16 @@ def main():
     out.append("## Mục lục %d project (xếp theo LOC)\n" % len(rows))
     out.append("Mọi project đều là **MVC** và controller đóng vai **Facade**. Cột *Pattern thêm* chỉ ghi "
                "pattern có **cấu trúc thật trong code** (bài nhỏ ≤ 60 LOC cố ý không thêm lớp pattern).\n")
-    out.append("| LOC | Mã | Đề | Độ khó | Package | File | Pattern thêm | Hướng dẫn |")
-    out.append("|---|---|---|---|---|---|---|---|")
+    out.append("| LOC | Mã | Đề | Độ khó | Package | File | Pattern thêm | Tờ 25 mục | Hướng dẫn |")
+    out.append("|---|---|---|---|---|---|---|---|---|")
     total = 0
     for loc, code, name, e, pkgs, nfiles, pats, has_guide in rows:
         total += loc
-        out.append("| %s | `%s` | [%s](%s/HUONG-DAN.md) | %s | %s | %d | %s | %s |" % (
+        out.append("| %s | `%s` | [%s](%s/HUONG-DAN.md) | %s | %s | %d | %s | %s | %s |" % (
             loc, e.get("lab", code), (e.get("title") or name)[:60], name,
             DIFF_VI.get(e.get("difficulty"), ""), " · ".join(pkgs), nfiles,
-            ", ".join(pats) if pats else "—", "✅" if has_guide else "—"))
+            ", ".join(pats) if pats else "—", "✅" if name in done else "⏳",
+            "✅" if has_guide else "—"))
     out.append("\nTổng LOC chuẩn của %d project: **%d**.\n" % (len(rows), total))
     out.append("## Bộ công cụ `_tools/`\n")
     out.append("| Lệnh | Làm gì |")
@@ -125,6 +136,7 @@ def main():
     out.append("| `python3 _tools/verify.py` | kiểm **mọi** project: Java 8 + chạy kịch bản + so màn hình + luật thầy |")
     out.append("| `python3 _tools/verify.py --netbeans J1SP0055` | kiểm 1 bài + build y như NetBeans *Clean and Build* |")
     out.append("| `python3 _tools/lint.py <thư mục project>` | chỉ kiểm luật thầy — chạy lên **project em tự gõ** |")
+    out.append("| `python3 _tools/soat_checklist.py <thư mục project>` | soát **25 mục tờ checklist giấy** — 0 VI PHAM mới điền đủ \"O\" |")
     out.append("| `_tools/tests/<Mã>.py` | kịch bản gõ phím + màn hình mong đợi của từng bài |")
     with open(os.path.join(ROOT, "README.md"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(out) + "\n")

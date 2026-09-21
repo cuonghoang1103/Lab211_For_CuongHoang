@@ -6,6 +6,34 @@
 > Chỗ nào là quyết định của bộ lời giải thì ghi rõ **[quyết định của bộ lời giải]** và lý do.
 > Không có quy tắc nào đoán mò.
 
+> ⛔ **Từ 21/09/2026, tờ "Coding check sheet" giấy thầy phát là chuẩn CAO NHẤT** — xem mục 0 và
+> [`TO-CHECKLIST-THAY.md`](TO-CHECKLIST-THAY.md) (25 mục chép nguyên văn). Chỗ nào tệp này nói khác tờ giấy thì
+> **theo tờ giấy**.
+
+## 0. Tờ checklist giấy (21/09/2026) — thầy review bằng đúng tờ này
+
+Một tờ dùng cho **5 bài**, mỗi bài **3 cột** "Date": điền ngày bắt đầu làm + mã bài; code xong tự soát 25 mục,
+mục nào OK điền **"O"**; **cả cột đều "O" mới xin thầy review**. Những điểm tờ giấy chặt hơn Guide — bộ lời giải
+đã sửa theo:
+
+| Mục | Tờ giấy nói | Nghĩa là |
+|---|---|---|
+| 1.1 | *"Bắt buộc phải có repository"* | **mọi bài** có `repository/` — bài thuật toán thì repository giữ dữ liệu đầu vào (mảng số, chuỗi, ma trận…) |
+| 1.1 | *"Toàn bộ việc nhập dữ liệu/Validate/đọc từ file/mã hóa thực hiện ở Main"* | Main nhập + validate (qua `utils/Validation`), đọc tệp (qua `utils/FileUtils`), băm mật khẩu (qua `utils/MD5Utils`…) rồi mới gói RequestDTO |
+| 1.1 | Controller *"không làm việc với Model"*, *"Không thực hiện print"* | controller chỉ import dto · service · view (Guide: *"chỉ import DTO, View, Service"*) |
+| 1.1 | *"Việc rendering khi gọi view chỉ được gọi 1 lần cho 1 luồng xử lý (Mỗi luồng tính là 1 switch - case ở Main)"* | mỗi case: controller gọi `view.setResponseDTO(...)` rồi `view.display()` **đúng 1 lần** |
+| 1.1 | View *"Không nên truyền qua param mà phải nhận qua thuộc tính (Nên để ResponseDTO…)"* | View có field `ResponseDTO` + setter + `display()` **không tham số** — không còn `showMessage(String)` |
+| 1.5 | collection đuôi `List`, Set đuôi `Set`, Map đuôi `Map`, mảng đuôi `Array`; `Id` không `ID` | `doctorList`, `ageMap`, `int[] numberArray`, `studentId` |
+| 1.3 | interface bắt đầu bằng `I`, class exception kết thúc bằng `Exception` | `ISortStrategy`, `CarException` |
+| 2.6 · 3.7 | khai báo tập trung **đầu block**, khai báo là **khởi tạo** | `String line = "";` ở đầu hàm, trong vòng lặp chỉ gán |
+| 2.8 | 1 dòng trống giữa method, **sau vùng khai báo**, **trước mọi comment**, giữa các khối | Alt+Shift+F **không** tự chèn — phải tự gõ |
+| 2.3 | dòng ≤ **100** ký tự; ngắt **sau** toán tử logic, **trước** `+ - *` | |
+| 3.3 | dùng `()` cho tường minh | `if ((choice < min) \|\| (choice > max))` — đúng kiểu code mẫu Validation của thầy |
+| 3.4 | class chỉ có static method → **private constructor + final** | kể cả `Main` |
+| 3.8 | cộng string dùng `StringBuilder`, không `String +=` | hoặc `String.format(Message.X, …)` |
+
+Bài mẫu theo đúng tờ giấy (25/25): `HE176322_J1SP0070_EbankLogin/`.
+
 Nguồn viết tắt:
 
 | Mã | Tệp gốc |
@@ -99,32 +127,33 @@ package, class, method theo MVC"* · *"SOLID — Model đáp ứng nguyên tắc
 | `view` | `DoctorView.java` | *"Chứa ResponseDTO, việc hiển thị kết quả xử lý trên console sẽ thực hiện ở đây. **Không được gọi print ngoài view và main**."* |
 | `exceptions` | (tuỳ bài) | HD slide "Quy tắc đặt tên → Package": *"main, controllers/services, **exceptions**, utils"* |
 
-### 3.3 Quy tắc thêm tầng — **[quyết định của bộ lời giải]**, bám sát chữ của thầy
+### 3.3 Package của mọi bài — theo tờ checklist giấy (21/09/2026)
 
-Thầy **không** nói "bài nhỏ thì bỏ tầng". Ngược lại: thuật toán cũng phải MVC (HD Nội quy 4).
-Nên mọi bài trong bộ này đều có đủ **khung cố định**:
+Thầy **không** nói "bài nhỏ thì bỏ tầng". Ngược lại: thuật toán cũng phải MVC (HD Nội quy 4), và tờ
+checklist mục 1.1 ghi *"Bắt buộc phải có repository"*. Nên mọi bài trong bộ này có đủ **khung cố định**:
 
 ```
 constants/  Message.java, Constants.java
 controller/ <Ten>Controller.java
 dto/        <Ten>RequestDTO.java, <Ten>ResponseDTO.java
-main/       Main.java
+main/       Main.java                 (public final class + private constructor)
 model/      (ít nhất 1 lớp mô tả đối tượng của bài)
-utils/      Validation.java  khi bài CÓ nhập bàn phím (P0009, P0080 không nhập gì → không có)
-            (+ FileUtils.java khi bài có đọc/ghi tệp)
-view/       <Ten>View.java
+repository/ <Ten>Repository.java      BẮT BUỘC — giữ dữ liệu của bài + CRUD đơn giản
+utils/      Validation.java           khi bài có nhập bàn phím
+            (+ FileUtils.java khi có đọc/ghi tệp, MD5Utils.java khi có mã hoá…)
+view/       <Ten>View.java            field ResponseDTO + setResponseDTO + display() không tham số
 ```
 
-và **thêm** hai tầng theo đúng câu chữ của thầy:
+và **thêm** theo đúng câu chữ của thầy:
 
 | Thêm | Khi nào (theo GUIDE) |
 |---|---|
-| `repository/` | bài có **một tập dữ liệu được lưu giữ** (danh sách bác sĩ, sinh viên, từ điển…) và làm **CRUD** trên nó |
 | `service/` | bài có **tính toán nghiệp vụ ngoài CRUD**: tổng, chu vi, diện tích, report, **thuật toán** (sắp xếp, tìm kiếm, đổi hệ cơ số, nhân số lớn…) |
-| `exceptions/` | đề **bắt** tạo lớp ngoại lệ riêng (ExceptionCar, ExceptionHandle…) |
+| `exceptions/` | đề **bắt** tạo lớp ngoại lệ riêng — tên kết thúc bằng `Exception` (tờ giấy 1.3) |
 
-Bài thuật toán (fibo, sort…): **không** có `repository` (không có tập dữ liệu được lưu giữ và
-CRUD), **có** `service` (thuật toán chính là "tính toán nghiệp vụ").
+Bài thuật toán (fibo, sort…): `repository` giữ **dữ liệu đầu vào** mà thuật toán làm việc (mảng số, dãy…),
+`service` lấy dữ liệu từ repository rồi chạy thuật toán. Tầng đi: Controller → Service → Repository → Model.
+(Bản trước 21/09 ghi "bài thuật toán không có repository" — **sai theo tờ giấy**.)
 
 ### 3.4 Luồng của một chức năng — chép theo mẫu P0055 của thầy
 
@@ -167,7 +196,7 @@ comment, Statement format"*), CC, OOP mục 8.1, HD slide "Quy tắc đặt tên
 | Thụt lề | **4 dấu cách**; `{` cuối dòng khai báo; `}` đứng riêng một dòng | CC §4, §6.4 |
 | Ngoặc | **luôn có `{}`** cho if/for/while, kể cả 1 câu lệnh | CC §7.2, §7.4 |
 | Khoảng trắng | sau từ khoá (`if (`), sau dấu phẩy, quanh toán tử 2 ngôi; **không** giữa tên hàm và `(` | CC §8.2 |
-| Mỗi dòng | 1 câu lệnh; 1 khai báo; tránh dòng > 80 ký tự | CC §4.1, §6.1, §7.1 |
+| Mỗi dòng | 1 câu lệnh; 1 khai báo; dòng ≤ **100** ký tự (tờ checklist 2.3 — CC gốc nói 80) | CC §4.1, §6.1, §7.1; tờ checklist 2.3, 2.4, 2.7 |
 | switch | mọi `switch` có `default` | CC §7.8 |
 | Thứ tự trong class | hằng static → biến instance (public→protected→private) → constructor → method | CC §3.1.3 |
 | Trường | **không public** nếu không có lý do | CC §10.1 |
@@ -260,7 +289,7 @@ Design pattern (DP) — **thầy đánh giá cao nhất** (lời thầy V7, mụ
 
 | | Quyết định | Vì sao |
 |---|---|---|
-| **Khung cố định**: `constants` · `model` · `dto` · `controller` · `view` · `main` (+ `utils` khi có nhập liệu / đọc ghi file / mã hoá) | **mọi bài, kể cả bài 21 dòng** | Chính project mẫu thầy phát — `HE176322_J1S0055_DoctorManagement` — có đúng bộ này (8 package, kèm `repository`). Bài luyện 01 của thầy cũng vậy. Anh hỏi lại thầy **15/09/2026**: chia package như thế mới đúng Design Pattern và SOLID |
+| **Khung cố định**: `constants` · `model` · `dto` · `repository` · `controller` · `view` · `main` (+ `utils` khi có nhập liệu / đọc ghi file / mã hoá; `repository` bắt buộc theo tờ checklist 21/09) | **mọi bài, kể cả bài 21 dòng** | Chính project mẫu thầy phát — `HE176322_J1S0055_DoctorManagement` — có đúng bộ này (8 package, kèm `repository`). Bài luyện 01 của thầy cũng vậy. Anh hỏi lại thầy **15/09/2026**: chia package như thế mới đúng Design Pattern và SOLID |
 | **Thêm `repository`** | khi chương trình **giữ một collection** (danh sách bác sỹ, sinh viên…) | GUIDE: *"Chứa data, ví dụ danh sách sinh viên… Các method CRUD đơn giản đối với data chính cũng nằm ở đây"*. Bộ này: **23/54 bài** |
 | **Thêm `service`** | khi có **tính toán nghiệp vụ hoặc thuật toán** ngoài CRUD | GUIDE, ngay trong ô `repository`: *"Nếu có các tính toán nghiệp vụ ngoài CRUD thì **cần thêm** class DoctorServices.java… Services nằm giữa Controller và Repo"*. Bài luyện 02 của thầy có `service/` (và cả `service/sort/`). Bộ này: **46/54 bài** |
 | **Thêm `exceptions`** | khi **đề bắt** có exception riêng | HD slide "Quy tắc đặt tên → Package". Bộ này: **2/54 bài** |
