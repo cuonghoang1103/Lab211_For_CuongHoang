@@ -1,39 +1,27 @@
 package dto;
 
 /**
- * DTO carrying one result FROM the controller OUT TO the view: the value the operation
- * worked on and the stack after it.
+ * DTO carrying one result FROM the controller OUT TO the view: the one line to print,
+ * already holding the value the operation worked on and the stack after it.
  *
  * @author HE176322
  */
 public class StackResponseDTO {
 
-    // The value pushed, popped or peeked (unused by option 4, Display).
-    private int value;
-    // The stack after the operation, top first.
-    private String stack;
+    // The line to print, e.g. "Popped 30.   Stack (top -> bottom): [20, 10]".
+    private String message;
 
-    // JavaBean constructor: an empty response, filled through the setters.
+    // JavaBean constructor: an empty response, filled through the setter.
     public StackResponseDTO() {
     }
 
-    // Returns the value the operation worked on.
-    public int getValue() {
-        return value;
+    // Returns the line to print.
+    public String getMessage() {
+        return message;
     }
 
-    // Sets the value the operation worked on.
-    public void setValue(int value) {
-        this.value = value;
-    }
-
-    // Returns the stack as text.
-    public String getStack() {
-        return stack;
-    }
-
-    // Sets the stack as text.
-    public void setStack(String stack) {
-        this.stack = stack;
+    // Sets the line to print.
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

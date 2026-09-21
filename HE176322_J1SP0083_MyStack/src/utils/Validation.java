@@ -19,6 +19,7 @@ public final class Validation {
         if (input == null) {
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         // parseInt refuses everything that is not a whole int
         try {
             return Integer.parseInt(input.trim());
@@ -31,10 +32,12 @@ public final class Validation {
     // Converts a menu choice and checks it lies in [min, max].
     public static int getChoice(String input, int min, int max) throws Exception {
         int choice = getInt(input);
+
         // a number, but not one of the menu options
-        if (choice < min || choice > max) {
+        if ((choice < min) || (choice > max)) {
             throw new Exception(String.format(Message.INVALID_RANGE, min, max));
         }
+
         return choice;
     }
 }
