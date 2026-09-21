@@ -4,7 +4,8 @@ import constants.Constants;
 import constants.Message;
 
 /**
- * Shared checks for what the user typed.
+ * Shared checks for what the user typed. A utility: no object, no field, no keyboard, no
+ * print - it only answers "is this line valid?".
  *
  * @author HE176322
  */
@@ -20,12 +21,14 @@ public final class Validation {
         if (input == null) {
             return "";
         }
+
         return input.trim();
     }
 
     // Converts a mark and checks it lies in [0, 10], with the brief's three messages.
     public static double getMark(String input, String subject) throws Exception {
-        double mark;
+        double mark = 0;
+
         // letters, an empty line: not a number
         try {
             mark = Double.parseDouble(getText(input));
@@ -33,18 +36,22 @@ public final class Validation {
             // the brief: "Maths is digit"
             throw new Exception(String.format(Message.MARK_NOT_DIGIT, subject));
         }
+
         // "NaN" parses but is not a mark
         if (Double.isNaN(mark)) {
             throw new Exception(String.format(Message.MARK_NOT_DIGIT, subject));
         }
+
         // the brief: above 10 -> "Maths is less than equal ten"
         if (mark > Constants.MAX_MARK) {
             throw new Exception(String.format(Message.MARK_TOO_BIG, subject));
         }
+
         // the brief: below 0 -> "Maths is greater than equal zero"
         if (mark < Constants.MIN_MARK) {
             throw new Exception(String.format(Message.MARK_TOO_SMALL, subject));
         }
+
         return mark;
     }
 
@@ -52,8 +59,9 @@ public final class Validation {
     // (either case).
     public static boolean isYesOrNo(String input) {
         String answer = getText(input);
-        return answer.equalsIgnoreCase(Constants.YES)
-                || answer.equalsIgnoreCase(Constants.NO);
+
+        // Y or N, upper or lower case
+        return answer.equalsIgnoreCase(Constants.YES) || answer.equalsIgnoreCase(Constants.NO);
     }
 
     // Tells whether the answer is Y (either case).

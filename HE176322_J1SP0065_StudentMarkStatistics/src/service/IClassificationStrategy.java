@@ -6,7 +6,7 @@ package service;
  *
  * @author HE176322
  */
-public interface ClassificationStrategy {
+public interface IClassificationStrategy {
 
     // Classifies one average.
     String classify(double average);

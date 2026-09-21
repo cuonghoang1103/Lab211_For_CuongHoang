@@ -13,6 +13,7 @@ public class ReportResponseDTO {
 
     // The classified students, in the order they were typed.
     private ArrayList<StudentResponseDTO> studentList = new ArrayList<>();
+
     // Type -> percent.
     private HashMap<String, Double> percentMap = new HashMap<>();
 

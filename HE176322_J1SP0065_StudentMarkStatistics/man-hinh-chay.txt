@@ -33,8 +33,7 @@ Chemistry:Chemistry is digit
 Chemistry:Physics:Physics is less than equal ten
 Physics:Physics is greater than equal zero
 Physics:Physics is digit
-Physics:Do you want to enter more student information?(Y/N):Name:Classes:Maths:Chemistry:Physics:Do you want to enter more student information?(Y/N):
------- Student1 Info ------
+Physics:Do you want to enter more student information?(Y/N):Name:Classes:Maths:Chemistry:Physics:Do you want to enter more student information?(Y/N):------ Student1 Info ------
 Name:Nghia
 Classes:FU1
 AVG:10.0

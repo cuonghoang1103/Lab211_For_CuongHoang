@@ -1,22 +1,23 @@
 package controller;
 
+import dto.ReportRequestDTO;
 import dto.ReportResponseDTO;
-import dto.StudentRequestDTO;
-import java.util.ArrayList;
 import service.StandardClassificationStrategy;
 import service.StudentService;
 import view.StudentView;
 
 /**
  * CONTROLLER (and FACADE): takes the typed students from main, asks the service for the
- * report, and hands it to the view.
+ * report, and hands it to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class StudentController {
 
-    // Creates, classifies and counts the students.
+    // Creates, keeps, classifies and counts the students (Controller -> Service ->
+    // Repository -> Model).
     private StudentService studentService;
+
     // Prints the report.
     private StudentView studentView;
 
@@ -26,10 +27,13 @@ public class StudentController {
         studentView = new StudentView();
     }
 
-    // Function 2: classifies the students and shows them with the statistics.
-    public void classifyStudents(ArrayList<StudentRequestDTO> requestList) {
-        ReportResponseDTO report = studentService.makeReport(requestList);
-        studentView.setReport(report);
+    // Function 2 (the only workflow): the service classifies the students and counts the
+    // types, the view shows them with the statistics ONCE.
+    public void classifyStudents(ReportRequestDTO requestDTO) {
+        ReportResponseDTO responseDTO = studentService.makeReport(requestDTO);
+
+        // hand the report to the view, then render it - once for the whole flow
+        studentView.setResponseDTO(responseDTO);
         studentView.display();
     }
 }

@@ -1,7 +1,8 @@
 package dto;
 
 /**
- * DTO carrying one student the user typed, FROM main INTO the controller.
+ * DTO carrying one student the user typed; main puts one per student into the
+ * ReportRequestDTO that goes INTO the controller.
  *
  * @author HE176322
  */
@@ -9,12 +10,16 @@ public class StudentRequestDTO {
 
     // Name typed by the user.
     private String name;
+
     // Class typed by the user.
     private String classes;
+
     // Maths mark typed by the user (already checked 0..10).
     private double maths;
+
     // Chemistry mark typed by the user (already checked 0..10).
     private double chemistry;
+
     // Physics mark typed by the user (already checked 0..10).
     private double physics;
 

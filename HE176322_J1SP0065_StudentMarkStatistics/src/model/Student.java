@@ -1,5 +1,7 @@
 package model;
 
+import constants.Constants;
+
 /**
  * MODEL: one student - the five values that are typed in (name, class, three marks) and
  * the two that are worked out from them (average, type).
@@ -10,16 +12,22 @@ public class Student {
 
     // Student name.
     private String name;
+
     // Class name.
     private String classes;
+
     // Maths mark, 0..10.
     private double maths;
+
     // Chemistry mark, 0..10.
     private double chemistry;
+
     // Physics mark, 0..10.
     private double physics;
+
     // Average of the three marks, one decimal; set by averageStudent.
     private double average;
+
     // Student type A/B/C/D; set by averageStudent.
     private String type;
 
@@ -100,6 +108,6 @@ public class Student {
     // Polymorphism: overrides Object.toString(); returns the text, the view prints.
     @Override
     public String toString() {
-        return name + " (" + classes + ") " + average + " " + type;
+        return String.format(Constants.STUDENT_FORMAT, name, classes, average, type);
     }
 }

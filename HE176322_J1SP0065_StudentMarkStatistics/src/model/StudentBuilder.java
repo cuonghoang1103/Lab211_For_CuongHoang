@@ -15,32 +15,32 @@ public class StudentBuilder {
         student = new Student();
     }
 
-    // Sets the name.
-    public StudentBuilder withName(String name) {
+    // Sets the name, then hands the builder back for the next step.
+    public StudentBuilder setName(String name) {
         student.setName(name);
         return this;
     }
 
-    // Sets the class name.
-    public StudentBuilder withClasses(String classes) {
+    // Sets the class name, then hands the builder back for the next step.
+    public StudentBuilder setClasses(String classes) {
         student.setClasses(classes);
         return this;
     }
 
-    // Sets the maths mark.
-    public StudentBuilder withMaths(double maths) {
+    // Sets the maths mark, then hands the builder back for the next step.
+    public StudentBuilder setMaths(double maths) {
         student.setMaths(maths);
         return this;
     }
 
-    // Sets the chemistry mark.
-    public StudentBuilder withChemistry(double chemistry) {
+    // Sets the chemistry mark, then hands the builder back for the next step.
+    public StudentBuilder setChemistry(double chemistry) {
         student.setChemistry(chemistry);
         return this;
     }
 
-    // Sets the physics mark.
-    public StudentBuilder withPhysics(double physics) {
+    // Sets the physics mark, then hands the builder back for the next step.
+    public StudentBuilder setPhysics(double physics) {
         student.setPhysics(physics);
         return this;
     }

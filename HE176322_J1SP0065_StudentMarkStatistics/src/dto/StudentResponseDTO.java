@@ -10,10 +10,13 @@ public class StudentResponseDTO {
 
     // Student name (line "Name:").
     private String name;
+
     // Class name (line "Classes:").
     private String classes;
+
     // Average, one decimal (line "AVG:").
     private double average;
+
     // Type A/B/C/D (line "Type:").
     private String type;
 
