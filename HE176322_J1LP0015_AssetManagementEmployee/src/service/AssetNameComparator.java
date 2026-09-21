@@ -18,10 +18,12 @@ public class AssetNameComparator implements Comparator<Asset> {
     @Override
     public int compare(Asset first, Asset second) {
         int byName = second.getName().compareToIgnoreCase(first.getName());
+
         // same name: the id decides, so the order never changes between two runs
         if (byName == 0) {
-            return first.getAssetID().compareToIgnoreCase(second.getAssetID());
+            return first.getAssetId().compareToIgnoreCase(second.getAssetId());
         }
+
         return byName;
     }
 }

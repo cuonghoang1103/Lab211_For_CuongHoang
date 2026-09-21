@@ -11,9 +11,9 @@ public class Request extends Transaction {
     public Request() {
     }
 
-    // Creates a request with every field filled in.
-    public Request(String rID, String assetID, String employeeID, int quantity,
+    // brief: rID, requestDateTime - creates a request with every field filled in.
+    public Request(String requestId, String assetId, String employeeId, int quantity,
             String requestDateTime) {
-        super(rID, assetID, employeeID, quantity, requestDateTime);
+        super(requestId, assetId, employeeId, quantity, requestDateTime);
     }
 }

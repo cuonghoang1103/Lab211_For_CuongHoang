@@ -14,12 +14,16 @@ public enum NumberField {
 
     // Prompt printed before the number is typed.
     private final String prompt;
+
     // Smallest legal value.
     private final double min;
+
     // Largest legal value.
     private final double max;
+
     // True when decimals are refused.
     private final boolean wholeNumber;
+
     // Message shown for any wrong value.
     private final String error;
 

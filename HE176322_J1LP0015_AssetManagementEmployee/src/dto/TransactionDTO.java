@@ -1,26 +1,30 @@
 package dto;
 
 /**
- * DTO controller -> view: one row of this employee's requests or borrows, with the asset
- * name looked up.
+ * DTO service -> controller -> view: one row of this employee's requests or borrows, with
+ * the asset name looked up.
  *
  * @author HE176322
  */
-public class TransactionResponseDTO {
+public class TransactionDTO {
 
     // Request or borrow id.
     private String id;
+
     // Asset id.
-    private String assetID;
+    private String assetId;
+
     // Asset name.
     private String assetName;
+
     // Units.
     private int quantity;
+
     // Date and time.
     private String dateTime;
 
     // JavaBean constructor.
-    public TransactionResponseDTO() {
+    public TransactionDTO() {
     }
 
     // Returns the id.
@@ -34,13 +38,13 @@ public class TransactionResponseDTO {
     }
 
     // Returns the asset id.
-    public String getAssetID() {
-        return assetID;
+    public String getAssetId() {
+        return assetId;
     }
 
     // Changes the asset id.
-    public void setAssetID(String assetID) {
-        this.assetID = assetID;
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
     }
 
     // Returns the asset name.

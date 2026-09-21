@@ -4,8 +4,8 @@ import constants.Constants;
 import constants.Message;
 
 /**
- * MODEL: role MA. He can log in here, but he approves requests in the manager's program;
- * he does not borrow.
+ * MODEL: role MA - the manager. In the manager's program he uses every function; in the
+ * employee's program he can log in, but he approves requests, he does not borrow.
  *
  * @author HE176322
  */
@@ -16,9 +16,9 @@ public class Manager extends Person {
     }
 
     // Creates a manager with every field filled in.
-    public Manager(String employeeID, String name, String birthdate, String sex,
+    public Manager(String employeeId, String name, String birthdate, String sex,
             String password) {
-        super(employeeID, name, birthdate, sex, password);
+        super(employeeId, name, birthdate, sex, password);
     }
 
     // A manager is written as MA.

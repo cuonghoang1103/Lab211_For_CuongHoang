@@ -7,6 +7,12 @@ and this project ships the brief's four sample files, so every run starts from t
 A new request is stamped with the current date and time, so check() replaces every
 date-time that is not one of the brief's sample stamps by <NOW>, checks each one is a
 real dd-MM-yyyy HH:mm:ss, then compares the rest exactly.
+
+21/09/2026 (the lecturer's paper checklist: ONE render per switch-case): the one render
+of Functions 3-5 is the list the brief shows before the choice, so a request sent, a
+request cancelled or a borrow returned prints no line of its own; Y to "continue" runs the
+same function again (title and list again). A business error of sending goes back to the
+menu; an id that is not his is asked again at once (check-only call).
 """
 import re
 from datetime import datetime
@@ -37,8 +43,8 @@ def check(expected):
 
 
 RUNS = [
-    # A: guard, wrong and good login, search, borrow (bad id, unknown asset, bad and too big quantity, success), cancel (not mine, N, Y), return (not mine, Y) and the stock that grows back
-    (keys('3', '1', 'E160001', '000000', '1', 'E160001', '123456', '2', 'pro', '2', 'zzz', '3', 'A9', 'A099', '1', 'Y', 'A002', '0', 'abc', '99', 'Y', 'a002', '2', 'x', 'N', '4', 'R001', 'Y', 'r008', 'n', 'Y', 'R002', 'y', 'N', '5', 'B003', 'Y', 'b001', 'y', 'N', '2', 'samsung', '9', '6'),
+    # A: guard, wrong and good login, search, borrow (bad id, unknown asset, bad and too big quantity -> menu; success -> continue?), cancel (not mine asked again, N, Y to continue, Y), return (not mine asked again, Y) and the stock that grows back
+    (keys('3', '1', 'E160001', '000000', '1', 'E160001', '123456', '2', 'pro', '2', 'zzz', '3', 'A9', 'A099', '1', '3', 'A002', '0', 'abc', '99', '3', 'a002', '2', 'x', 'N', '4', 'R001', 'r008', 'n', 'Y', 'R002', 'y', 'N', '5', 'B003', 'b001', 'y', 'N', '2', 'samsung', '9', '6'),
      check(r'''
 ========== BMLT ASSET - EMPLOYEE ==========
 1. Login
@@ -116,7 +122,17 @@ A002   Macbook pro 2016      Sliver     1000.00     2.20     5
 ------------------------------------------------------------
 Enter asset id: Asset id must be the letter A and 3 digits, for example A001.
 Enter asset id: Enter quantity: Asset does not exist
-Do you want to continue (Y/N)? Id     Name                  Color        Price   Weight   Qty
+
+========== BMLT ASSET - EMPLOYEE ==========
+1. Login
+2. Search asset by name
+3. Borrow the assets
+4. Cancel request
+5. Return asset
+6. Quit
+===========================================
+Your choice: --- Borrow the assets ---
+Id     Name                  Color        Price   Weight   Qty
 ------------------------------------------------------------
 A001   Samsung projector     White       500.00     3.20    10
 A002   Macbook pro 2016      Sliver     1000.00     2.20     5
@@ -124,13 +140,22 @@ A002   Macbook pro 2016      Sliver     1000.00     2.20     5
 Enter asset id: Enter quantity: Quantity must be a whole number from 1 to 1000000.
 Enter quantity: Quantity must be a whole number from 1 to 1000000.
 Enter quantity: Only 5 Macbook pro 2016 left in stock.
-Do you want to continue (Y/N)? Id     Name                  Color        Price   Weight   Qty
+
+========== BMLT ASSET - EMPLOYEE ==========
+1. Login
+2. Search asset by name
+3. Borrow the assets
+4. Cancel request
+5. Return asset
+6. Quit
+===========================================
+Your choice: --- Borrow the assets ---
+Id     Name                  Color        Price   Weight   Qty
 ------------------------------------------------------------
 A001   Samsung projector     White       500.00     3.20    10
 A002   Macbook pro 2016      Sliver     1000.00     2.20     5
 ------------------------------------------------------------
-Enter asset id: Enter quantity: Request R008 has been sent.
-Do you want to continue (Y/N)? Please enter Y or N.
+Enter asset id: Enter quantity: Do you want to continue (Y/N)? Please enter Y or N.
 Do you want to continue (Y/N)? 
 ========== BMLT ASSET - EMPLOYEE ==========
 1. Login
@@ -147,19 +172,13 @@ R002   A002   Macbook pro 2016          1  24-12-2021 12:18:56
 R008   A002   Macbook pro 2016          2  <NOW>
 ------------------------------------------------------------
 Enter request id to cancel: You have no request with id R001.
-Do you want to continue (Y/N)? Id     Asset  Asset name              Qty  Requested at
+Enter request id to cancel: Do you want to cancel request R008? (Y/N): Do you want to continue (Y/N)? --- Cancel request ---
+Id     Asset  Asset name              Qty  Requested at
 ------------------------------------------------------------
 R002   A002   Macbook pro 2016          1  24-12-2021 12:18:56
 R008   A002   Macbook pro 2016          2  <NOW>
 ------------------------------------------------------------
-Enter request id to cancel: Do you want to cancel request R008? (Y/N): Nothing was cancelled.
-Do you want to continue (Y/N)? Id     Asset  Asset name              Qty  Requested at
-------------------------------------------------------------
-R002   A002   Macbook pro 2016          1  24-12-2021 12:18:56
-R008   A002   Macbook pro 2016          2  <NOW>
-------------------------------------------------------------
-Enter request id to cancel: Do you want to cancel request R002? (Y/N): Request R002 has been cancelled.
-Do you want to continue (Y/N)? 
+Enter request id to cancel: Do you want to cancel request R002? (Y/N): Do you want to continue (Y/N)? 
 ========== BMLT ASSET - EMPLOYEE ==========
 1. Login
 2. Search asset by name
@@ -175,13 +194,7 @@ B001   A001   Samsung projector         1  23-12-2021 15:13:46
 B002   A001   Samsung projector         2  25-12-2021 16:14:56
 ------------------------------------------------------------
 Enter borrow id to return: You have no borrowed asset with id B003.
-Do you want to continue (Y/N)? Id     Asset  Asset name              Qty  Borrowed at
-------------------------------------------------------------
-B001   A001   Samsung projector         1  23-12-2021 15:13:46
-B002   A001   Samsung projector         2  25-12-2021 16:14:56
-------------------------------------------------------------
-Enter borrow id to return: Do you want to return borrow B001? (Y/N): Borrow B001 has been returned.
-Do you want to continue (Y/N)? 
+Enter borrow id to return: Do you want to return borrow B001? (Y/N): Do you want to continue (Y/N)? 
 ========== BMLT ASSET - EMPLOYEE ==========
 1. Login
 2. Search asset by name
@@ -279,8 +292,8 @@ Id     Asset  Asset name              Qty  Requested at
 ------------------------------------------------------------
 R007   A002   Macbook pro 2016          1  24-12-2021 10:10:56
 ------------------------------------------------------------
-Enter request id to cancel: Do you want to cancel request R007? (Y/N): Request R007 has been cancelled.
-Do you want to continue (Y/N)? You have no request.
+Enter request id to cancel: Do you want to cancel request R007? (Y/N): Do you want to continue (Y/N)? --- Cancel request ---
+You have no request.
 
 ========== BMLT ASSET - EMPLOYEE ==========
 1. Login
@@ -295,8 +308,8 @@ Id     Asset  Asset name              Qty  Borrowed at
 ------------------------------------------------------------
 B007   A001   Samsung projector         2  26-12-2021 12:16:53
 ------------------------------------------------------------
-Enter borrow id to return: Do you want to return borrow B007? (Y/N): Borrow B007 has been returned.
-Do you want to continue (Y/N)? You have no borrowed asset.
+Enter borrow id to return: Do you want to return borrow B007? (Y/N): Do you want to continue (Y/N)? --- Return asset ---
+You have no borrowed asset.
 
 ========== BMLT ASSET - EMPLOYEE ==========
 1. Login

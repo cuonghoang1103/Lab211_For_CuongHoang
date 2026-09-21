@@ -13,34 +13,32 @@ import model.Person;
  */
 public class EmployeeRepository extends FileRepository<Person> {
 
-    // Creates the store of employee.dat.
+    // Creates the store of employee.dat: six columns.
     public EmployeeRepository() {
-        super(Constants.EMPLOYEE_FILE);
+        super(Constants.EMPLOYEE_FILE, Constants.EMPLOYEE_COLUMNS);
     }
 
     // Six columns: id, name, birthdate, role, sex, password; MA -> Manager, else Employee.
     @Override
-    protected Person parse(String[] parts) throws Exception {
-        // a line with too few or too many columns
-        if (parts.length != Constants.EMPLOYEE_COLUMNS) {
-            throw new Exception();
-        }
-        String id = parts[Constants.EMPLOYEE_ID];
-        String name = parts[Constants.EMPLOYEE_NAME];
-        String birthdate = parts[Constants.EMPLOYEE_BIRTHDATE];
-        String sex = parts[Constants.EMPLOYEE_SEX];
-        String password = parts[Constants.EMPLOYEE_PASSWORD];
+    protected Person parse(String[] partArray) {
+        String employeeId = partArray[Constants.EMPLOYEE_ID];
+        String name = partArray[Constants.EMPLOYEE_NAME];
+        String birthdate = partArray[Constants.EMPLOYEE_BIRTHDATE];
+        String sex = partArray[Constants.EMPLOYEE_SEX];
+        String password = partArray[Constants.EMPLOYEE_PASSWORD];
+
         // the role column chooses the class
-        if (parts[Constants.EMPLOYEE_ROLE].equalsIgnoreCase(Constants.ROLE_MANAGER)) {
-            return new Manager(id, name, birthdate, sex, password);
+        if (partArray[Constants.EMPLOYEE_ROLE].equalsIgnoreCase(Constants.ROLE_MANAGER)) {
+            return new Manager(employeeId, name, birthdate, sex, password);
         }
-        return new Employee(id, name, birthdate, sex, password);
+
+        return new Employee(employeeId, name, birthdate, sex, password);
     }
 
     // The same six columns; the role is asked of the object (it cannot disagree with it).
     @Override
     protected String format(Person person) {
-        return String.join(Constants.DATA_JOINER, person.getEmployeeID(), person.getName(),
+        return String.join(Constants.DATA_JOINER, person.getEmployeeId(), person.getName(),
                 person.getBirthdate(), person.getRole(), person.getSex(),
                 person.getPassword());
     }

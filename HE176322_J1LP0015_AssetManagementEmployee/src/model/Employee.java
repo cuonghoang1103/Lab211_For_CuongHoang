@@ -4,7 +4,8 @@ import constants.Constants;
 import constants.Message;
 
 /**
- * MODEL: role EM - the person the employee's program is written for.
+ * MODEL: role EM - a member of staff. In the employee's program he borrows and returns
+ * assets; in the manager's program every manager function turns him away.
  *
  * @author HE176322
  */
@@ -15,9 +16,9 @@ public class Employee extends Person {
     }
 
     // Creates an employee with every field filled in.
-    public Employee(String employeeID, String name, String birthdate, String sex,
+    public Employee(String employeeId, String name, String birthdate, String sex,
             String password) {
-        super(employeeID, name, birthdate, sex, password);
+        super(employeeId, name, birthdate, sex, password);
     }
 
     // An employee is written as EM.

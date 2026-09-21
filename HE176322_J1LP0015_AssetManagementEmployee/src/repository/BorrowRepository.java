@@ -10,29 +10,26 @@ import model.Borrow;
  */
 public class BorrowRepository extends FileRepository<Borrow> {
 
-    // Creates the store of borrow.dat.
+    // Creates the store of borrow.dat: five columns.
     public BorrowRepository() {
-        super(Constants.BORROW_FILE);
+        super(Constants.BORROW_FILE, Constants.TRANSACTION_COLUMNS);
     }
 
     // Five columns: id, asset, employee, quantity, date.
     @Override
-    protected Borrow parse(String[] parts) throws Exception {
-        // a line with too few or too many columns
-        if (parts.length != Constants.TRANSACTION_COLUMNS) {
-            throw new Exception();
-        }
-        return new Borrow(parts[Constants.TRANSACTION_ID], parts[Constants.TRANSACTION_ASSET],
-                parts[Constants.TRANSACTION_EMPLOYEE],
-                Integer.parseInt(parts[Constants.TRANSACTION_QUANTITY]),
-                parts[Constants.TRANSACTION_DATE]);
+    protected Borrow parse(String[] partArray) {
+        return new Borrow(partArray[Constants.TRANSACTION_ID],
+                partArray[Constants.TRANSACTION_ASSET],
+                partArray[Constants.TRANSACTION_EMPLOYEE],
+                Integer.parseInt(partArray[Constants.TRANSACTION_QUANTITY]),
+                partArray[Constants.TRANSACTION_DATE]);
     }
 
     // The same five columns, joined with ", ".
     @Override
     protected String format(Borrow borrow) {
-        return String.join(Constants.DATA_JOINER, borrow.getId(), borrow.getAssetID(),
-                borrow.getEmployeeID(), String.valueOf(borrow.getQuantity()),
+        return String.join(Constants.DATA_JOINER, borrow.getId(), borrow.getAssetId(),
+                borrow.getEmployeeId(), String.valueOf(borrow.getQuantity()),
                 borrow.getDateTime());
     }
 }

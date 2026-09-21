@@ -6,16 +6,20 @@ package model;
  *
  * @author HE176322
  */
-public abstract class Person implements Identifiable {
+public abstract class Person implements IRecord {
 
-    // Employee id: no setter, it cannot change after created (the brief's Function 0).
-    private String employeeID;
+    // brief: employeeID - no setter, it cannot change after created (Function 0).
+    private String employeeId;
+
     // Full name.
     private String name;
+
     // Birthdate as the file holds it, e.g. 12/06/2000.
     private String birthdate;
+
     // male / female.
     private String sex;
+
     // MD5 hash of the password - never the password itself.
     private String password;
 
@@ -24,9 +28,9 @@ public abstract class Person implements Identifiable {
     }
 
     // Creates a person with every field filled in.
-    protected Person(String employeeID, String name, String birthdate, String sex,
+    protected Person(String employeeId, String name, String birthdate, String sex,
             String password) {
-        this.employeeID = employeeID;
+        this.employeeId = employeeId;
         this.name = name;
         this.birthdate = birthdate;
         this.sex = sex;
@@ -45,12 +49,12 @@ public abstract class Person implements Identifiable {
     // The key of employee.dat.
     @Override
     public String getId() {
-        return employeeID;
+        return employeeId;
     }
 
     // Returns the employee id.
-    public String getEmployeeID() {
-        return employeeID;
+    public String getEmployeeId() {
+        return employeeId;
     }
 
     // Returns the name.

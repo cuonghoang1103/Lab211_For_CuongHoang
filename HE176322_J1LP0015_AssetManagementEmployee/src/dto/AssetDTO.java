@@ -1,55 +1,43 @@
-package model;
+package dto;
 
 /**
- * MODEL: one row of asset.dat. The asset id has no setter: request.dat and borrow.dat
- * point at it, so it cannot change after created (the brief's Function 0).
+ * DTO service -> controller -> view: one row of the asset table, a copy of an Asset
+ * (the controller never touches the model).
  *
  * @author HE176322
  */
-public class Asset implements IRecord {
+public class AssetDTO {
 
-    // brief: assetID - the asset id, e.g. A001; read only.
+    // Asset id.
     private String assetId;
 
-    // Name, e.g. Samsung projector.
+    // Name.
     private String name;
 
     // Color.
     private String color;
 
-    // Price, greater than 0.
+    // Price.
     private double price;
 
-    // Weight, greater than 0.
+    // Weight.
     private double weight;
 
-    // Units in stock, 0 or more.
+    // Units in stock.
     private int quantity;
 
     // JavaBean constructor.
-    public Asset() {
-    }
-
-    // Creates an asset with every field filled in.
-    public Asset(String assetId, String name, String color, double price, double weight,
-            int quantity) {
-        this.assetId = assetId;
-        this.name = name;
-        this.color = color;
-        this.price = price;
-        this.weight = weight;
-        this.quantity = quantity;
-    }
-
-    // The key of asset.dat.
-    @Override
-    public String getId() {
-        return assetId;
+    public AssetDTO() {
     }
 
     // Returns the asset id.
     public String getAssetId() {
         return assetId;
+    }
+
+    // Changes the asset id.
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
     }
 
     // Returns the name.

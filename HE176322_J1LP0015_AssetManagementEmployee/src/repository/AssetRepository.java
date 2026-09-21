@@ -10,28 +10,25 @@ import model.Asset;
  */
 public class AssetRepository extends FileRepository<Asset> {
 
-    // Creates the store of asset.dat.
+    // Creates the store of asset.dat: six columns.
     public AssetRepository() {
-        super(Constants.ASSET_FILE);
+        super(Constants.ASSET_FILE, Constants.ASSET_COLUMNS);
     }
 
     // Six columns: id, name, color, price, weight, quantity.
     @Override
-    protected Asset parse(String[] parts) throws Exception {
-        // a line with too few or too many columns
-        if (parts.length != Constants.ASSET_COLUMNS) {
-            throw new Exception();
-        }
-        return new Asset(parts[Constants.ASSET_ID], parts[Constants.ASSET_NAME],
-                parts[Constants.ASSET_COLOR], Double.parseDouble(parts[Constants.ASSET_PRICE]),
-                Double.parseDouble(parts[Constants.ASSET_WEIGHT]),
-                Integer.parseInt(parts[Constants.ASSET_QUANTITY]));
+    protected Asset parse(String[] partArray) {
+        return new Asset(partArray[Constants.ASSET_ID], partArray[Constants.ASSET_NAME],
+                partArray[Constants.ASSET_COLOR],
+                Double.parseDouble(partArray[Constants.ASSET_PRICE]),
+                Double.parseDouble(partArray[Constants.ASSET_WEIGHT]),
+                Integer.parseInt(partArray[Constants.ASSET_QUANTITY]));
     }
 
     // The same six columns, joined with ", ".
     @Override
     protected String format(Asset asset) {
-        return String.join(Constants.DATA_JOINER, asset.getAssetID(), asset.getName(),
+        return String.join(Constants.DATA_JOINER, asset.getAssetId(), asset.getName(),
                 asset.getColor(), String.valueOf(asset.getPrice()),
                 String.valueOf(asset.getWeight()), String.valueOf(asset.getQuantity()));
     }

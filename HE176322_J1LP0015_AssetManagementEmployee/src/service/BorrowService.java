@@ -2,8 +2,8 @@ package service;
 
 import constants.Constants;
 import constants.Message;
-import dto.TransactionRequestDTO;
-import dto.TransactionResponseDTO;
+import dto.AssetRequestDTO;
+import dto.TransactionDTO;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,10 +25,13 @@ public class BorrowService {
 
     // asset.dat: checked on a request, increased on a return.
     private AssetRepository assetRepository;
+
     // request.dat: rows added and cancelled.
     private RequestRepository requestRepository;
+
     // borrow.dat: rows returned.
     private BorrowRepository borrowRepository;
+
     // The brief's date format: 23-12-2021 13:17:56.
     private DateTimeFormatter dateTimeFormat;
 
@@ -41,88 +44,102 @@ public class BorrowService {
         this.dateTimeFormat = DateTimeFormatter.ofPattern(Constants.DATE_TIME_PATTERN);
     }
 
-    // Reads request.dat and borrow.dat.
-    public void loadTransactions() throws Exception {
-        requestRepository.load();
-        borrowRepository.load();
+    // Start-up: the lines main read from request.dat and borrow.dat become rows.
+    public void loadData(AssetRequestDTO requestDTO) {
+        requestRepository.loadData(requestDTO.getRequestLineList());
+        borrowRepository.loadData(requestDTO.getBorrowLineList());
     }
 
-    // Function 3: writes a new request into request.dat and returns its id.
-    public String sendRequest(TransactionRequestDTO requestDTO) throws Exception {
-        Asset asset = assetRepository.findById(requestDTO.getAssetID());
+    // Function 3: writes a new request into request.dat, in the name of the employee
+    // logged in.
+    public void sendRequest(AssetRequestDTO requestDTO) throws Exception {
+        Asset asset = assetRepository.findById(requestDTO.getAssetId());
+        Request request = null;
+
         // no asset has this id
         if (asset == null) {
             throw new Exception(Message.ASSET_NOT_EXIST);
         }
+
         // asking for more than the company has cannot be approved anyway
         if (requestDTO.getQuantity() > asset.getQuantity()) {
             throw new Exception(String.format(Message.NOT_ENOUGH, asset.getQuantity(),
                     asset.getName()));
         }
-        Request request = new Request(requestRepository.nextId(Constants.REQUEST_PREFIX),
-                asset.getAssetID(), requestDTO.getEmployeeID(), requestDTO.getQuantity(),
+
+        // the brief: add the new data into request.dat
+        request = new Request(requestRepository.getNextId(Constants.REQUEST_PREFIX),
+                asset.getAssetId(), requestDTO.getEmployeeId(), requestDTO.getQuantity(),
                 LocalDateTime.now().format(dateTimeFormat));
         requestRepository.add(request);
-        return request.getId();
     }
 
-    // Function 4, first step: the requests of the employee logged in.
-    public ArrayList<TransactionResponseDTO> getMyRequests(TransactionRequestDTO requestDTO)
-            throws Exception {
-        ArrayList<TransactionResponseDTO> rows = new ArrayList<>();
+    // Function 4, before the id is typed: the requests of the employee logged in.
+    public ArrayList<TransactionDTO> getMyRequests(String employeeId) throws Exception {
+        ArrayList<TransactionDTO> transactionDTOList = new ArrayList<>();
+
         // keep only this employee's rows
         for (Request request : requestRepository.findAll()) {
             // another employee's request is never shown
-            if (request.getEmployeeID().equalsIgnoreCase(requestDTO.getEmployeeID())) {
-                rows.add(toResponse(request));
+            if (request.getEmployeeId().equalsIgnoreCase(employeeId)) {
+                transactionDTOList.add(toTransactionDTO(request));
             }
         }
+
         // nothing to cancel
-        if (rows.isEmpty()) {
+        if (transactionDTOList.isEmpty()) {
             throw new Exception(Message.NO_REQUEST);
         }
-        return rows;
+
+        return transactionDTOList;
     }
 
-    // Function 4, second step: the id must be one of HIS requests (asked before confirm).
-    public void checkMyRequest(TransactionRequestDTO requestDTO) throws Exception {
+    // Function 4, right after the id is typed: the id must be one of HIS requests (asked
+    // before the confirmation).
+    public void checkMyRequest(AssetRequestDTO requestDTO) throws Exception {
         findMyRequest(requestDTO);
     }
 
     // Function 4: deletes the request from request.dat.
-    public void cancelRequest(TransactionRequestDTO requestDTO) throws Exception {
+    public void cancelRequest(AssetRequestDTO requestDTO) throws Exception {
         requestRepository.remove(findMyRequest(requestDTO));
     }
 
-    // Function 5, first step: the borrows of the employee logged in.
-    public ArrayList<TransactionResponseDTO> getMyBorrows(TransactionRequestDTO requestDTO)
-            throws Exception {
-        ArrayList<TransactionResponseDTO> rows = new ArrayList<>();
+    // Function 5, before the id is typed: the borrows of the employee logged in.
+    public ArrayList<TransactionDTO> getMyBorrows(String employeeId) throws Exception {
+        ArrayList<TransactionDTO> transactionDTOList = new ArrayList<>();
+
         // keep only this employee's rows
         for (Borrow borrow : borrowRepository.findAll()) {
             // another employee's borrow is never shown
-            if (borrow.getEmployeeID().equalsIgnoreCase(requestDTO.getEmployeeID())) {
-                rows.add(toResponse(borrow));
+            if (borrow.getEmployeeId().equalsIgnoreCase(employeeId)) {
+                transactionDTOList.add(toTransactionDTO(borrow));
             }
         }
+
         // nothing to return
-        if (rows.isEmpty()) {
+        if (transactionDTOList.isEmpty()) {
             throw new Exception(Message.NO_BORROW);
         }
-        return rows;
+
+        return transactionDTOList;
     }
 
-    // Function 5, second step: the id must be one of HIS borrows (asked before confirm).
-    public void checkMyBorrow(TransactionRequestDTO requestDTO) throws Exception {
+    // Function 5, right after the id is typed: the id must be one of HIS borrows (asked
+    // before the confirmation).
+    public void checkMyBorrow(AssetRequestDTO requestDTO) throws Exception {
         findMyBorrow(requestDTO);
     }
 
     // Function 5: deletes the borrow, THEN puts the units back in stock.
-    public void returnBorrow(TransactionRequestDTO requestDTO) throws Exception {
+    public void returnBorrow(AssetRequestDTO requestDTO) throws Exception {
         Borrow borrow = findMyBorrow(requestDTO);
+        Asset asset = assetRepository.findById(borrow.getAssetId());
+
+        // the brief: delete the selected borrow (borrow.dat file)
         borrowRepository.remove(borrow);
-        Asset asset = assetRepository.findById(borrow.getAssetID());
-        // the asset still exists: its stock grows again
+
+        // the asset still exists: update its quantity at stock (asset.dat file)
         if (asset != null) {
             asset.setQuantity(asset.getQuantity() + borrow.getQuantity());
             assetRepository.update(asset);
@@ -130,38 +147,44 @@ public class BorrowService {
     }
 
     // Finds the request by id among HIS requests only.
-    private Request findMyRequest(TransactionRequestDTO requestDTO) throws Exception {
-        Request request = requestRepository.findById(requestDTO.getId());
+    private Request findMyRequest(AssetRequestDTO requestDTO) throws Exception {
+        Request request = requestRepository.findById(requestDTO.getRequestId());
+
         // no such id, or somebody else's request
-        if (request == null
-                || !request.getEmployeeID().equalsIgnoreCase(requestDTO.getEmployeeID())) {
+        if ((request == null) ||
+                !request.getEmployeeId().equalsIgnoreCase(requestDTO.getEmployeeId())) {
             throw new Exception(String.format(Message.NOT_MY_REQUEST,
-                    requestDTO.getId().toUpperCase()));
+                    requestDTO.getRequestId().toUpperCase()));
         }
+
         return request;
     }
 
     // Finds the borrow by id among HIS borrows only.
-    private Borrow findMyBorrow(TransactionRequestDTO requestDTO) throws Exception {
-        Borrow borrow = borrowRepository.findById(requestDTO.getId());
+    private Borrow findMyBorrow(AssetRequestDTO requestDTO) throws Exception {
+        Borrow borrow = borrowRepository.findById(requestDTO.getBorrowId());
+
         // no such id, or somebody else's borrow
-        if (borrow == null
-                || !borrow.getEmployeeID().equalsIgnoreCase(requestDTO.getEmployeeID())) {
+        if ((borrow == null) ||
+                !borrow.getEmployeeId().equalsIgnoreCase(requestDTO.getEmployeeId())) {
             throw new Exception(String.format(Message.NOT_MY_BORROW,
-                    requestDTO.getId().toUpperCase()));
+                    requestDTO.getBorrowId().toUpperCase()));
         }
+
         return borrow;
     }
 
     // Copies a request or a borrow into a row and looks up the asset name.
-    private TransactionResponseDTO toResponse(Transaction transaction) {
-        TransactionResponseDTO row = new TransactionResponseDTO();
-        row.setId(transaction.getId());
-        row.setAssetID(transaction.getAssetID());
-        row.setQuantity(transaction.getQuantity());
-        row.setDateTime(transaction.getDateTime());
-        Asset asset = assetRepository.findById(transaction.getAssetID());
-        row.setAssetName(asset == null ? Message.UNKNOWN : asset.getName());
-        return row;
+    private TransactionDTO toTransactionDTO(Transaction transaction) {
+        TransactionDTO transactionDTO = new TransactionDTO();
+        Asset asset = assetRepository.findById(transaction.getAssetId());
+
+        // every column of the table; an asset in no file shows "(unknown)"
+        transactionDTO.setId(transaction.getId());
+        transactionDTO.setAssetId(transaction.getAssetId());
+        transactionDTO.setQuantity(transaction.getQuantity());
+        transactionDTO.setDateTime(transaction.getDateTime());
+        transactionDTO.setAssetName((asset == null) ? Message.UNKNOWN : asset.getName());
+        return transactionDTO;
     }
 }
