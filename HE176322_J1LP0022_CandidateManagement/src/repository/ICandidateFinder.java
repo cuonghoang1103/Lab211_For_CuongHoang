@@ -10,7 +10,7 @@ import model.Candidate;
  *
  * @author HE176322
  */
-public interface CandidateFinder {
+public interface ICandidateFinder {
 
     // Tells whether no candidate has been created yet.
     boolean isEmpty();

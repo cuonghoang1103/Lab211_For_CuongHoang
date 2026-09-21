@@ -24,8 +24,10 @@ public class ExperienceCreator extends CandidateCreator {
 
     // Builds an Experience with its years and skill.
     @Override
-    protected Candidate newCandidate(CandidateRequestDTO requestDTO) {
+    protected Candidate buildCandidate(CandidateRequestDTO requestDTO) {
         Experience experience = new Experience();
+
+        // the two fields only an Experience has
         experience.setExpInYear(requestDTO.getExpInYear());
         experience.setProSkill(requestDTO.getProSkill());
         return experience;

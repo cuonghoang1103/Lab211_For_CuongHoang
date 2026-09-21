@@ -14,16 +14,22 @@ public abstract class Candidate {
 
     // Unique id.
     private String id;
+
     // First name.
     private String firstName;
+
     // Last name.
     private String lastName;
+
     // Birth year, 1900..current year (the brief calls it Birth Date).
     private int birthDate;
+
     // Address.
     private String address;
+
     // Phone: kept as text so the leading 0 is not lost.
     private String phone;
+
     // Email in the form account@domain.
     private String email;
 
@@ -109,21 +115,20 @@ public abstract class Candidate {
 
     // The brief's "Candidate name (First Name + Last Name)".
     public String getFullName() {
-        return firstName + Constants.NAME_SEPARATOR + lastName;
+        return String.format(Constants.FULL_NAME_FORMAT, firstName, lastName);
     }
 
     // The search-result line of the brief: name, birth date, address, phone, email, type
     // - the same six columns whatever the kind.
     public String getSummary() {
-        return getFullName() + Constants.SEPARATOR + birthDate + Constants.SEPARATOR
-                + address + Constants.SEPARATOR + phone + Constants.SEPARATOR
-                + email + Constants.SEPARATOR + getCandidateType().getCode();
+        return String.format(Constants.SUMMARY_FORMAT, getFullName(), birthDate, address,
+                phone, email, getCandidateType().getCode());
     }
 
     // TEMPLATE METHOD: the full line of the listing = the summary, then the subclass's
     // own columns.
     @Override
     public final String toString() {
-        return getSummary() + Constants.SEPARATOR + getExtraInfo();
+        return String.format(Constants.DETAIL_FORMAT, getSummary(), getExtraInfo());
     }
 }

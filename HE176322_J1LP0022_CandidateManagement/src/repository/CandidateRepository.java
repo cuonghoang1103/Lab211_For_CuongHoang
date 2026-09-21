@@ -6,17 +6,18 @@ import model.Candidate;
 
 /**
  * REPOSITORY: holds the ArrayList of candidates (the brief: "Create Candidate and store
- * in ArrayList") and does the simple storage operations on it.
+ * in ArrayList") and does the simple storage operations on it. No rule, no print.
  *
  * @author HE176322
  */
-public class CandidateRepository implements CandidateSaver, CandidateFinder {
+public class CandidateRepository implements ICandidateRepository {
 
     // The "database": every candidate, in the order they were created.
-    private ArrayList<Candidate> candidateList = new ArrayList<>();
+    private ArrayList<Candidate> candidateList;
 
     // Creates an empty repository.
     public CandidateRepository() {
+        candidateList = new ArrayList<>();
     }
 
     // Tells whether a candidate already has this id; "e01" and "E01" are the same id.
@@ -29,6 +30,7 @@ public class CandidateRepository implements CandidateSaver, CandidateFinder {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -47,14 +49,16 @@ public class CandidateRepository implements CandidateSaver, CandidateFinder {
     // Returns the candidates of one kind, in creation order.
     @Override
     public ArrayList<Candidate> findByType(CandidateType type) {
-        ArrayList<Candidate> result = new ArrayList<>();
+        ArrayList<Candidate> typeList = new ArrayList<>();
+
         // keep only the candidates of the wanted kind
         for (Candidate candidate : candidateList) {
             // polymorphism: each object answers with its own class's type
             if (candidate.getCandidateType() == type) {
-                result.add(candidate);
+                typeList.add(candidate);
             }
         }
-        return result;
+
+        return typeList;
     }
 }

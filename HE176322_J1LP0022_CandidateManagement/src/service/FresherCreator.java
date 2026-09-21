@@ -24,8 +24,10 @@ public class FresherCreator extends CandidateCreator {
 
     // Builds a Fresher with its graduation date, rank and education.
     @Override
-    protected Candidate newCandidate(CandidateRequestDTO requestDTO) {
+    protected Candidate buildCandidate(CandidateRequestDTO requestDTO) {
         Fresher fresher = new Fresher();
+
+        // the three fields only a Fresher has
         fresher.setGraduationDate(requestDTO.getGraduationDate());
         fresher.setGraduationRank(requestDTO.getGraduationRank());
         fresher.setEducation(requestDTO.getEducation());

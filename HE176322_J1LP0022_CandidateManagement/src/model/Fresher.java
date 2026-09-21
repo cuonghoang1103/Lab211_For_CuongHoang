@@ -13,8 +13,10 @@ public class Fresher extends Candidate {
 
     // Graduation time as typed.
     private String graduationDate;
+
     // Rank of graduation: one of the four legal values.
     private GraduationRank graduationRank;
+
     // University the student graduated from.
     private String education;
 
@@ -31,8 +33,8 @@ public class Fresher extends Candidate {
     // The three columns only a Fresher has.
     @Override
     protected String getExtraInfo() {
-        return graduationDate + Constants.SEPARATOR + graduationRank.getLabel()
-                + Constants.SEPARATOR + education;
+        return String.format(Constants.FRESHER_FORMAT, graduationDate,
+                graduationRank.getLabel(), education);
     }
 
     // Returns the graduation date.

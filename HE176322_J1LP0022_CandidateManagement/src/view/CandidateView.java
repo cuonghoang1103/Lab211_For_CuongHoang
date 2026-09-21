@@ -3,77 +3,66 @@ package view;
 import constants.CandidateType;
 import constants.Message;
 import dto.CandidateResponseDTO;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 /**
- * VIEW: the only place (with main) that prints results.
+ * VIEW: the only place (with main) that prints results. It receives the data through its
+ * attribute (the ResponseDTO, as in the Guide sample), never through the parameters of
+ * display().
  *
  * @author HE176322
  */
 public class CandidateView {
 
-    // Every candidate grouped by kind, for the two listing screens.
-    private LinkedHashMap<CandidateType, ArrayList<CandidateResponseDTO>> candidateMap;
-    // The search result.
-    private ArrayList<CandidateResponseDTO> foundList;
+    // The answer to print, handed over by the controller.
+    private CandidateResponseDTO responseDTO;
 
-    // Receives the grouped candidates.
-    public void setCandidateMap(
-            LinkedHashMap<CandidateType, ArrayList<CandidateResponseDTO>> candidateMap) {
-        this.candidateMap = candidateMap;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(CandidateResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Receives the search result.
-    public void setFoundList(ArrayList<CandidateResponseDTO> foundList) {
-        this.foundList = foundList;
+    // Prints what the controller set, in this order: the result line, the grouped
+    // listing, the search result.
+    public void display() {
+        // a one-line result such as "Experience candidate [E01] has been created."
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
+        }
+
+        // the listing: after creating, and first on the search screen
+        if (responseDTO.getCandidateMap() != null) {
+            displayGroups();
+        }
+
+        // the result of the search
+        if (responseDTO.getFoundList() != null) {
+            displayFound();
+        }
     }
 
-    // Listing after creating: every column of every candidate.
-    public void displayDetails() {
-        displayGroups(true);
-    }
-
-    // Listing of the search screen: names only (the brief's sample).
-    public void displayNames() {
-        displayGroups(false);
-    }
-
-    // Prints "List of candidate:" then each banner with its candidates.
-    private void displayGroups(boolean detailed) {
+    // Prints "List of candidate:", then each banner of the brief with its lines.
+    private void displayGroups() {
         System.out.println(Message.LIST_TITLE);
+
         // one group per kind, in the order the service put them in
-        for (CandidateType type : candidateMap.keySet()) {
+        for (CandidateType type : responseDTO.getCandidateMap().keySet()) {
             System.out.println(type.getBanner());
+
             // one line per candidate of this kind
-            for (CandidateResponseDTO row : candidateMap.get(type)) {
-                // after creating: all columns; in search: the name only
-                if (detailed) {
-                    System.out.println(row.getDetail());
-                } else {
-                    // search screen shows names only
-                    System.out.println(row.getFullName());
-                }
+            for (String line : responseDTO.getCandidateMap().get(type)) {
+                System.out.println(line);
             }
         }
     }
 
-    // Prints the search result, or "No candidate found.".
-    public void displayFound() {
-        // nobody matched: say so, silence would look like a crash
-        if (foundList.isEmpty()) {
-            System.out.println(Message.NOT_FOUND);
-            return;
-        }
+    // Prints the brief's result: an empty line, "The candidates found:", then one
+    // six-column line per match.
+    private void displayFound() {
         System.out.println(Message.FOUND_TITLE);
-        // one six-column line per match
-        for (CandidateResponseDTO row : foundList) {
-            System.out.println(row.getSummary());
-        }
-    }
 
-    // Prints a one-line result.
-    public void showMessage(String message) {
-        System.out.println(message);
+        // one line per match
+        for (String line : responseDTO.getFoundList()) {
+            System.out.println(line);
+        }
     }
 }

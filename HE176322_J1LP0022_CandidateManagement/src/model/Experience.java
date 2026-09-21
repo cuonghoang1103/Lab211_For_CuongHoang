@@ -12,6 +12,7 @@ public class Experience extends Candidate {
 
     // Years of experience, 0..100.
     private int expInYear;
+
     // Professional skill.
     private String proSkill;
 
@@ -28,7 +29,7 @@ public class Experience extends Candidate {
     // The two columns only an Experience has.
     @Override
     protected String getExtraInfo() {
-        return expInYear + Constants.SEPARATOR + proSkill;
+        return String.format(Constants.EXPERIENCE_FORMAT, expInYear, proSkill);
     }
 
     // Returns the years of experience.

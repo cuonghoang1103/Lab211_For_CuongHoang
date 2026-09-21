@@ -24,8 +24,10 @@ public class InternCreator extends CandidateCreator {
 
     // Builds an Intern with its majors, semester and university.
     @Override
-    protected Candidate newCandidate(CandidateRequestDTO requestDTO) {
+    protected Candidate buildCandidate(CandidateRequestDTO requestDTO) {
         Intern intern = new Intern();
+
+        // the three fields only an Intern has
         intern.setMajors(requestDTO.getMajors());
         intern.setSemester(requestDTO.getSemester());
         intern.setUniversityName(requestDTO.getUniversityName());

@@ -12,8 +12,10 @@ public class Intern extends Candidate {
 
     // Majors.
     private String majors;
+
     // Current semester; a number because semesters are counted.
     private int semester;
+
     // University the student is at.
     private String universityName;
 
@@ -30,8 +32,7 @@ public class Intern extends Candidate {
     // The three columns only an Intern has.
     @Override
     protected String getExtraInfo() {
-        return majors + Constants.SEPARATOR + semester + Constants.SEPARATOR
-                + universityName;
+        return String.format(Constants.INTERN_FORMAT, majors, semester, universityName);
     }
 
     // Returns the majors.

@@ -14,10 +14,11 @@ import model.Candidate;
 public class CandidateFactory {
 
     // type -> the creator that builds that type.
-    private HashMap<CandidateType, CandidateCreator> creatorMap = new HashMap<>();
+    private HashMap<CandidateType, CandidateCreator> creatorMap;
 
     // Creates the factory and registers the three creators of the brief.
     public CandidateFactory() {
+        creatorMap = new HashMap<>();
         register(new ExperienceCreator());
         register(new FresherCreator());
         register(new InternCreator());
@@ -31,10 +32,12 @@ public class CandidateFactory {
     // Builds the candidate the request describes.
     public Candidate createCandidate(CandidateRequestDTO requestDTO) throws Exception {
         CandidateCreator creator = creatorMap.get(requestDTO.getType());
+
         // a type nobody registered a creator for
         if (creator == null) {
             throw new Exception(Message.UNKNOWN_TYPE);
         }
+
         return creator.createCandidate(requestDTO);
     }
 }

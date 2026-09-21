@@ -8,7 +8,7 @@ import model.Candidate;
  *
  * @author HE176322
  */
-public class NameSearchStrategy implements SearchStrategy {
+public class NameSearchStrategy implements ISearchStrategy {
 
     // Creates the strategy; it keeps no state.
     public NameSearchStrategy() {
@@ -16,9 +16,10 @@ public class NameSearchStrategy implements SearchStrategy {
 
     // Tests first name and last name separately, lower case on both sides.
     @Override
-    public boolean matches(Candidate candidate, String keyword) {
+    public boolean isMatch(Candidate candidate, String keyword) {
         String text = keyword.toLowerCase();
-        return candidate.getFirstName().toLowerCase().contains(text)
-                || candidate.getLastName().toLowerCase().contains(text);
+
+        return candidate.getFirstName().toLowerCase().contains(text) ||
+                candidate.getLastName().toLowerCase().contains(text);
     }
 }
