@@ -5,22 +5,22 @@ package dto;
  *
  * @author HE176322
  */
-public class ArrayRequestDTO {
+public class SortRequestDTO {
 
     // The elements in the order they were typed.
-    private int[] elements;
+    private int[] elementArray;
 
     // Creates an empty request; main fills it through the setter.
-    public ArrayRequestDTO() {
+    public SortRequestDTO() {
     }
 
     // Returns the elements.
-    public int[] getElements() {
-        return elements;
+    public int[] getElementArray() {
+        return elementArray;
     }
 
     // Sets the elements.
-    public void setElements(int[] elements) {
-        this.elements = elements;
+    public void setElementArray(int[] elementArray) {
+        this.elementArray = elementArray;
     }
 }

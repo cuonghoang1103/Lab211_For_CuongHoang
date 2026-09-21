@@ -20,6 +20,7 @@ public final class Validation {
         if (inputVal == null) {
             return null;
         }
+
         // Integer.valueOf throws on letters, decimals and empty text
         try {
             return Integer.valueOf(inputVal.trim());
@@ -32,14 +33,17 @@ public final class Validation {
     // Converts a menu choice and checks it lies in [min, max].
     public static int getChoice(String input, int min, int max) throws Exception {
         Integer choice = checkIn(input);
+
         // letters or an empty line
         if (choice == null) {
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         // a number, but not on the menu
-        if (choice < min || choice > max) {
+        if ((choice < min) || (choice > max)) {
             throw new Exception(String.format(Message.INVALID_RANGE, min, max));
         }
+
         return choice;
     }
 
@@ -47,15 +51,18 @@ public final class Validation {
     // 0").
     public static int getLength(String input) throws Exception {
         Integer length = checkIn(input);
+
         // the brief shows one message for both "a" and "-1"
-        if (length == null || length < Constants.MIN_LENGTH) {
+        if ((length == null) || (length < Constants.MIN_LENGTH)) {
             throw new Exception(Message.INVALID_LENGTH);
         }
+
         // a legal number, but too big to type in or to keep in memory
         if (length > Constants.MAX_LENGTH) {
             throw new Exception(String.format(Message.LENGTH_TOO_BIG,
                     Constants.MAX_LENGTH));
         }
+
         return length;
     }
 
@@ -63,10 +70,12 @@ public final class Validation {
     // integer"); negative numbers and 0 are allowed.
     public static int getElement(String input) throws Exception {
         Integer element = checkIn(input);
+
         // letters, decimals or an empty line
         if (element == null) {
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         return element;
     }
 }
