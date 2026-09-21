@@ -8,10 +8,12 @@ package dto;
  */
 public class SearchResponseDTO {
 
-    // The array as generated.
-    private String array;
+    // The array as generated, as the screen shows it ("[2, 2, 5]").
+    private String numberArray;
+
     // The value the user searched for.
     private int searchValue;
+
     // Index of the first match, or Constants.NOT_FOUND.
     private int index;
 
@@ -19,14 +21,14 @@ public class SearchResponseDTO {
     public SearchResponseDTO() {
     }
 
-    // Returns the array.
-    public String getArray() {
-        return array;
+    // Returns the array as text.
+    public String getNumberArray() {
+        return numberArray;
     }
 
-    // Sets the array.
-    public void setArray(String array) {
-        this.array = array;
+    // Sets the array as text.
+    public void setNumberArray(String numberArray) {
+        this.numberArray = numberArray;
     }
 
     // Returns the value searched for.
