@@ -8,43 +8,45 @@ package dto;
 public class EquationRequestDTO {
 
     // Coefficient A.
-    private float a;
+    private float coefficientA;
+
     // Coefficient B.
-    private float b;
+    private float coefficientB;
+
     // Coefficient C (quadratic equation only).
-    private float c;
+    private float coefficientC;
 
     // Creates an empty request; main fills it through the setters.
     public EquationRequestDTO() {
     }
 
     // Returns A.
-    public float getA() {
-        return a;
+    public float getCoefficientA() {
+        return coefficientA;
     }
 
     // Sets A.
-    public void setA(float a) {
-        this.a = a;
+    public void setCoefficientA(float coefficientA) {
+        this.coefficientA = coefficientA;
     }
 
     // Returns B.
-    public float getB() {
-        return b;
+    public float getCoefficientB() {
+        return coefficientB;
     }
 
     // Sets B.
-    public void setB(float b) {
-        this.b = b;
+    public void setCoefficientB(float coefficientB) {
+        this.coefficientB = coefficientB;
     }
 
     // Returns C.
-    public float getC() {
-        return c;
+    public float getCoefficientC() {
+        return coefficientC;
     }
 
     // Sets C.
-    public void setC(float c) {
-        this.c = c;
+    public void setCoefficientC(float coefficientC) {
+        this.coefficientC = coefficientC;
     }
 }

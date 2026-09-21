@@ -1,9 +1,11 @@
 package service;
 
 import constants.Constants;
+import constants.Message;
 import dto.EquationRequestDTO;
 import java.util.ArrayList;
 import java.util.List;
+import model.Equation;
 
 /**
  * CONCRETE CLASS of the Template Method: option 2, ax^2 + bx + c = 0.
@@ -14,48 +16,66 @@ public class QuadraticEquationSolver extends EquationSolver {
 
     // The quadratic equation has three coefficients: a, b, c.
     @Override
-    protected ArrayList<Float> getCoefficients(EquationRequestDTO request) {
-        ArrayList<Float> coefficients = new ArrayList<>();
-        coefficients.add(request.getA());
-        coefficients.add(request.getB());
-        coefficients.add(request.getC());
-        return coefficients;
+    protected ArrayList<Float> getCoefficientList(EquationRequestDTO requestDTO) {
+        ArrayList<Float> coefficientList = new ArrayList<>();
+
+        // in the order they were typed
+        coefficientList.add(requestDTO.getCoefficientA());
+        coefficientList.add(requestDTO.getCoefficientB());
+        coefficientList.add(requestDTO.getCoefficientC());
+        return coefficientList;
     }
 
     // Solves with the brief's calculateQuadraticEquation.
-    @Override
-    // brief: List<Float> is the return type of calculateQuadraticEquation
-    protected List<Float> calculate(EquationRequestDTO request) {
-        return calculateQuadraticEquation(request);
+    @Override // brief: List<Float> is the return type of calculateQuadraticEquation
+    protected List<Float> calculate(Equation equation) {
+        return calculateQuadraticEquation(equation);
     }
 
-    // The brief's calculateQuadraticEquation(a, b, c), taking the three coefficients in
-    // one DTO (lecturer: no method with 3 parameters).
+    // The odd line of the brief's second screen: "Odd Number(s):".
+    @Override
+    protected String getOddLabel() {
+        return Message.LABEL_ODD_QUADRATIC;
+    }
+
+    // The brief's calculateQuadraticEquation(a, b, c), reading the three coefficients from
+    // the equation the repository keeps (lecturer: no method with 3 parameters).
     // brief: public List<Float> calculateQuadraticEquation(float a, float b, float c)
-    private List<Float> calculateQuadraticEquation(EquationRequestDTO request) {
-        float a = request.getA();
-        float b = request.getB();
-        float c = request.getC();
+    private List<Float> calculateQuadraticEquation(Equation equation) {
+        float coefficientA = equation.getCoefficient(Constants.INDEX_A);
+        float coefficientB = equation.getCoefficient(Constants.INDEX_B);
+        float coefficientC = equation.getCoefficient(Constants.INDEX_C);
+        float delta = 0;
+        float root = 0;
+        float sqrtDelta = 0;
+        ArrayList<Float> rootList = new ArrayList<>();
+
         // no x^2 term: this is really the equation bx + c = 0
-        if (a == 0) {
-            return calculateEquation(b, c);
+        if (coefficientA == 0) {
+            return calculateEquation(coefficientB, coefficientC);
         }
-        float delta = b * b - Constants.DELTA_FACTOR * a * c;
+
+        // the discriminant: delta = b*b - 4*a*c
+        delta = (coefficientB * coefficientB)
+                - (Constants.DELTA_FACTOR * coefficientA * coefficientC);
+
         // negative delta: no real root
         if (delta < 0) {
             return null;
         }
-        ArrayList<Float> roots = new ArrayList<>();
+
         // delta = 0: one root of multiplicity two, listed twice
         if (delta == 0) {
-            float root = -b / (2 * a);
-            roots.add(root);
-            roots.add(root);
-            return roots;
+            root = -coefficientB / (2 * coefficientA);
+            rootList.add(root);
+            rootList.add(root);
+            return rootList;
         }
-        float sqrtDelta = (float) Math.sqrt(delta);
-        roots.add((-b + sqrtDelta) / (2 * a));
-        roots.add((-b - sqrtDelta) / (2 * a));
-        return roots;
+
+        // delta > 0: two different roots, (-b + sqrt(delta)) / 2a and (-b - sqrt(delta)) / 2a
+        sqrtDelta = (float) Math.sqrt(delta);
+        rootList.add((-coefficientB + sqrtDelta) / (2 * coefficientA));
+        rootList.add((-coefficientB - sqrtDelta) / (2 * coefficientA));
+        return rootList;
     }
 }
