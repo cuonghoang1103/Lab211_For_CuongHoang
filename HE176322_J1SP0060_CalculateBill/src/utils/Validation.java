@@ -3,7 +3,8 @@ package utils;
 import constants.Message;
 
 /**
- * Shared checks for what the user typed.
+ * Shared checks for what the user typed. A utility: no object, no field, no keyboard, no
+ * print - it only answers "is this line valid?".
  *
  * @author HE176322
  */
@@ -15,7 +16,8 @@ public final class Validation {
 
     // Converts a whole number and checks it lies in [min, max].
     public static int getInt(String input, int min, int max) throws Exception {
-        int value;
+        int value = 0;
+
         // parse first, so letters give the "number" message
         try {
             value = Integer.parseInt(input.trim());
@@ -23,10 +25,12 @@ public final class Validation {
             // letters, a decimal or an empty line: not a whole number
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         // a number, but outside the bounds of this field
-        if (value < min || value > max) {
+        if ((value < min) || (value > max)) {
             throw new Exception(String.format(Message.INVALID_RANGE, min, max));
         }
+
         return value;
     }
 }

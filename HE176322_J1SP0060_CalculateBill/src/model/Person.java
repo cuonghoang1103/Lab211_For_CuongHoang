@@ -1,5 +1,6 @@
 package model;
 
+import constants.Constants;
 import java.util.Arrays;
 
 /**
@@ -10,31 +11,32 @@ import java.util.Arrays;
 public class Person {
 
     // Values of the user's bills, one element per bill.
-    private int[] bills;
+    private int[] billArray;
+
     // The user's wallet; lives inside the person, as the brief asks.
     private Wallet wallet;
 
     // Creates a user with no bills and an empty wallet (JavaBean: public no-argument
     // constructor), to be filled through the setters.
     public Person() {
-        this.bills = new int[0];
+        this.billArray = new int[0];
         this.wallet = new Wallet();
     }
 
     // Creates a user with his bills and his wallet.
-    public Person(int[] bills, Wallet wallet) {
-        this.bills = bills;
+    public Person(int[] billArray, Wallet wallet) {
+        this.billArray = billArray;
         this.wallet = wallet;
     }
 
     // Returns the bills.
-    public int[] getBills() {
-        return bills;
+    public int[] getBillArray() {
+        return billArray;
     }
 
     // Changes the bills.
-    public void setBills(int[] bills) {
-        this.bills = bills;
+    public void setBillArray(int[] billArray) {
+        this.billArray = billArray;
     }
 
     // Returns the wallet.
@@ -50,6 +52,6 @@ public class Person {
     // Polymorphism: overrides Object.toString(); returns text, never prints.
     @Override
     public String toString() {
-        return Arrays.toString(bills) + " " + wallet;
+        return String.format(Constants.PERSON_FORMAT, Arrays.toString(billArray), wallet);
     }
 }

@@ -10,6 +10,7 @@ public class BillResponseDTO {
 
     // Total of all bills (the result of calcTotal).
     private int total;
+
     // True when the wallet holds at least the total (payMoney).
     private boolean canBuy;
 

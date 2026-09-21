@@ -9,7 +9,8 @@ package dto;
 public class BillRequestDTO {
 
     // Values of the bills, already validated by main.
-    private int[] bills;
+    private int[] billArray;
+
     // Amount in the wallet, already validated by main.
     private int walletAmount;
 
@@ -18,13 +19,13 @@ public class BillRequestDTO {
     }
 
     // Returns the bills.
-    public int[] getBills() {
-        return bills;
+    public int[] getBillArray() {
+        return billArray;
     }
 
     // Sets the bills.
-    public void setBills(int[] bills) {
-        this.bills = bills;
+    public void setBillArray(int[] billArray) {
+        this.billArray = billArray;
     }
 
     // Returns the wallet amount.

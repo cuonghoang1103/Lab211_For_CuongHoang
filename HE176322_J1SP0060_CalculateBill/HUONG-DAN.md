@@ -39,7 +39,7 @@ You can buy it.
 |---|---|---|
 | Lớp `Person` = người dùng | *"Designing class Person represented the user"* | `model/Person` |
 | Lớp `Wallet` **bên trong** `Person` | *"class Wallet … within class Person"* | `model/Wallet`, là **field** của `Person` |
-| `public int calcTotal(int[] bills)` | *"Must create the function"* | `service/BillService` — **giữ nguyên chữ ký** |
+| `public int calcTotal(int[] bills)` | *"Must create the function"* | `service/BillService` — giữ tên, `public`, kiểu `int` / `int[]`; tham số viết `billArray` (tờ checklist 1.5), comment `// brief:` ghi tên đề |
 | `public boolean payMoney(int total)` | *"Class Wallet contains … a function to compare"* | `model/Wallet` — **giữ nguyên chữ ký** |
 | Câu kết quả | `You can buy it.` · `You can’t buy it.` | `constants/Message` — dấu `’` **chép đúng đề** |
 
@@ -51,7 +51,7 @@ You can buy it.
 
 > Đặt `total = 0`, đi qua **từng** hoá đơn, cộng vào `total`. Hết mảng → `total` là tổng.
 
-Chạy tay ví dụ 1 của đề, `bills = {100, 200}`:
+Chạy tay ví dụ 1 của đề, `billArray = {100, 200}`:
 
 | Bước | `bill` | `total` sau bước |
 |---|---|---|
@@ -85,8 +85,8 @@ Nên `Constants`: tối đa **100** hoá đơn × **10.000.000** mỗi hoá đơ
 |---|---|
 | `Integer.parseInt(s)` | đổi chuỗi sang số; `"abc"`, `"3.5"`, `""` → `NumberFormatException` |
 | `String.format("input value of bill %d:", i + 1)` | ghép số thứ tự vào prompt (người đếm từ 1, mảng đếm từ 0) |
-| `for (int bill : bills)` | vòng for-each: đi qua từng phần tử, không cần chỉ số |
-| `"’"` | ký tự `’` của đề, viết dạng escape để file mã nguồn không phụ thuộc bảng mã |
+| `for (int bill : billArray)` | vòng for-each: đi qua từng phần tử, không cần chỉ số |
+| `"You can’t buy it."` | ký tự `’` (U+2019) của đề, **không** phải `'`; file lưu UTF-8 (mặc định NetBeans). Gõ: macOS **Option+Shift+]**, Windows **Alt+0146**, hoặc chép từ đề |
 
 ---
 
@@ -95,42 +95,46 @@ Nên `Constants`: tối đa **100** hoá đơn × **10.000.000** mỗi hoá đơ
 ```
 HE176322_J1SP0060_CalculateBill/src/
 ├── model/      Wallet            tiền trong ví + payMoney(total)   ← hàm đề bắt #2
-│               Person            bills[] + Wallet (has-a)
-├── dto/        BillRequestDTO    bills[] + walletAmount   (main ──► controller)
-│               BillResponseDTO   total + canBuy           (controller ──► view)
-├── service/    BillService       checkBill + calcTotal(int[])      ← hàm đề bắt #1
-├── controller/ BillController    service ──► view
-├── view/       BillView          in 2 dòng kết quả
+│               Person            int[] billArray + Wallet (has-a)
+├── dto/        BillRequestDTO    int[] billArray + walletAmount   (main ──► controller)
+│               BillResponseDTO   total + canBuy                   (controller ──► view)
+├── repository/ PersonRepository  Person person + savePerson(requestDTO) / getPerson()
+├── service/    BillService       checkBill + calcTotal(int[] billArray)   ← hàm đề bắt #1
+├── controller/ BillController    service ──► view (Facade); render view 1 lần
+├── view/       BillView          field responseDTO + setResponseDTO() + display() KHÔNG tham số
 ├── constants/  Message.java      câu chữ màn hình
-│               Constants.java    trần/sàn của 3 ô nhập
+│               Constants.java    trần/sàn của 3 ô nhập, PERSON_FORMAT
 ├── utils/      Validation        getInt(chuỗi, min, max) → int hoặc ném lỗi
-└── main/       Main              Scanner + 4 hàm nhập + gọi controller 1 lần
+└── main/       Main              final + private Main(); Scanner + 4 hàm nhập + gọi controller 1 lần
 ```
 
 | Lớp | Làm gì | Vì sao ở đây |
 |---|---|---|
 | `Wallet` | giữ `amount`, trả lời `payMoney(total)` | đề: Wallet **chứa** hàm so sánh — hành vi **của chính cái ví** (như `Shape.getArea`) |
 | `Person` | giữ hoá đơn + ví | đề: lớp đại diện người dùng, ví nằm **trong** nó |
-| `BillService` | tạo `Person`, gọi `calcTotal`, hỏi ví `payMoney` | Guide: *"tính tổng…"* là **tính toán nghiệp vụ** → service |
+| `PersonRepository` | giữ `Person person` (hoá đơn + ví): `savePerson` / `getPerson` | tờ checklist 1.1: *"Bắt buộc phải có repository"* — chỉ giữ dữ liệu + CRUD, **không** tính |
+| `BillService` | lưu `Person` vào repository, lấy ra, gọi `calcTotal`, hỏi ví `payMoney` | Guide: *"tính tổng…"* là **tính toán nghiệp vụ** → service |
 | `BillController` | nhận DTO → service → view | Guide: controller *"chỉ import DTO, View, Service"* — không thấy `Person` |
-| `BillView` | in `this is total of bill:…` + câu mua được/không | nơi duy nhất (cùng `Main`) được in |
+| `BillView` | in `this is total of bill:…` + câu mua được/không — nhận qua **thuộc tính** `responseDTO` | nơi duy nhất (cùng `Main`) được in |
 | `Validation` | chuỗi → `int` trong khoảng, hoặc ném lỗi | Guide: utils *"phải dùng static method"* |
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
-| Sao không có `repository`? | Không lưu gì giữa các lần chạy, không thêm/sửa/xoá — không có CRUD. |
+| Sao bài **có repository**? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. `PersonRepository` giữ **dữ liệu đầu vào** của bài — người dùng (`Person`: hoá đơn + ví) — với `savePerson`/`getPerson`; **không** tính, **không** in. Có phép tính (tổng hoá đơn) nên có thêm `BillService`: Controller → Service → Repository → Model. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**, không qua tham số (tờ checklist 1.1): `BillView` có field `responseDTO`; controller gọi `setResponseDTO(responseDTO)` rồi `display()` — **1 lần** cho luồng duy nhất. |
+| Validate ở đâu? | Ở **Main** qua `utils/Validation.getInt` (tờ checklist 1.1: *"Toàn bộ việc nhập dữ liệu/Validate … thực hiện ở Main"*): hỏi lại tới khi đúng số và đúng khoảng; controller/service nhận dữ liệu đã sạch. |
 | Sao `calcTotal` không nằm trong `Person` như bản cũ? | Cộng tổng là **nghiệp vụ** (Guide: *"Tính tổng"* → service). Còn `payMoney` thì **đề chỉ định** nằm trong `Wallet`. |
 
 **Luồng chạy:**
 
 ```
-Main: đọc số hoá đơn, từng hoá đơn, ví (hỏi lại khi sai) ──► BillRequestDTO ──► controller.calculateBill(dto)
-   controller ──► service.checkBill(dto)
-                     ├─ person = new Person(bills, new Wallet(amount))
-                     ├─ total  = calcTotal(person.getBills())
-                     ├─ canBuy = person.getWallet().payMoney(total)
-                     └─ return new BillResponseDTO(total, canBuy)
-   controller ──► view.setResponse(response) ──► view.display()
+Main: đọc số hoá đơn, từng hoá đơn, ví (hỏi lại khi sai) ──► BillRequestDTO ──► controller.calculateBill(requestDTO)
+   controller ──► service.checkBill(requestDTO)
+                     ├─ personRepository.savePerson(requestDTO)   → new Person(billArray, new Wallet(amount))
+                     ├─ person = personRepository.getPerson()      (Service → Repository → Model)
+                     ├─ total  = calcTotal(person.getBillArray())
+                     └─ return new BillResponseDTO(total, person.getWallet().payMoney(total))
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()   (1 lần)
 ```
 
 ### 3.1 Design Pattern trong bài
@@ -143,14 +147,14 @@ phạm YAGNI"*). Pattern có thật trong bài:
 |---|---|---|
 | **Name** | Model–View–Controller | Facade (nhóm Structural) |
 | **Problem** | nhập, tính, in trộn trong `main` → sửa câu in là đụng phép tính | `Main` sẽ phải biết `BillService`, `BillView` và thứ tự gọi chúng |
-| **Solution** | `Person`/`Wallet` ~ JavaBean (Model) · `BillView` ~ trang JSP (View) · `BillController` ~ Servlet (Controller); dữ liệu đi qua DTO | `BillController.calculateBill(dto)` là **một cửa**: tự gọi service rồi view |
+| **Solution** | `Person`/`Wallet` ~ JavaBean (Model) · `BillView` ~ trang JSP (View) · `BillController` ~ Servlet (Controller); dữ liệu đi qua DTO | `BillController.calculateBill(requestDTO)` là **một cửa**: tự gọi service rồi view |
 | **Consequences** | ✅ đổi cách in chỉ sửa `BillView`; ❌ nhiều file hơn viết gộp | ✅ `Main` chỉ biết 1 lớp; ❌ controller phải giữ đúng vai điều hướng, không ôm phép tính |
 
 ### 3.2 SOLID trong bài
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `Wallet` chỉ lo tiền trong ví · `BillService` chỉ lo tính · `BillView` chỉ lo in · `Validation` chỉ lo kiểm |
+| **S** | `Wallet` chỉ lo tiền trong ví · `PersonRepository` chỉ lo giữ dữ liệu · `BillService` chỉ lo tính · `BillView` chỉ lo in · `Validation` chỉ lo kiểm |
 | **O** | thêm câu kết quả mới (vd. in số tiền còn thiếu) chỉ thêm field ở `BillResponseDTO` + dòng in ở `BillView` — `Wallet`, `Main` đứng yên |
 | **L / I / D** | bài không có họ lớp con hay interface — **không cố gượng**. Nói thật với thầy: *"bài nhỏ, em chỉ áp S và O; L/I/D em áp ở bài có kế thừa (Shape, Bee…)"* |
 
@@ -163,14 +167,15 @@ phạm YAGNI"*). Pattern có thật trong bài:
 | Bước | File | Việc |
 |---|---|---|
 | 1 | `model/Wallet.java` | `private int amount` + constructor rỗng + constructor đủ + get/set + **`payMoney`** + `toString` |
-| 2 | `model/Person.java` | `private int[] bills`, `private Wallet wallet` + 2 constructor + get/set + `toString` |
+| 2 | `model/Person.java` | `private int[] billArray`, `private Wallet wallet` + 2 constructor + get/set + `toString` (`String.format`) |
 | 3 | `dto/BillRequestDTO.java`, `BillResponseDTO.java` | JavaBean: constructor rỗng + get/set |
-| 4 | `service/BillService.java` | **`calcTotal`** + `checkBill` |
-| 5 | `view/BillView.java` | `setResponse` · `display` (if/else 2 câu) |
-| 6 | `controller/BillController.java` | constructor tạo service + view; `calculateBill(dto)` |
-| 7 | `constants/Message.java`, `Constants.java` | câu chữ + 6 giới hạn (gõ dần khi bước trên cần) |
-| 8 | `utils/Validation.java` | `getInt(input, min, max)` — **tách 2 lỗi** |
-| 9 | `main/Main.java` | `inputNumberOfBill` · `inputBills` · `inputBill` · `inputWallet` + gọi controller **1 lần** |
+| 4 | `repository/PersonRepository.java` | field `Person person` + `savePerson(requestDTO)` + `getPerson()` — **không** tính |
+| 5 | `service/BillService.java` | field `personRepository`; **`calcTotal`** + `checkBill` |
+| 6 | `view/BillView.java` | field `responseDTO` · `setResponseDTO` · `display()` (if/else 2 câu) |
+| 7 | `controller/BillController.java` | constructor tạo service + view; `calculateBill(requestDTO)` gọi view **1 lần** |
+| 8 | `constants/Message.java`, `Constants.java` | câu chữ + 6 giới hạn (gõ dần khi bước trên cần) |
+| 9 | `utils/Validation.java` | `getInt(input, min, max)` — **tách 2 lỗi**, `int value = 0`, `if ((value < min) \|\| (value > max))` |
+| 10 | `main/Main.java` | `final` + `private Main()`; `inputNumberOfBill` · `inputBillArray` · `inputBill` · `inputWallet` + gọi controller **1 lần** |
 
 **Bẫy hay gặp:**
 
@@ -218,7 +223,7 @@ phạm YAGNI"*). Pattern có thật trong bài:
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: `amount` `private` trong `Wallet`, chỉ đọc qua `getAmount`/`payMoney`. **Kế thừa**: mọi lớp `extends Object`; `Wallet`, `Person` ghi đè `toString()`. **Đa hình**: `@Override toString()` — `Arrays.toString(bills) + " " + wallet` tự gọi bản `toString` của `Wallet`. **Trừu tượng**: `Main` gọi `controller.calculateBill(dto)` mà không biết có `Person`, `Wallet`. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: `amount` `private` trong `Wallet`, chỉ đọc qua `getAmount`/`payMoney`. **Kế thừa**: mọi lớp `extends Object`; `Wallet`, `Person` ghi đè `toString()`. **Đa hình**: `@Override toString()` — `String.format(Constants.PERSON_FORMAT, Arrays.toString(billArray), wallet)` tự gọi bản `toString` của `Wallet` cho `%s`. **Trừu tượng**: `Main` gọi `controller.calculateBill(requestDTO)` mà không biết có `Person`, `Wallet`. |
 | `Person` và `Wallet` quan hệ gì? | **Composition (has-a)**: `Person` có field `Wallet`. Không phải kế thừa — người không "là" cái ví. |
 | Sao `payMoney` nằm trong `Wallet` mà không ở service? | Đề ghi Wallet *"contains … a function to compare it with the total"* — đó là **hành vi của chính cái ví**, dùng dữ liệu riêng của nó (`amount`). |
 | Sao `Person`, `Wallet`, DTO có constructor rỗng? | Thầy dạy **MVC JSP**: model/DTO là **JavaBean** — field `private`, constructor rỗng `public`, get/set. |
@@ -228,7 +233,7 @@ phạm YAGNI"*). Pattern có thật trong bài:
 | Câu hỏi | Trả lời mẫu |
 |---|---|
 | Mọi field sao `private`? | Đóng gói: chỉ đổi qua setter/hàm của lớp. Thầy: *"Access modifier dùng sai linh tinh là reject"*. |
-| `calcTotal`, `checkBill` sao `public`? | `checkBill` do `BillController` (package khác) gọi; `calcTotal` là **hàm đề bắt** `public int calcTotal(int[] bills)`. |
+| `calcTotal`, `checkBill` sao `public`? | `checkBill` do `BillController` (package khác) gọi; `calcTotal` là **hàm đề bắt** `public int calcTotal(int[] bills)` — giữ tên, kiểu, `public`; chỉ tham số đổi thành `billArray` (tờ checklist 1.5: biến mảng đuôi `Array`, có comment `// brief:` ngay trên hàm). |
 | `payMoney` sao `public`? | Đề ghi `public boolean payMoney`; `BillService` (package khác) gọi. |
 | Getter/setter sao `public`? | Là "cửa" JavaBean để lớp khác đọc/ghi field `private`. |
 | Hàm nhập trong `Main` sao `private static`? | `private`: chỉ `main()` gọi. `static`: `main()` là static nên chỉ gọi thẳng được hàm static; thầy cho *"static với hàm"* ở main, cấm static **biến**. |
@@ -249,6 +254,18 @@ phạm YAGNI"*). Pattern có thật trong bài:
 | Ví vừa đúng bằng tổng? | Mua được (`>=`). |
 | Sao hoá đơn ≥ 1 mà ví ≥ 0? | Hoá đơn 0 đồng không phải hoá đơn; ví rỗng thì hợp lệ (chỉ là không mua được). |
 | Nhập 99999999 hoá đơn? | `Value must be between 1 and 100.` — trần chặn tràn bộ nhớ và tràn `int`. |
+
+### Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/PersonRepository` (bắt buộc có repository) giữ `Person`; luồng `BillController` → `BillService` → `PersonRepository` → `Person`/`Wallet`; `BillController` không import `model`; `BillView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần**; `Main` gọi controller **1 lần** |
+| **1.5** tên mảng | `billArray` (`Person`, `BillRequestDTO`, `Main.inputBillArray`, `BillService.calcTotal`) — bản trước `bills` |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `Main.main`: `requestDTO`, `numberOfBill = 0`; `Main.inputX`: `String line = ""`, trong vòng lặp chỉ gán; `BillService.checkBill`: `person = null`, `total = 0`; `Validation.getInt`: `int value = 0` |
+| **2.8** dòng trống | giữa các field (mọi lớp), sau vùng khai báo biến, trước mọi comment đứng sau dòng code, sau `}` trước câu lệnh tiếp |
+| **3.3** ngoặc | `Validation.getInt`: `if ((value < min) \|\| (value > max))` |
+| **3.4** lớp chỉ có static | `Main`, `Validation`, `Constants`, `Message`: `final` + `private` constructor |
+| **3.8** cộng chuỗi | `Person.toString()` dùng `String.format(Constants.PERSON_FORMAT, …)`; `BillView` in tổng bằng `String.format(Message.LABEL_TOTAL, total)` (bản trước nối `+`) |
 
 ---
 
@@ -273,3 +290,8 @@ phạm YAGNI"*). Pattern có thật trong bài:
 | Giới hạn giá trị hoá đơn | bản cũ: `0 … 1.000.000.000` | `1 … 10.000.000` | 100 × 1 tỉ tràn `int` (đề bắt `calcTotal` trả `int`); hoá đơn 0 đồng vô nghĩa |
 | Thông báo lỗi nhập | đề **không** cho | `You must input a number.` · `Value must be between %d and %d.` | lấy đúng chữ bản cũ |
 | Kiến trúc | `entity/ui/utils`, Scanner trong `Validator` | MVC theo Guide, Scanner **chỉ ở `main`** | luật thầy |
+| Repository (21/09) | bản trước: **không có** (*"không có CRUD"*) | `PersonRepository` giữ `Person` (`savePerson`/`getPerson`); `BillService` lấy `Person` từ đó | tờ checklist 1.1: *"Bắt buộc phải có repository"* |
+| View (21/09) | bản trước: field `response` + `setResponse(...)` | field `responseDTO` + `setResponseDTO(...)` + `display()` | đặt tên thống nhất theo chuẩn 54 bài; vẫn nhận qua **thuộc tính** |
+| Tên mảng (21/09) | bản trước: `bills`, `getBills()`, `inputBills` | `billArray`, `getBillArray()`, `inputBillArray`; hàm đề giữ tên `calcTotal` + comment `// brief:` | tờ checklist 1.5 (mảng đuôi `Array`). Đề đặt tham số `bills` — **hỏi thầy** nếu thầy muốn giữ đúng tên tham số của đề |
+| `Main` (21/09) | bản trước: biến khai giữa block; không `final` | biến khai đầu hàm + khởi tạo (`String line = ""`); `final` + `private Main()` | tờ checklist 2.6, 3.4, 3.7 |
+| Nối chuỗi (21/09) | bản trước: `LABEL_TOTAL + total`, `Arrays.toString(bills) + " " + wallet` | `String.format(Message.LABEL_TOTAL, …)`, `String.format(Constants.PERSON_FORMAT, …)` | tờ checklist 3.8 |
