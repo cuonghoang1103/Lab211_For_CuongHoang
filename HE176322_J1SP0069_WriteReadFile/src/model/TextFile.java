@@ -9,6 +9,7 @@ public class TextFile {
 
     // Path of the file on the disk.
     private String path;
+
     // Text stored in the file.
     private String content;
 

@@ -10,7 +10,8 @@ import java.io.IOException;
 
 /**
  * The brief's two methods writeFile and readFile: move text between a String and a file
- * on the disk.
+ * on the disk. readFile is called by main (checklist 1.1: main reads the files); writeFile
+ * is called by the repository when it saves the typed file.
  *
  * @author HE176322
  */
@@ -24,6 +25,7 @@ public final class FileUtils {
     // before.
     public static boolean writeFile(String path, String content) {
         File file = new File(path);
+
         // try-with-resources flushes and closes the writer even on failure
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(content);
@@ -39,14 +41,18 @@ public final class FileUtils {
     // breaks included).
     public static String readFile(String path) throws Exception {
         File file = new File(path);
+        StringBuilder content = new StringBuilder();
+        int character = 0;
+
         // a missing path, or a folder, is not a file that can be read
         if (!file.isFile()) {
             throw new Exception(Message.FILE_NOT_EXIST);
         }
-        StringBuilder content = new StringBuilder();
+
         // try-with-resources closes the reader even when reading fails
         try (FileReader reader = new FileReader(file)) {
-            int character = reader.read();
+            character = reader.read();
+
             // read() returns -1 at the end of the file
             while (character != Constants.END_OF_FILE) {
                 content.append((char) character);
@@ -56,6 +62,7 @@ public final class FileUtils {
             // locked or unreadable file
             throw new Exception(Message.CANNOT_READ);
         }
+
         return content.toString();
     }
 }

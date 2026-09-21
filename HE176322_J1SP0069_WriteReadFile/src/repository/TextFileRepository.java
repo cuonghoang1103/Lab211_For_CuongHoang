@@ -1,31 +1,40 @@
 package repository;
 
 import dto.FileRequestDTO;
-import dto.FileResponseDTO;
 import model.TextFile;
 import utils.FileUtils;
 
 /**
- * REPOSITORY: the only class that knows the data lives in a file on the disk.
+ * REPOSITORY: holds the data of the program - the text file it works on (the model) - and
+ * only simple CRUD on it: keep the file, give its content back, save it to the disk
+ * (writing itself is FileUtils' job). No print, no reading of files.
  *
  * @author HE176322
  */
 public class TextFileRepository {
 
-    // Creates the repository.
+    // The file the program works on: the one just written, or the one main read.
+    private TextFile textFile;
+
+    // Creates the repository with an empty file description.
     public TextFileRepository() {
+        textFile = new TextFile();
     }
 
-    // Saves the typed content into the typed path.
+    // Create + save (Function 1): keeps the typed file, then writes its content into the
+    // typed path with the brief's writeFile; false when it could not be written.
     public boolean saveFile(FileRequestDTO requestDTO) {
-        TextFile textFile = new TextFile(requestDTO.getPath(), requestDTO.getContent());
+        textFile = new TextFile(requestDTO.getPath(), requestDTO.getContent());
         return FileUtils.writeFile(textFile.getPath(), textFile.getContent());
     }
 
-    // Loads the file at the requested path.
-    public FileResponseDTO loadFile(FileRequestDTO requestDTO) throws Exception {
-        String content = FileUtils.readFile(requestDTO.getPath());
-        TextFile textFile = new TextFile(requestDTO.getPath(), content);
-        return new FileResponseDTO(textFile.getContent());
+    // Create (Function 2): keeps the file main read - its path and its content.
+    public void addFile(FileRequestDTO requestDTO) {
+        textFile = new TextFile(requestDTO.getPath(), requestDTO.getContent());
+    }
+
+    // Read: returns the content of the file kept by the last save or add.
+    public String getContent() {
+        return textFile.getContent();
     }
 }
