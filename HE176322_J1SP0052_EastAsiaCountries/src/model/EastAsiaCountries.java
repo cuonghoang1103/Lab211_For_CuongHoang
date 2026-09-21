@@ -1,5 +1,7 @@
 package model;
 
+import constants.Constants;
+
 /**
  * MODEL: the brief's class EastAsiaCountries - a Country (inheritance) that adds its own
  * private field countryTerrain and overrides display().
@@ -35,9 +37,9 @@ public class EastAsiaCountries extends Country {
     }
 
     // The brief's "Override display()": the parent's three columns (reused with
-    // super.display(), not copied), then the terrain.
+    // super.display(), not copied), then the terrain - joined by a format, not by "+".
     @Override
     public String display() {
-        return super.display() + countryTerrain;
+        return String.format(Constants.TERRAIN_FORMAT, super.display(), countryTerrain);
     }
 }

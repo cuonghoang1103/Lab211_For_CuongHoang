@@ -32,7 +32,7 @@
 | `addCountryInformation(EastAsiaCountries country) throws Exception` | Function 1 | `ManageEastAsiaCountries` — **đúng chữ ký đề**; service/controller có hàm cùng tên nhận DTO |
 | `EastAsiaCountries getRecentlyEnteredInformation() throws Exception` | Function 2 | `ManageEastAsiaCountries` — **đúng chữ ký đề** |
 | `EastAsiaCountries[] searchInformationByName(String name) throws Exception` | Function 3 | `ManageEastAsiaCountries` — **đúng chữ ký đề** |
-| `EastAsiaCountries[] sortInformationByAscendingOrder() throws Exception` | Function 4 | `CountryService` (thuật toán → service) — trả `CountryResponseDTO[]` |
+| `EastAsiaCountries[] sortInformationByAscendingOrder() throws Exception` | Function 4 | `CountryService` (thuật toán → service) — trả `CountryResponseDTO` (các dòng trong `rowList`) |
 | `display()` ở `Country`, ghi đè ở `EastAsiaCountries` | *"display information of one country"* | `model/` — **trả `String`**, `CountryView` in |
 
 ---
@@ -52,7 +52,7 @@ c.display();
 | 2 | gán `countryTerrain = "Nice"` | field `private` của lớp con |
 | 3 | `c.display()` — biến kiểu **`Country`** | Java chọn bản của **đối tượng thật** = `EastAsiaCountries.display()` (**đa hình**) |
 | 4 | trong đó gọi `super.display()` | `"VN              Viet Nam        331698.0        "` (3 cột × 16 ký tự) |
-| 5 | `+ countryTerrain` | `"VN              Viet Nam        331698.0        Nice"` |
+| 5 | `String.format(Constants.TERRAIN_FORMAT, super.display(), countryTerrain)` (`"%s%s"`: 3 cột cha rồi cột Terrain — không cộng chuỗi) | `"VN              Viet Nam        331698.0        Nice"` |
 
 `331698.0`: `float` in bằng `%s` dùng `Float.toString` — ra đúng dạng bảng của đề (và **không đổi
 theo locale**, khác `%.1f`). Lưu ý: số ≥ 10 triệu sẽ in dạng `1.0E7`.
@@ -89,16 +89,16 @@ HE176322_J1SP0052_EastAsiaCountries/src/
 ├── model/      Country                    3 field protected + 2 ctor + get/set + display() trả String
 │               EastAsiaCountries          extends Country + countryTerrain + display() @Override
 ├── dto/        CountryRequestDTO          code, name, area, terrain, searchName (main ──► controller)
-│               CountryResponseDTO         information = dòng bảng           (controller ──► view)
-├── repository/ ManageEastAsiaCountries    mảng 11 + add / getRecently / search / getAll (chữ ký đề)
-├── service/    SortStrategy               «interface» sort(EastAsiaCountries[])
+│               CountryResponseDTO         message ("Successful") + rowList (dòng bảng) (controller ──► view)
+├── repository/ ManageEastAsiaCountries    countryArray 11 ô + add / getRecently / search / getAll (chữ ký đề)
+├── service/    ISortStrategy              «interface» sort(EastAsiaCountries[] countryArray)
 │               NameAscendingSortStrategy  bubble sort theo tên, bỏ qua hoa thường
-│               CountryService             DTO ↔ model, luật area > 0, sắp (Context)
-├── controller/ CountryController          cắm repository + strategy vào service; service ──► view
-├── view/       CountryView                in header + các dòng
+│               CountryService             DTO ↔ model, luật area > 0, sắp (Context); trả CountryResponseDTO
+├── controller/ CountryController          cắm repository + strategy vào service; mỗi luồng render view 1 lần
+├── view/       CountryView                field responseDTO + setResponseDTO() + display() KHÔNG tham số
 ├── constants/  Message, Constants         câu chữ; MAX_COUNTRIES = 11, định dạng cột
 ├── utils/      Validation                 getChoice, getNonBlank, getTotalArea
-└── main/       Main                       menu + Scanner
+└── main/       Main                       final + private Main(); menu + Scanner + mọi validate
 ```
 
 | Câu hỏi thiết kế | Trả lời |
@@ -106,18 +106,35 @@ HE176322_J1SP0052_EastAsiaCountries/src/
 | `ManageEastAsiaCountries` là tầng gì? | Đề đặt tên lớp này làm "nơi quản lý dữ liệu" → đúng vai **repository** (giữ mảng + thao tác dữ liệu đơn giản). Nhờ đó 3 hàm đề giữ **đúng chữ ký** (repository được làm việc với model). |
 | Sao sort ở `service` chứ không ở repository? | Guide: nghiệp vụ ngoài CRUD (**thuật toán**) → service. |
 | Sao controller không gọi thẳng repository? | Guide: *"Controller <-> Services <-> Repository"*: có service thì dữ liệu đi qua service. Controller chỉ **tạo** repository để đưa vào service. |
+| Sao bài **có repository**? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. Ở bài này repository chính là lớp đề đặt tên `ManageEastAsiaCountries`: giữ `countryArray` (11 ô) + CRUD đơn giản; **không** tính toán, **không** in. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**, không qua tham số (tờ checklist 1.1): `CountryView` có field `responseDTO`, controller gọi `setResponseDTO(responseDTO)` rồi `display()` — **1 lần cho 1 luồng**. Option 1 set `message` = `Successful`; option 2/3/4 set `rowList` (các dòng bảng). |
+| Validate ở đâu? | Ở **Main** qua `utils/Validation` (tờ checklist 1.1: *"Toàn bộ việc nhập dữ liệu/Validate … thực hiện ở Main"*): `getChoice`, `getNonBlank`, `getTotalArea`. Service chỉ **giữ lại** luật `area > 0` cho chắc — ném `Exception(Message.INVALID_AREA)`, không in. |
 | Sao `display()` trả `String`? | Guide cấm model in. Tên hàm giữ đúng đề; model trả chữ → service bỏ vào DTO → **view in**. |
+
+**Luồng chung** (mọi option): `Main` (nhập + validate) ──RequestDTO──► `Controller` ──► `Service`
+──► `Repository` ──► `Model`; kết quả quay về thành **một** `CountryResponseDTO` ──► `View`
+(`setResponseDTO` + `display()` **1 lần**). Lỗi: tầng dưới `throw new Exception(Message.X)` → **Main** in
+`e.getMessage()`.
 
 **Luồng Function 4:**
 
 ```
-Main ──► controller.sortInformationByAscendingOrder()
+Main ──► controller.sortInformationByAscendingOrder()          (1 lần gọi controller)
    └─ service.sortInformationByAscendingOrder()
-        ├─ repository.getAllCountries()        → BẢN SAO mảng (rỗng? throw)
-        ├─ sortStrategy.sort(countries)        ← NameAscendingSortStrategy
-        └─ toResponse(Country c) = c.display() ← đa hình: chạy bản EastAsiaCountries
-   └─ view.setCountries(rows) ──► view.display()
+        ├─ repository.getAllCountries()        → BẢN SAO countryArray (rỗng? throw)
+        ├─ sortStrategy.sort(countryArray)     ← NameAscendingSortStrategy
+        └─ toResponse(countryArray)            → for (Country country : …) rowList.add(country.display())
+                                                 ← đa hình: chạy bản EastAsiaCountries
+   └─ view.setResponseDTO(responseDTO) ──► view.display()      (render 1 lần)
 ```
+
+**Option 1 gọi controller 2 lần — có lý do.** `Main.inputCountry` gọi `controller.checkFull()` **chỉ để
+kiểm** (ném `The list already has 11 countries.`, không render) **trước** 4 câu hỏi, rồi case 1 mới gọi
+`controller.addCountryInformation(requestDTO)` (lưu + render 1 lần). Màn hình chạy chuẩn (kịch bản tham
+chiếu đã đối chiếu đề) báo đầy **ngay** khi chọn 1 lần thứ 12, không bắt gõ 4 câu rồi mới vứt đi — muốn
+giữ đúng màn hình đó thì phải hỏi controller trước khi hỏi người dùng (giống `checkExistDoctor` trong mẫu
+P0055 của thầy). Nếu thầy đòi tuyệt đối 1 lần gọi: bỏ `checkFull()`, chấp nhận hỏi đủ 4 câu rồi mới báo
+đầy (lỗi vẫn do `ManageEastAsiaCountries.addCountryInformation` ném).
 
 ### 3.1 Design Pattern — **Strategy** (thứ tự sắp xếp)
 
@@ -125,7 +142,7 @@ Main ──► controller.sortInformationByAscendingOrder()
 |---|---|
 | **Name** | Strategy (nhóm Behavioral) |
 | **Problem** | Đề sắp theo **tên tăng dần**; thầy rất hay đổi: *"sắp theo diện tích"*, *"tên giảm dần"*. Viết cứng trong service thì mỗi lần đổi phải mở service ra sửa. |
-| **Solution** | `SortStrategy` = **Strategy** (`sort(EastAsiaCountries[])`). `NameAscendingSortStrategy` = **ConcreteStrategy**. `CountryService` = **Context**: nhận strategy qua **constructor**, gọi `sortStrategy.sort(countries)`. `CountryController` **chọn**: `new CountryService(new ManageEastAsiaCountries(), new NameAscendingSortStrategy())`. |
+| **Solution** | `ISortStrategy` = **Strategy** (`sort(EastAsiaCountries[] countryArray)`). `NameAscendingSortStrategy` = **ConcreteStrategy**. `CountryService` = **Context**: nhận strategy qua **constructor**, gọi `sortStrategy.sort(countryArray)`. `CountryController` **chọn**: `new CountryService(new ManageEastAsiaCountries(), new NameAscendingSortStrategy())`. |
 | **Consequences** | ✅ Thứ tự mới = **1 class mới** + sửa 1 dòng controller (**O**, **D**). ❌ Thêm 2 file. |
 
 Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCountries`), và cặp
@@ -137,9 +154,9 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 |---|---|
 | **S** | `Country` mô tả nước · repository giữ mảng · `NameAscendingSortStrategy` sắp · service điều phối · view in |
 | **O** | thêm thứ tự sắp không sửa `CountryService`; thêm loại nước (`SouthAsiaCountries`) không sửa `Country` |
-| **L** | `EastAsiaCountries` thay được `Country` ở `toResponse(Country)` — `display()` vẫn trả một dòng bảng hợp lệ |
-| **I** | `SortStrategy` chỉ 1 hàm |
-| **D** | `CountryService` phụ thuộc interface `SortStrategy`, nhận qua constructor |
+| **L** | `EastAsiaCountries` thay được `Country` ở vòng `for (Country country : countryArray)` trong `toResponse` — `display()` vẫn trả một dòng bảng hợp lệ |
+| **I** | `ISortStrategy` chỉ 1 hàm |
+| **D** | `CountryService` phụ thuộc interface `ISortStrategy`, nhận qua constructor |
 
 ---
 
@@ -151,14 +168,14 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 |---|---|---|
 | 1 | `model/Country.java` | 3 field **`protected`** (đề) + 2 constructor + get/set + `display()` trả `String` |
 | 2 | `model/EastAsiaCountries.java` | `extends Country` + `private countryTerrain` + ctor rỗng + ctor có `super(...)` + get/set + `@Override display()` |
-| 3 | `dto/CountryRequestDTO`, `CountryResponseDTO` | JavaBean |
-| 4 | `repository/ManageEastAsiaCountries.java` | mảng 11 + `count` + `isFull` + 3 hàm đề + `getAllCountries` |
-| 5 | `service/SortStrategy`, `NameAscendingSortStrategy` | interface + bubble sort |
-| 6 | `service/CountryService.java` | `checkFull`, 4 hàm cùng tên đề, `toResponse(Country)` |
-| 7 | `view/CountryView`, `controller/CountryController` | in bảng; 5 hàm điều hướng |
-| 8 | `constants/Message`, `Constants` | menu, prompt, lỗi; `MAX_COUNTRIES`, `COUNTRY_FORMAT` |
+| 3 | `dto/CountryRequestDTO`, `CountryResponseDTO` | JavaBean; ResponseDTO có `message` + `rowList` |
+| 4 | `repository/ManageEastAsiaCountries.java` | `countryArray` 11 ô + `count` + `isFull` + 3 hàm đề + `getAllCountries` |
+| 5 | `service/ISortStrategy`, `NameAscendingSortStrategy` | interface (tên bắt đầu bằng `I`) + bubble sort |
+| 6 | `service/CountryService.java` | `checkFull`, 4 hàm cùng tên đề (trả `CountryResponseDTO`), `toResponse(countryArray)` |
+| 7 | `view/CountryView`, `controller/CountryController` | view: field `responseDTO` + `setResponseDTO` + `display()`; controller: mỗi hàm `setResponseDTO` rồi `display()` 1 lần |
+| 8 | `constants/Message`, `Constants` | menu, prompt, lỗi; `MAX_COUNTRIES`, `COUNTRY_FORMAT`, `TERRAIN_FORMAT` |
 | 9 | `utils/Validation.java` | `getChoice`, `getNonBlank`, `getTotalArea` |
-| 10 | `main/Main.java` | menu + `inputText/inputArea` + `inputCountry` (gọi `checkFull` trước) + `searchCountry` |
+| 10 | `main/Main.java` | `final` + `private Main()`; menu + `inputText/inputArea` + `inputCountry` (gọi `checkFull` trước) + `inputSearch`; mỗi case gọi controller 1 lần |
 | 11 | `.lint-allow` | `protected_ok=countryCode,countryName,totalArea` |
 
 **Bẫy hay gặp:**
@@ -193,10 +210,11 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `return new CountryResponseDTO(country.display());` trong `CountryService.toResponse` |
+| Breakpoint | dòng `rowList.add(country.display());` trong `CountryService.toResponse` |
 | Chạy | **Ctrl+F5**, nhập 1 nước, chọn 2 |
 | Đa hình | **Variables**: `country` khai kiểu `Country` nhưng cột *Type* ghi `EastAsiaCountries`; bấm **F7** → nhảy vào `EastAsiaCountries.display()`, **F7** tiếp vào `super.display()` |
-| Sắp xếp | breakpoint ở `if (countries[j]...compareToIgnoreCase(...) > 0)` trong `NameAscendingSortStrategy`, xem `i`, `j`, `swapped` |
+| Sắp xếp | breakpoint ở `if (countryArray[j]...compareToIgnoreCase(...) > 0)` trong `NameAscendingSortStrategy`, xem `i`, `j`, `swapped` |
+| View 1 lần | breakpoint ở `countryView.display();` trong `CountryController` — mỗi option dừng **đúng 1 lần** |
 
 ---
 
@@ -206,7 +224,7 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Kế thừa**: `EastAsiaCountries extends Country`, gọi `super(...)`; `NameAscendingSortStrategy implements SortStrategy`. **Đa hình**: `display()` được **ghi đè**; `toResponse(Country country)` nhận kiểu cha nhưng chạy bản của lớp con. **Đóng gói**: `countryTerrain` `private`; field cha `protected` — chỉ lớp con và cùng package thấy; bên ngoài đi qua getter. **Trừu tượng**: `SortStrategy` chỉ nói "sắp được", không nói cách. |
+| 4 tính chất OOP ở đâu? | **Kế thừa**: `EastAsiaCountries extends Country`, gọi `super(...)`; `NameAscendingSortStrategy implements ISortStrategy`. **Đa hình**: `display()` được **ghi đè**; trong `toResponse`, biến lặp khai kiểu cha `Country country` nhưng chạy bản của lớp con. **Đóng gói**: `countryTerrain` `private`; field cha `protected` — chỉ lớp con và cùng package thấy; bên ngoài đi qua getter. **Trừu tượng**: `ISortStrategy` chỉ nói "sắp được", không nói cách. |
 | Overriding khác overloading? | **Override**: lớp con viết lại hàm **cùng chữ ký** của cha (`display()`), chọn lúc **chạy**. **Overload**: cùng tên, **khác tham số** trong một lớp — như 2 constructor của `Country`, chọn lúc **biên dịch**. |
 | `super` dùng làm gì ở đây? | `super(code, name, area)`: gọi constructor cha (phải là dòng đầu). `super.display()`: dùng lại hàm cha rồi thêm cột Terrain. |
 
@@ -219,8 +237,9 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 | `display()` trả `String`, không `void`? | Guide cấm model in (*"không được output ở đây"*, *"cần output gì thì thêm hàm toString()"*). Giữ **tên** đề, đổi thành **trả chữ** — view in. |
 | `searchInformationByName` trả mảng, không `ArrayList`? | **Đề bắt** `EastAsiaCountries[]`. Mảng hợp vì tối đa 11 phần tử cố định. |
 | `isFull` trả `boolean`? | Có/không. |
-| `toResponse`, `toResponses` sao `private`? | Chỉ `CountryService` dùng. |
-| `checkFull` sao `public`? | Controller gọi (và `Main` gọi qua controller) — là **bước kiểm trước** giống `checkExistDoctor` trong mẫu P0055. |
+| `toResponse` sao `private`? | Chỉ `CountryService` dùng. |
+| `checkFull` sao `public`? | Controller gọi (và `Main` gọi qua controller) — là **bước kiểm trước** giống `checkExistDoctor` trong mẫu P0055. Nó chỉ ném lỗi, **không** gọi view. |
+| `Main` sao `final` + `private Main()`? | Tờ checklist 3.4: lớp chỉ có hàm static phải có private constructor và khai báo `final` — không ai `new Main()` hay kế thừa `Main`. |
 | Sao `Validation` static? Bỏ đi thì sao? | Không dùng dữ liệu đối tượng. Bỏ `static` → lỗi biên dịch ở `Validation.getTotalArea(...)`; phải bỏ `private` constructor, `new Validation()` trong `Main`. |
 | Hàm `inputX` trong `Main` sao `private static`? | `private`: chỉ `Main` dùng; `static`: gọi thẳng từ `main()`; Guide cho *static với hàm*, **cấm** static với biến. |
 | `totalArea` sao `float`? | **Đề khai** `float`. Validation đọc bằng `Float.parseFloat` luôn — không đọc `double` rồi ép. |
@@ -232,7 +251,21 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 |---|---|
 | Đề option 2 hiện **2 nước** — sao em hiện 1? | Guidelines ghi `EastAsiaCountries getRecentlyEnteredInformation()` — trả **một** nước. Khi màn hình và Guidelines vênh, em theo **Guidelines**: nước nhập **sau cùng**. |
 | Sao sắp một bản sao? | `getRecentlyEnteredInformation` = phần tử cuối **theo thứ tự nhập**; sắp mảng gốc là đổi luôn "nước vừa nhập". |
+| Sao `requestDTO` trong `main()` khởi tạo `null`? | Mỗi option tạo **RequestDTO mới** trong hàm nhập (`inputCountry`, `inputSearch`) rồi trả về — không option nào dùng lại dữ liệu của option trước. Trước khi chọn option thì chưa có request nào, nên `null`. Vẫn **khai ở đầu hàm + khởi tạo** (tờ checklist 2.6, 3.7); trong vòng lặp chỉ **gán**. |
 | Sao `addCountryInformation` kiểm `area > 0` ở service nữa, khi `Validation` đã kiểm? | `Validation` chặn lúc **gõ**; service giữ **luật nghiệp vụ** cho mọi nơi gọi — mai có màn hình khác, luật vẫn đúng. |
+
+### Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/ManageEastAsiaCountries` (bắt buộc có repository); luồng Controller → `CountryService` → repository → model; `CountryController` không import `model`; `CountryView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần/luồng**; mỗi case trong `Main.main` gọi controller 1 lần (option 1 thêm `checkFull()` **chỉ để kiểm**, lý do ở mục 3) |
+| **1.3** interface `I…` | `service/ISortStrategy` |
+| **1.5** tên mảng/list | `countryArray` (repository, service, strategy), `foundArray`, `rowList` (`CountryResponseDTO`, `CountryService.toResponse`) |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `Main.main`: `requestDTO = null`, `running = true`, `choice = 0` ở đầu hàm, trong vòng lặp chỉ gán; `Main.inputChoice/inputText/inputArea`: `String line = ""`; `Validation.getChoice`: `int choice = 0`; `NameAscendingSortStrategy.sort`: `swapped`, `temp` khai đầu hàm |
+| **2.8** dòng trống | giữa các field (mọi lớp), sau vùng khai báo biến, trước mọi comment đứng sau dòng code, giữa các `case`, sau `}` trước câu lệnh tiếp |
+| **3.3** ngoặc | `Validation.getChoice`: `if ((choice < min) \|\| (choice > max))`; `getNonBlank`: `(input == null) ? "" : input.trim()`; `NameAscendingSortStrategy`: `i < (size - 1)`, `j < (size - 1 - i)` |
+| **3.4** lớp chỉ có static | `Main`, `Validation`, `Constants`, `Message`: `final` + `private` constructor |
+| **3.8** cộng chuỗi | `EastAsiaCountries.display()` dùng `String.format(Constants.TERRAIN_FORMAT, …)` |
 
 ---
 
@@ -240,7 +273,7 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 
 | Thầy bảo | Sửa | Không phải đụng |
 |---|---|---|
-| Sắp theo **diện tích** | thêm `AreaAscendingSortStrategy implements SortStrategy` + sửa 1 dòng `CountryController` | `CountryService`, model, view, main |
+| Sắp theo **diện tích** | thêm `AreaAscendingSortStrategy implements ISortStrategy` + sửa 1 dòng `CountryController` | `CountryService`, model, view, main |
 | Sắp tên **giảm dần** | thêm `NameDescendingSortStrategy` (đổi `> 0` thành `< 0`) + 1 dòng controller | như trên |
 | Cho nhập **20** nước | chỉ `Constants.MAX_COUNTRIES` (Message dùng `%d`) | mọi file khác |
 | Thêm trường `population` | `EastAsiaCountries` (+ `display`), `CountryRequestDTO`, `CountryService.add…`, `Message` (header, prompt), `Constants.HEADER_FORMAT`, `Main` | repository, strategy |
@@ -257,10 +290,15 @@ Còn có: **Facade** (`CountryController`), **Repository** (`ManageEastAsiaCount
 | Field `protected` | đề khai `protected` | giữ `protected` + `.lint-allow` | đề bắt; giải thích ở mục 7 |
 | Option 2 | màn hình đề hiện 2 dòng (VN, IDN) | 1 dòng: nước **nhập sau cùng** | Guidelines trả **một** `EastAsiaCountries`; màn hình vs Guidelines → theo Guidelines |
 | `addCountryInformation(EastAsiaCountries)` | đề | giữ **đúng** ở repository; service/controller cùng tên nhận `CountryRequestDTO` | Guide: main → controller bằng DTO, controller không đụng model |
-| `sortInformationByAscendingOrder()` | trả `EastAsiaCountries[]`, trong `ManageEastAsiaCountries` | ở `CountryService`, trả `CountryResponseDTO[]` | thuật toán → service; controller không được thấy model |
+| `sortInformationByAscendingOrder()` | trả `EastAsiaCountries[]`, trong `ManageEastAsiaCountries` | ở `CountryService`, trả `CountryResponseDTO` (dòng bảng trong `rowList`) | thuật toán → service; controller không được thấy model |
 | `searchInformationByName(String)` | đề | repository giữ đúng; service nhận `CountryRequestDTO` | Guide DTO |
 | Tiêu đề menu | text đề `MENU` sát lề | `MENU` thụt 31 dấu cách | giữ nguyên bản cũ (đã khớp đề gốc) |
 | Tìm kiếm | đề không nói | "chứa", không phân biệt hoa thường | bản cũ; `nam` tìm ra `Viet Nam` |
 | Câu lỗi | đề chỉ có "Total area must be greater than 0" | + `You must input a number.`, `This field must not be blank.`, `There is no country in the list.`, `The list already has 11 countries.`, `No country found with the name [..].`, `Please choose an option from 1 to 5.` | chữ bản cũ |
 | Sắp xếp | bản cũ `Arrays.sort` + `Comparator` | Strategy + bubble sort viết tay | thầy đánh giá cao Design Pattern; tự viết giải thích được |
 | Kiến trúc | `entity/bo/ui`, Scanner trong `Validator` | MVC theo Guide | luật thầy |
+| View (21/09) | bản trước: `CountryView.setCountries(CountryResponseDTO[])` + `showMessage(String)` | field `responseDTO` + `setResponseDTO` + `display()`; `Successful` đi trong `CountryResponseDTO.message` | tờ checklist 1.1: view nhận qua **thuộc tính**, render **1 lần/luồng** |
+| Interface (21/09) | bản trước: `SortStrategy` | `ISortStrategy` | tờ checklist 1.3: tên interface bắt đầu bằng `I` |
+| Tên mảng (21/09) | bản trước: `countries`, `found`, `rows` | `countryArray`, `foundArray`, `rowList` | tờ checklist 1.5: mảng đuôi `Array`, collection đuôi `List` |
+| `Main` (21/09) | bản trước: `inputCountry` đọc + gọi controller 2 lần; biến khai giữa block | case gọi controller 1 lần; `inputCountry` chỉ gọi `checkFull` (kiểm); biến khai đầu hàm + khởi tạo; `final` + `private Main()` | tờ checklist 1.1, 2.6, 3.4, 3.7 |
+| `display()` của lớp con (21/09) | bản trước: `super.display() + countryTerrain` | `String.format(Constants.TERRAIN_FORMAT, super.display(), countryTerrain)` | tờ checklist 3.8 (không cộng chuỗi) |

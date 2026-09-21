@@ -12,8 +12,10 @@ public class Country {
 
     // Country code.
     protected String countryCode;
+
     // Country name.
     protected String countryName;
+
     // Total area in km2.
     protected float totalArea;
 

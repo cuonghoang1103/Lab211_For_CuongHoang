@@ -1,31 +1,43 @@
 package dto;
 
+import java.util.ArrayList;
+
 /**
- * DTO carrying one country FROM the controller OUT TO the view - a JavaBean.
+ * DTO carrying the answer of one menu option FROM the controller OUT TO the view - a
+ * JavaBean. Option 1 fills the message; options 2, 3 and 4 fill the table rows.
  *
  * @author HE176322
  */
 public class CountryResponseDTO {
 
-    // The full table row of one country.
-    private String information;
+    // The one-line result, e.g. "Successful"; null when the answer is a table.
+    private String message;
 
-    // JavaBean constructor: an empty row, filled through the setter.
+    // The table rows, one per country (the text of display()); null when the answer is a
+    // message.
+    private ArrayList<String> rowList;
+
+    // JavaBean constructor: an empty answer, filled through the setters.
     public CountryResponseDTO() {
     }
 
-    // Creates the row with its text.
-    public CountryResponseDTO(String information) {
-        this.information = information;
+    // Returns the one-line result.
+    public String getMessage() {
+        return message;
     }
 
-    // Returns the row text.
-    public String getInformation() {
-        return information;
+    // Sets the one-line result.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Sets the row text.
-    public void setInformation(String information) {
-        this.information = information;
+    // Returns the table rows.
+    public ArrayList<String> getRowList() {
+        return rowList;
+    }
+
+    // Sets the table rows.
+    public void setRowList(ArrayList<String> rowList) {
+        this.rowList = rowList;
     }
 }

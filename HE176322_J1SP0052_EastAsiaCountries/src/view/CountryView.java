@@ -5,33 +5,39 @@ import constants.Message;
 import dto.CountryResponseDTO;
 
 /**
- * VIEW: prints the countries table - the place where what the model's display() returned
- * finally reaches the screen.
+ * VIEW: prints the answer of each menu option - the place where what the model's display()
+ * returned finally reaches the screen. It receives the data through its attribute (the
+ * ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class CountryView {
 
-    // The rows to display, handed over by the controller.
-    private CountryResponseDTO[] countries;
+    // The answer to print, handed over by the controller.
+    private CountryResponseDTO responseDTO;
 
-    // Receives the rows the next display() call will print.
-    public void setCountries(CountryResponseDTO[] countries) {
-        this.countries = countries;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(CountryResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints the header, then one line per country.
+    // Prints what the controller set: the one-line result, or the header and one line per
+    // country.
     public void display() {
-        System.out.println(String.format(Constants.HEADER_FORMAT, Message.LABEL_ID,
-                Message.LABEL_NAME, Message.LABEL_AREA, Message.LABEL_TERRAIN));
-        // one line per country, text built by the model's display()
-        for (CountryResponseDTO country : countries) {
-            System.out.println(country.getInformation());
+        // option 1 answers with one line ("Successful")
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
         }
-    }
 
-    // Prints a one-line result such as "Successful".
-    public void showMessage(String message) {
-        System.out.println(message);
+        // options 2, 3 and 4 answer with a table
+        if (responseDTO.getRowList() != null) {
+            System.out.println(String.format(Constants.HEADER_FORMAT, Message.LABEL_ID,
+                    Message.LABEL_NAME, Message.LABEL_AREA, Message.LABEL_TERRAIN));
+
+            // one line per country, text built by the model's display()
+            for (String row : responseDTO.getRowList()) {
+                System.out.println(row);
+            }
+        }
     }
 }

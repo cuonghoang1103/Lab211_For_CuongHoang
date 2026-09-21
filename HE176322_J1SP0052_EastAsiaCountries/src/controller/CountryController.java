@@ -1,6 +1,5 @@
 package controller;
 
-import constants.Message;
 import dto.CountryRequestDTO;
 import dto.CountryResponseDTO;
 import repository.ManageEastAsiaCountries;
@@ -9,8 +8,8 @@ import service.NameAscendingSortStrategy;
 import view.CountryView;
 
 /**
- * CONTROLLER: receives a request from main, asks the service, and hands the result to the
- * view.
+ * CONTROLLER: receives a request from main, asks the service, and hands the answer to the
+ * view - one render per menu option. No Scanner, no print, no model.
  *
  * @author HE176322
  */
@@ -18,6 +17,7 @@ public class CountryController {
 
     // Business logic, between this controller and the repository.
     private CountryService countryService;
+
     // Where the results are printed.
     private CountryView countryView;
 
@@ -29,34 +29,45 @@ public class CountryController {
         countryView = new CountryView();
     }
 
-    // Pre-check of option 1: refuses before the questions when the list is full (like
-    // checkExistDoctor in the Guide sample P0055).
+    // Check only, before the questions of option 1: throws when the list is full, renders
+    // nothing (like checkExistDoctor in the Guide sample P0055).
     public void checkFull() throws Exception {
         countryService.checkFull();
     }
 
-    // Option 1: stores the country, then "Successful".
+    // Option 1: stores the country, then the view prints "Successful" - once.
     public void addCountryInformation(CountryRequestDTO requestDTO) throws Exception {
-        countryService.addCountryInformation(requestDTO);
-        countryView.showMessage(Message.SUCCESSFUL);
+        CountryResponseDTO responseDTO = countryService.addCountryInformation(requestDTO);
+
+        // hand the answer to the view, then render it - once for the whole flow
+        countryView.setResponseDTO(responseDTO);
+        countryView.display();
     }
 
-    // Option 2: shows the country entered last.
+    // Option 2: the view prints the country entered last - once.
     public void getRecentlyEnteredInformation() throws Exception {
-        CountryResponseDTO row = countryService.getRecentlyEnteredInformation();
-        countryView.setCountries(new CountryResponseDTO[]{row});
+        CountryResponseDTO responseDTO = countryService.getRecentlyEnteredInformation();
+
+        // hand the answer to the view, then render it - once for the whole flow
+        countryView.setResponseDTO(responseDTO);
         countryView.display();
     }
 
-    // Option 3: shows the countries whose name contains the text.
+    // Option 3: the view prints the countries whose name contains the text - once.
     public void searchInformationByName(CountryRequestDTO requestDTO) throws Exception {
-        countryView.setCountries(countryService.searchInformationByName(requestDTO));
+        CountryResponseDTO responseDTO = countryService.searchInformationByName(requestDTO);
+
+        // hand the answer to the view, then render it - once for the whole flow
+        countryView.setResponseDTO(responseDTO);
         countryView.display();
     }
 
-    // Option 4: shows every country sorted by name.
+    // Option 4: the view prints every country sorted by name - once.
     public void sortInformationByAscendingOrder() throws Exception {
-        countryView.setCountries(countryService.sortInformationByAscendingOrder());
+        CountryResponseDTO responseDTO = countryService.sortInformationByAscendingOrder();
+
+        // hand the answer to the view, then render it - once for the whole flow
+        countryView.setResponseDTO(responseDTO);
         countryView.display();
     }
 }

@@ -8,26 +8,31 @@ import model.EastAsiaCountries;
  *
  * @author HE176322
  */
-public class NameAscendingSortStrategy implements SortStrategy {
+public class NameAscendingSortStrategy implements ISortStrategy {
 
     // Sorts the countries by name, A to Z, ignoring case.
     @Override
-    public void sort(EastAsiaCountries[] countries) {
-        int size = countries.length;
+    public void sort(EastAsiaCountries[] countryArray) {
+        int size = countryArray.length;
+        boolean swapped = false;
+        EastAsiaCountries temp = null;
+
         // pass i moves the "biggest" remaining name to position size-1-i
-        for (int i = 0; i < size - 1; i++) {
-            boolean swapped = false;
+        for (int i = 0; i < (size - 1); i++) {
+            swapped = false;
+
             // the last i names are already in place, so stop before them
-            for (int j = 0; j < size - 1 - i; j++) {
+            for (int j = 0; j < (size - 1 - i); j++) {
                 // wrong order: swap the two neighbours
-                if (countries[j].getCountryName()
-                        .compareToIgnoreCase(countries[j + 1].getCountryName()) > 0) {
-                    EastAsiaCountries temp = countries[j];
-                    countries[j] = countries[j + 1];
-                    countries[j + 1] = temp;
+                if (countryArray[j].getCountryName()
+                        .compareToIgnoreCase(countryArray[j + 1].getCountryName()) > 0) {
+                    temp = countryArray[j];
+                    countryArray[j] = countryArray[j + 1];
+                    countryArray[j + 1] = temp;
                     swapped = true;
                 }
             }
+
             // a pass without any swap means the array is already sorted
             if (!swapped) {
                 return;

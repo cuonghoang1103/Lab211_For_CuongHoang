@@ -14,17 +14,20 @@ import model.EastAsiaCountries;
 public class ManageEastAsiaCountries {
 
     // The stored countries; only the first count cells are used.
-    private EastAsiaCountries[] countries = new EastAsiaCountries[Constants.MAX_COUNTRIES];
+    private EastAsiaCountries[] countryArray;
+
     // How many countries are stored so far.
     private int count;
 
-    // Creates an empty repository.
+    // Creates an empty repository with room for 11 countries.
     public ManageEastAsiaCountries() {
+        countryArray = new EastAsiaCountries[Constants.MAX_COUNTRIES];
+        count = 0;
     }
 
     // Tells whether the 11 places are all taken.
     public boolean isFull() {
-        return count == countries.length;
+        return count == countryArray.length;
     }
 
     // The brief's addCountryInformation: stores a country after the others.
@@ -33,7 +36,9 @@ public class ManageEastAsiaCountries {
         if (isFull()) {
             throw new Exception(String.format(Message.LIST_FULL, Constants.MAX_COUNTRIES));
         }
-        countries[count] = country;
+
+        // the next free cell, then one more country is counted
+        countryArray[count] = country;
         count++;
     }
 
@@ -43,28 +48,32 @@ public class ManageEastAsiaCountries {
         if (count == 0) {
             throw new Exception(Message.LIST_EMPTY);
         }
-        return countries[count - 1];
+
+        return countryArray[count - 1];
     }
 
     // The brief's searchInformationByName: every country whose name contains the text,
     // ignoring case ("nam" finds "Viet Nam").
     public EastAsiaCountries[] searchInformationByName(String name) throws Exception {
         String text = name.trim().toLowerCase();
-        EastAsiaCountries[] found = new EastAsiaCountries[count];
+        EastAsiaCountries[] foundArray = new EastAsiaCountries[count];
         int total = 0;
+
         // look at every stored country once
         for (int i = 0; i < count; i++) {
             // keep it when its name contains the text
-            if (countries[i].getCountryName().toLowerCase().contains(text)) {
-                found[total] = countries[i];
+            if (countryArray[i].getCountryName().toLowerCase().contains(text)) {
+                foundArray[total] = countryArray[i];
                 total++;
             }
         }
+
         // nothing matched the text
         if (total == 0) {
             throw new Exception(String.format(Message.NOT_FOUND, name.trim()));
         }
-        return Arrays.copyOf(found, total);
+
+        return Arrays.copyOf(foundArray, total);
     }
 
     // Hands out a COPY of the stored countries, for the service to sort.
@@ -73,6 +82,7 @@ public class ManageEastAsiaCountries {
         if (count == 0) {
             throw new Exception(Message.LIST_EMPTY);
         }
-        return Arrays.copyOf(countries, count);
+
+        return Arrays.copyOf(countryArray, count);
     }
 }

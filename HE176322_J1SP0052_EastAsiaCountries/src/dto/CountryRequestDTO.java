@@ -10,12 +10,16 @@ public class CountryRequestDTO {
 
     // Code typed on input.
     private String countryCode;
+
     // Name typed on input.
     private String countryName;
+
     // Total area typed on input, already checked to be greater than 0.
     private float totalArea;
+
     // Terrain typed on input.
     private String countryTerrain;
+
     // Name typed on search.
     private String searchName;
 
