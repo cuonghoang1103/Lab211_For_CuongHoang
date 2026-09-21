@@ -6,14 +6,15 @@ import view.DeckView;
 
 /**
  * Controller: asks the service for the deck and hands it to the view (no Scanner, no
- * printing, no static).
+ * printing, no static, no model).
  *
  * @author HE176322
  */
 public class DeckController {
 
-    // builds, shuffles and deals the deck
+    // lists, shuffles and deals the deck (Controller -> Service -> Repository -> Model)
     private DeckService deckService;
+
     // prints the deck
     private DeckView deckView;
 
@@ -23,10 +24,12 @@ public class DeckController {
         deckView = new DeckView();
     }
 
-    // the only workflow: build the deck, then display it
+    // the only workflow: the service prepares the deck, the view displays it ONCE
     public void showDeck() throws Exception {
-        DeckResponseDTO response = deckService.createDeck();
-        deckView.setResponse(response);
+        DeckResponseDTO responseDTO = deckService.testDeck();
+
+        // hand the result to the view, then render it - once for the whole flow
+        deckView.setResponseDTO(responseDTO);
         deckView.display();
     }
 }

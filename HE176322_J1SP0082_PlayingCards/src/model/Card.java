@@ -13,6 +13,7 @@ public class Card {
 
     // The rank.
     private Rank rank;
+
     // The suit.
     private Suit suit;
 

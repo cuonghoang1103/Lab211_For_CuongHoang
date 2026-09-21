@@ -11,36 +11,38 @@ import java.util.ArrayList;
 public class DeckResponseDTO {
 
     // The 52 cards of the new deck, in order.
-    private ArrayList<String> cards;
+    private ArrayList<String> cardList;
+
     // The cards dealt after shuffling, in the order they were dealt.
-    private ArrayList<String> hand;
+    private ArrayList<String> handList;
+
     // How many cards stay in the deck after dealing.
     private int remaining;
 
     // JavaBean constructor: an empty response, filled through the setters.
     public DeckResponseDTO() {
-        cards = new ArrayList<>();
-        hand = new ArrayList<>();
+        cardList = new ArrayList<>();
+        handList = new ArrayList<>();
     }
 
     // Returns the cards of the new deck.
-    public ArrayList<String> getCards() {
-        return cards;
+    public ArrayList<String> getCardList() {
+        return cardList;
     }
 
     // Sets the cards of the new deck.
-    public void setCards(ArrayList<String> cards) {
-        this.cards = cards;
+    public void setCardList(ArrayList<String> cardList) {
+        this.cardList = cardList;
     }
 
     // Returns the dealt cards.
-    public ArrayList<String> getHand() {
-        return hand;
+    public ArrayList<String> getHandList() {
+        return handList;
     }
 
     // Sets the dealt cards.
-    public void setHand(ArrayList<String> hand) {
-        this.hand = hand;
+    public void setHandList(ArrayList<String> handList) {
+        this.handList = handList;
     }
 
     // Returns how many cards are left.

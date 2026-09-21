@@ -10,10 +10,17 @@
 | Chạy | NetBeans: **File ▸ Open Project** → **F6** |
 | Lớp chạy | `main.Main` |
 | Kiểm tự động | `python3 _tools/verify.py J1SP0082` → 3 kịch bản × 2 locale |
+| Tờ checklist giấy của thầy | 25 mục — bài này đạt thế nào: **mục 10** |
 
 ---
 
 ## 1. Đề bài nói gì
+
+> **Đề gốc thầy phát** (`J1.S.P0082.txt`) chỉ có 3 câu: lớp **một lá bài** (2 thuộc tính rank,
+> suit), lớp **một bộ bài đủ**, và **chương trình nhỏ để thử** — *"as simple as creating a deck of
+> cards and displaying its cards"*; mục giao diện và Guidelines đều ghi **NA**. Các chi tiết dưới
+> đây (màn hình, bất biến, 2 vòng lồng, tuỳ chọn trộn/chia) lấy từ **bản đề mở rộng** trên trang
+> CodeLab — không trái đề gốc vì đề gốc để trống phần giao diện.
 
 - Lớp **Card**: 2 thuộc tính `private` **rank**, **suit**; constructor đặt cả hai; `getRank()`,
   `getSuit()`; `toString()` ra chữ kiểu **"Ace of Spades"**; **bất biến** (không cần setter).
@@ -65,7 +72,7 @@ Thứ tự khai báo **chính là** thứ tự in: `values()` trả `TWO, THREE,
 ```java
 for (Suit suit : Suit.values()) {        // ngoài: 4 lần
     for (Rank rank : Rank.values()) {    // trong: 13 lần mỗi chất
-        cards.add(new Card(rank, suit));
+        cardList.add(new Card(rank, suit));
     }
 }
 ```
@@ -113,34 +120,40 @@ Mỗi lá chạm 1 lần → **O(n)**; mọi thứ tự 52! có xác suất như
 ```
 HE176322_J1SP0082_PlayingCards/src/
 ├── model/      Card                   rank + suit (enum), toString "Ace of Spades"
-│               Deck                   ArrayList<Card>, constructor 2 vòng lồng, size/getCard/swap/deal
+│               Deck                   ArrayList<Card> cardList, constructor 2 vòng lồng,
+│                                      countCards/getCard/getCardList/swap/deal
+├── repository/ DeckRepository         GIỮ bộ bài (field Deck deck) · getDeck()
 ├── dto/        DeckResponseDTO        52 chữ + tay bài + số lá còn  (controller ──► view)
-├── service/    DeckService            dựng bộ · trộn Fisher–Yates · chia bài
-├── controller/ DeckController         cắm Fisher–Yates vào service; service ──► view
-├── view/       DeckView               in màn hình (thay Deck.display của đề)
+├── service/    DeckService            lấy bộ bài từ repository · trộn Fisher–Yates · chia bài
+├── controller/ DeckController         service ──► view (setResponseDTO + display 1 lần)
+├── view/       DeckView               field responseDTO + display() không tham số
+│                                      (thay Deck.display của đề)
 ├── constants/  Suit, Rank             enum 4 chất, 13 bậc
 │               Message, Constants     câu chữ · HAND_SIZE = 5
-└── main/       Main                   gọi controller 1 lần
+└── main/       Main                   final + private Main() · gọi controller 1 lần
 ```
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
 | Sao **không có** `utils/Validation` và `RequestDTO`? | Chương trình **không đọc bàn phím** (đề: *"as simple as creating a deck … and displaying"*). Validation chỉ để kiểm chuỗi người dùng gõ; RequestDTO chở dữ liệu main → controller — ở đây không có gì để chở. Tạo lớp rỗng là trừu tượng thừa (ghi chú slide 26 SOLID). |
-| Sao có `service` mà không có `repository`? | Không có menu thêm/sửa/xoá, không lưu gì qua các lần chạy. Trộn/chia là **nghiệp vụ** → service. |
+| **Sao bài có `repository`?** | Tờ checklist giấy của thầy, mục 1.1: *"**Bắt buộc phải có repository**"*. Repository giữ **dữ liệu** của chương trình — ở bài này là **bộ bài** (`private Deck deck` trong `DeckRepository`) — và chỉ CRUD đơn giản (`getDeck()`), không trộn, không in. Trộn/chia là **nghiệp vụ** → `DeckService` lấy bộ bài **từ** repository rồi làm. Đúng luồng thầy vẽ: Controller → Service → Repository → Model. |
 | Sao Deck **không tự trộn**? | Trộn là **nghiệp vụ** (có nhiều cách, đề nêu 2) → nằm ở `DeckService`; `Deck` chỉ cho phép `swap`. |
 | Controller có đụng `Card`/`Deck` không? | Không — Guide: controller *"chỉ import DTO, View, Service"*; service đổi Card thành chữ trước khi trả. |
+| **View nhận dữ liệu thế nào?** | Qua **thuộc tính**, không qua tham số (checklist 1.1: *"Không nên truyền qua param mà phải nhận qua thuộc tính"*): `DeckView` có field `private DeckResponseDTO responseDTO` + setter `setResponseDTO(...)`; `display()` **không tham số** in theo cái đã set. Controller gọi `setResponseDTO` rồi `display()` **đúng 1 lần** cho cả luồng. |
+| **Validate ở đâu?** | Bài không nhập gì nên không có gì để validate. Luật chung: nhập + validate **chỉ ở `Main`** (qua `utils/Validation`) — checklist 1.1. |
 
-**Luồng chạy:**
+**Luồng chạy:** Main → Controller → Service → Repository → Model; ResponseDTO → View **1 lần**.
 
 ```
-Main ──► controller.showDeck()
-   controller ──► service.createDeck()
-                     ├─ new Deck()                   → 52 lá (2 vòng lồng)
-                     ├─ response.setCards(toTexts)   ← chụp TRƯỚC khi trộn
-                     ├─ shuffle(deck)                ← Fisher–Yates
-                     ├─ 5 × deck.deal()              → tay bài
-                     └─ response.setRemaining(47)
-   controller ──► view.setResponse(response) ──► view.display()
+Main ──► controller.showDeck()                              (1 lần duy nhất)
+   controller ──► service.testDeck()
+                     ├─ deckRepository.getDeck()           ← bộ bài repository giữ
+                     │    (DeckRepository() đã new Deck()  → 52 lá, 2 vòng lồng)
+                     ├─ responseDTO.setCardList(toTextList) ← chụp TRƯỚC khi trộn
+                     ├─ shuffle(deck)                      ← Fisher–Yates
+                     ├─ 5 × deck.deal()                    → tay bài
+                     └─ responseDTO.setRemaining(47)
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()   (1 lần)
 ```
 
 ### 3.1 Design Pattern trong bài
@@ -165,7 +178,7 @@ Main ──► controller.showDeck()
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `Card` mô tả 1 lá · `Deck` giữ bộ bài · `DeckService` dựng + trộn + chia · `DeckView` in |
+| **S** | `Card` mô tả 1 lá · `Deck` là bộ bài · `DeckRepository` giữ dữ liệu · `DeckService` trộn + chia · `DeckView` in |
 | **O** | đổi cách trộn chỉ sửa **một hàm** `shuffle`; thêm rank/suit chỉ sửa enum |
 | **L** | bài chưa có lớp con riêng — chỉ `extends Object` |
 | **I** | không có interface — bài chưa cần |
@@ -182,20 +195,23 @@ Main ──► controller.showDeck()
 |---|---|---|
 | 1 | `constants/Suit.java`, `Rank.java` | enum: hằng + field `label` + constructor `private` + `getLabel()` |
 | 2 | `model/Card.java` | 2 field `private` + constructor rỗng + `Card(rank, suit)` + 2 getter + `toString` |
-| 3 | `model/Deck.java` | `ArrayList<Card>` + constructor **2 vòng lồng** + `size/getCard/getCards/swap/deal` |
-| 4 | `dto/DeckResponseDTO.java` | JavaBean 3 field |
-| 5 | `service/DeckService.java` | `createDeck()` + `toTexts` (private) |
-| 6 | `view/DeckView.java` | `setResponse` · `display` |
-| 7 | `controller/DeckController.java` | `new DeckService()`; `showDeck()` |
-| 8 | `constants/Message.java`, `Constants.java` | câu chữ, `HAND_SIZE` (gõ dần khi cần) |
-| 9 | `main/Main.java` | gọi `controller.showDeck()` trong `try` |
+| 3 | `model/Deck.java` | `ArrayList<Card> cardList` + constructor **2 vòng lồng** + `countCards/getCard/getCardList/swap/deal` |
+| 4 | `dto/DeckResponseDTO.java` | JavaBean 3 field `cardList`, `handList`, `remaining` |
+| 5 | `repository/DeckRepository.java` | field `Deck deck` (constructor `new Deck()`) + `getDeck()` |
+| 6 | `service/DeckService.java` | constructor (`new Random()`, `new DeckRepository()`) + `testDeck()` + `shuffle`, `toTextList` (private) |
+| 7 | `view/DeckView.java` | field `responseDTO` · `setResponseDTO` · `display()` không tham số |
+| 8 | `controller/DeckController.java` | `new DeckService()`; `showDeck()` = `setResponseDTO` + `display()` 1 lần |
+| 9 | `constants/Message.java`, `Constants.java` | câu chữ, `HAND_SIZE` (gõ dần khi cần) |
+| 10 | `main/Main.java` | `public final class Main` + `private Main()`; gọi `controller.showDeck()` trong `try` |
 
 **Bẫy hay gặp:**
 
 1. Đảo 2 vòng (ngoài rank, trong suit) → vẫn 52 lá nhưng **sai thứ tự** (2 of Clubs, 2 of Diamonds…).
 2. Liệt kê bộ bài **sau khi** trộn → không ra đúng màn hình đề. Phải chụp chữ **trước** `shuffle`.
-3. `getCards()` trả thẳng `cards` → nơi khác `add` được lá thứ 53. Trả **bản sao**.
+3. `getCardList()` trả thẳng `cardList` → nơi khác `add` được lá thứ 53. Trả **bản sao**.
 4. Fisher–Yates viết `random.nextInt(i)` (thiếu `+ 1`) → lá không bao giờ được ở yên chỗ — trộn lệch.
+5. Khai báo biến **giữa** hàm (`int number = 1;` sau mấy lệnh `println`) → sai checklist 2.6. Mọi
+   biến gom lên **đầu** block và **khởi tạo luôn**; trong vòng lặp chỉ **gán** (`randomIndex = …`).
 
 ---
 
@@ -218,12 +234,13 @@ Bài không có nhập liệu nên không có message validation nào hiện đ�
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `cards.add(new Card(rank, suit));` trong constructor `Deck()` |
+| Breakpoint | dòng `cardList.add(new Card(rank, suit));` trong constructor `Deck()` |
 | Chạy | **Ctrl+F5** |
-| Quan sát | tab **Variables**: `suit`, `rank`, `cards.size()` tăng 1 mỗi lần **F5** (Continue) |
+| Quan sát | tab **Variables**: `suit`, `rank`, `cardList.size()` tăng 1 mỗi lần **F5** (Continue) |
 | Chứng minh vòng lồng | sau 13 lần F5, `suit` đổi từ `CLUBS` sang `DIAMONDS`, `rank` quay về `TWO` |
-| Trộn | breakpoint `deck.swap(i, j);` trong `DeckService.shuffle` — xem `i` giảm dần, `j ≤ i` |
-| Vào hàm trộn | ở `DeckService.createDeck` bấm **F7** vào `shuffle(deck)` → vào vòng Fisher–Yates |
+| Ai gọi `new Deck()`? | cửa sổ **Call Stack** lúc dừng ở breakpoint trên: `Deck.<init>` ← `DeckRepository.<init>` ← `DeckService.<init>` ← `DeckController.<init>` ← `Main.main` |
+| Trộn | breakpoint `deck.swap(i, randomIndex);` trong `DeckService.shuffle` — xem `i` giảm dần, `randomIndex ≤ i` |
+| Vào hàm trộn | ở `DeckService.testDeck` bấm **F7** vào `shuffle(deck)` → vào vòng Fisher–Yates |
 
 ---
 
@@ -233,16 +250,18 @@ Bài không có nhập liệu nên không có message validation nào hiện đ�
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: `rank`, `suit`, `cards` là `private`; `Deck.getCards()` trả bản sao. **Kế thừa**: mọi lớp ngầm `extends Object`, em ghi đè `toString()`. **Đa hình**: `Card.toString()` có `@Override` — in cả bộ bài tự gọi đúng bản của `Card`. **Trừu tượng**: `Main` chỉ gọi `controller.showDeck()`. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: `rank`, `suit`, `cardList` là `private`; `Deck.getCardList()` trả bản sao. **Kế thừa**: mọi lớp ngầm `extends Object`, em ghi đè `toString()`. **Đa hình**: `Card.toString()` có `@Override` — in cả bộ bài tự gọi đúng bản của `Card`. **Trừu tượng**: `Main` chỉ gọi `controller.showDeck()`. |
 | Quan hệ Deck – Card? | **Composition** (hình thoi đặc trong sơ đồ đề): Deck tự tạo 52 lá, lá không tồn tại riêng ngoài bộ bài trong chương trình này. Bội số 1 — 52. |
 | Sao Card **không có setter**? | Đề: *"A card is immutable once created — no setters are required"*. Không ai biến được Ace of Spades thành 2 of Clubs giữa chừng. |
 | Không có setter thì còn là JavaBean không? | Có đủ phần thầy yêu cầu (V10): field `private`, **constructor rỗng `public`**, getter. Constructor rỗng cho lá đầu tiên của bộ mới (`2 of Clubs`) để lá bài không bao giờ "rỗng". Setter bỏ **vì đề bắt bất biến** — thầy muốn JavaBean đủ get/set thì thêm `setRank/setSuit` là xong. |
 | Sao `Deck` không có `display()` như sơ đồ đề? | Guide: model *"không được … output (printf)"*. Hiển thị là việc của `DeckView.display()`. |
 | `deal()` trả `Card` vì sao? | Nó **rút** một lá và đưa lá đó cho người gọi — đúng sơ đồ đề `deal() : Card`. |
 | `shuffle` trả `void` vì sao? | Nó sắp lại **chính** bộ bài được truyền vào (tham chiếu), không tạo gì mới. |
-| `size()` trả `int`? | Là số đếm. |
-| `swap`, `getCard` sao `public`? | `DeckService` (lớp khác, package khác) gọi chúng. `toTexts` chỉ `DeckService` dùng → `private`. |
+| `countCards()` trả `int`? | Là số đếm. Tên mở đầu bằng **động từ** `count` (checklist 1.4) — bản cũ tên `size()` không phải động từ. |
+| `swap`, `getCard` sao `public`? | `DeckService` (lớp khác, package khác) gọi chúng. `toTextList`, `shuffle` chỉ `DeckService` dùng → `private`. |
+| `getDeck()` của repository trả gì? | **Chính** đối tượng `Deck` đang giữ (không phải bản sao) — service trộn/chia trên nó thì bộ bài trong kho đổi theo, nên `countCards()` sau khi chia ra 47. |
 | Có chữ `static` nào? | Chỉ ở `constants` (hằng `Message`, `Constants`) và `main()`. Enum không cần `static` tự viết. `Main` không có biến static. Bỏ `static` ở `Message.TITLE` thì `Message.TITLE` báo lỗi biên dịch — phải `new Message()` mà constructor `private`. |
+| Sao `Main` là `final` và có `private Main()`? | Checklist 3.4: *"Class chỉ có static method thì phải có private constructor, Và khai báo class là final"*. `Main` chỉ có hàm `static main` → không ai cần `new Main()` hay kế thừa nó. |
 | Constructor enum sao `private`? | Chỉ các hằng khai báo sẵn được tồn tại; không ai `new Rank(...)` được. (Enum ngầm định đã private — em ghi rõ cho dễ đọc.) |
 | **Sao `ArrayList<Card>` mà không `List<Card>`** (sơ đồ đề ghi `List<Card>`)? | `List` là **interface** (hợp đồng: add/get/remove), `ArrayList` là **lớp cài đặt** bằng mảng động — `get(i)`/`set(i)` theo chỉ số **O(1)**, rút ở cuối O(1); `LinkedList` cài cùng hợp đồng bằng danh sách liên kết, `get(i)` phải đi từng nút O(n). Fisher–Yates `swap` truy cập theo chỉ số liên tục → em **cần** mảng động, nên khai báo đúng `ArrayList`. Đề cho phép *"Card[52] or a List<Card>"*. |
 | Sao không dùng `Card[52]`? | Mảng cố định không "rút" lá được — `deal()` phải tự giữ biến đếm. `ArrayList` tự co lại. |
@@ -265,8 +284,9 @@ Bài không có nhập liệu nên không có message validation nào hiện đ�
 | Chia **7** lá thay 5 | `Constants.HAND_SIZE = 7` | mọi file khác |
 | Thêm 2 lá **Joker** (54 lá) | `Rank`/`Suit` không đủ → thêm vòng nhỏ sau 2 vòng lồng trong `Deck()` + hằng mới | controller, view |
 | Ace đứng **đầu** (Ace, 2, …, King) | đổi thứ tự khai báo trong `Rank` | `Deck` (vẫn `values()`) |
-| Trộn bằng `Collections.shuffle` | `DeckService.shuffle`: lấy danh sách, `Collections.shuffle`, ghi lại (thêm `setCards` vào `Deck`) | `Main`, `DeckView` |
-| In bộ bài **sau** khi trộn | `DeckService.createDeck`: đổi thứ tự `setCards` ↔ `shuffle` | view |
+| Trộn bằng `Collections.shuffle` | `DeckService.shuffle`: lấy danh sách, `Collections.shuffle`, ghi lại (thêm `setCardList` vào `Deck`) | `Main`, `DeckView`, repository |
+| In bộ bài **sau** khi trộn | `DeckService.testDeck`: đổi thứ tự `setCardList` ↔ `shuffle` | view |
+| Chơi **2 bộ bài** / tạo lại bộ mới | `DeckRepository`: thêm `createDeck()` (`deck = new Deck()`) hoặc giữ `ArrayList<Deck> deckList` | controller, view |
 | Card có setter (JavaBean đủ) | thêm `setRank`, `setSuit` vào `Card` | mọi file khác |
 
 ---
@@ -284,3 +304,24 @@ Bài không có nhập liệu nên không có message validation nào hiện đ�
 | Phần trộn/chia 5 lá | đề: tuỳ chọn, màn hình không có | có, in **sau** `Total: 52 cards` | giữ nguyên bản tham chiếu đã kiểm; đề cho phép |
 | Không có `utils/`, `RequestDTO` | khung chuẩn có | bỏ | không có nhập liệu (xem mục 3) |
 | Kiến trúc | bản cũ `entity/ui`, enum lồng trong Card | MVC theo Guide | luật thầy |
+| **Repository** | bản trước: không có (*"không có CRUD"*) | `repository/DeckRepository` giữ bộ bài; service lấy bộ bài từ đó | tờ checklist 1.1: *"Bắt buộc phải có repository"* |
+| View | bản trước: `setResponse(...)`, field `response` | `setResponseDTO(...)`, field `responseDTO`, `display()` không tham số | checklist 1.1 — View nhận qua thuộc tính (ResponseDTO) |
+| Tên collection | bản trước: `cards`, `hand`, `texts` | `cardList`, `handList`, `textList` (+ getter `getCardList`, `getHandList`) | checklist 1.5 — biến collection kết thúc bằng `List` |
+| `Deck.size()` | bản trước | `countCards()` | checklist 1.4 — method mở đầu bằng động từ |
+| Hàm của service | bản trước: `createDeck()` (tự `new Deck()`) | `testDeck()` — lấy bộ bài từ repository | bộ bài giờ do repository tạo và giữ; tên cũ thành sai nghĩa |
+| `Main` | bản trước: `public class Main` | `public final class Main` + `private Main()` | checklist 3.4 |
+| Dòng trống / khai báo | bản trước: `int number = 1;` giữa hàm, comment dính dòng code | biến ở đầu block, khởi tạo luôn; 1 dòng trống trước mỗi comment | checklist 2.6, 2.8, 3.7 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/DeckRepository.java` giữ `private Deck deck`; `DeckController.showDeck()` gọi `deckView.setResponseDTO(responseDTO)` rồi `deckView.display()` **1 lần**; controller không import `model` |
+| **1.4** tên method là động từ | `countCards`, `getCardList`, `testDeck`, `showDeck`, `toTextList`, `shuffle`, `deal`, `swap` |
+| **1.5** tên biến | `cardList`, `handList`, `textList` (collection → `List`); không còn `ID` |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `DeckService.testDeck` (3 biến ở đầu), `DeckService.shuffle` (`int randomIndex = 0;` trước vòng lặp), `DeckView.display` (`int number = 1;`) |
+| **2.8** dòng trống | trước mọi comment (kể cả comment của hằng trong `Message`, của từng hằng enum `Rank`/`Suit`), sau vùng khai báo biến, sau mỗi `}` |
+| **3.3** ngoặc tường minh | bài không có `&&`/`||`/`?:`; `for (int i = deck.countCards() - 1; i > 0; i--)` chỉ một phép so sánh |
+| **3.4** lớp chỉ có static | `Main`, `Message`, `Constants`: `final` + constructor `private` |

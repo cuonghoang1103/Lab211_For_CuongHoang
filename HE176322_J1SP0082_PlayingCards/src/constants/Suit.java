@@ -9,10 +9,13 @@ public enum Suit {
 
     // Clubs - the first suit of a new deck.
     CLUBS("Clubs"),
+
     // Diamonds.
     DIAMONDS("Diamonds"),
+
     // Hearts.
     HEARTS("Hearts"),
+
     // Spades - the last suit of a new deck.
     SPADES("Spades");
 

@@ -9,28 +9,40 @@ public enum Rank {
 
     // Rank 2.
     TWO("2"),
+
     // Rank 3.
     THREE("3"),
+
     // Rank 4.
     FOUR("4"),
+
     // Rank 5.
     FIVE("5"),
+
     // Rank 6.
     SIX("6"),
+
     // Rank 7.
     SEVEN("7"),
+
     // Rank 8.
     EIGHT("8"),
+
     // Rank 9.
     NINE("9"),
+
     // Rank 10.
     TEN("10"),
+
     // Jack.
     JACK("Jack"),
+
     // Queen.
     QUEEN("Queen"),
+
     // King.
     KING("King"),
+
     // Ace - the highest rank, printed last in each suit.
     ACE("Ace");
 
