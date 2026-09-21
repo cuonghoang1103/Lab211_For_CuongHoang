@@ -1,5 +1,7 @@
 package model;
 
+import constants.Constants;
+
 /**
  * MODEL: describes one worker, and nothing else - a JavaBean (private fields, public
  * no-argument constructor, getters/setters), as in MVC of JSP.
@@ -10,12 +12,16 @@ public class Worker {
 
     // Unique code of the worker.
     private String code;
+
     // Full name of the worker.
     private String name;
+
     // Age in years; the brief requires 18 to 50.
     private int age;
+
     // Current salary; changed by every up/down adjustment.
     private double salary;
+
     // Where the worker works.
     private String workLocation;
 
@@ -83,9 +89,10 @@ public class Worker {
         this.workLocation = workLocation;
     }
 
-    // Polymorphism: overrides Object.toString().
+    // Polymorphism: overrides Object.toString() - "code - name", with String.format
+    // (checklist 3.8: no "+" on strings).
     @Override
     public String toString() {
-        return code + " - " + name;
+        return String.format(Constants.WORKER_FORMAT, code, name);
     }
 }

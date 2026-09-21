@@ -5,11 +5,11 @@ package service;
  *
  * @author HE176322
  */
-public class DecreaseSalaryStrategy implements SalaryStrategy {
+public class DecreaseSalaryStrategy implements ISalaryStrategy {
 
     // Subtracts the amount from the salary.
     @Override
-    public double adjust(double salary, double amount) {
+    public double calculateSalary(double salary, double amount) {
         return salary - amount;
     }
 }

@@ -3,7 +3,8 @@ package utils;
 import constants.Message;
 
 /**
- * Shared checks for what the user typed.
+ * Shared checks for what the user typed. A utility: no object, no field, no keyboard, no
+ * print - it only answers "is this line valid?".
  *
  * @author HE176322
  */
@@ -19,16 +20,19 @@ public final class Validation {
         if (input == null) {
             return "";
         }
+
         return input.trim();
     }
 
     // Converts a menu choice and checks it lies in [min, max].
     public static int getChoice(String input, int min, int max) throws Exception {
         int choice = getInt(input);
+
         // a number, but not one of the menu options
-        if (choice < min || choice > max) {
+        if ((choice < min) || (choice > max)) {
             throw new Exception(String.format(Message.INVALID_RANGE, min, max));
         }
+
         return choice;
     }
 
@@ -45,7 +49,8 @@ public final class Validation {
 
     // Converts a real number (salary, amount).
     public static double getDouble(String input) throws Exception {
-        double value;
+        double value = 0;
+
         // parseDouble refuses letters and an empty line
         try {
             value = Double.parseDouble(getText(input));
@@ -53,10 +58,12 @@ public final class Validation {
             // not a number at all
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         // "NaN" and "Infinity" parse, but nobody means them as money
         if (Double.isNaN(value) || Double.isInfinite(value)) {
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         return value;
     }
 }

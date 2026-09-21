@@ -22,6 +22,8 @@ public final class FormatUtils {
     public static String formatMoney(double amount) {
         DecimalFormat format = new DecimalFormat(Constants.MONEY_FORMAT,
                 new DecimalFormatSymbols(Locale.US));
+
+        // Locale.US: a dot for the decimals even on a Vietnamese machine (999.5, not 999,5)
         return format.format(amount);
     }
 }

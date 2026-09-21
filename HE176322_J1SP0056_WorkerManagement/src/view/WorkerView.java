@@ -2,44 +2,43 @@ package view;
 
 import constants.Constants;
 import constants.Message;
-import dto.SalaryHistoryResponseDTO;
-import java.util.ArrayList;
+import dto.WorkerResponseDTO;
 
 /**
- * VIEW: the only place (with main) allowed to print results.
+ * VIEW: the only place (with main) allowed to print results. It receives the data through
+ * its attribute (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class WorkerView {
 
-    // The rows to display, handed over by the controller.
-    private ArrayList<SalaryHistoryResponseDTO> historyList;
+    // The answer to print, handed over by the controller.
+    private WorkerResponseDTO responseDTO;
 
-    // Receives the rows the next display() call will print.
-    public void setHistoryList(ArrayList<SalaryHistoryResponseDTO> historyList) {
-        this.historyList = historyList;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(WorkerResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints option 4: a title, then either a "nothing yet" line or a header and one row
-    // per adjustment.
+    // Prints what the controller set: the one-line result, or the header and one line per
+    // salary adjustment.
     public void display() {
-        System.out.println(Message.TITLE_DISPLAY);
-        // no salary has been adjusted yet: say so instead of a bare header
-        if (historyList == null || historyList.isEmpty()) {
-            System.out.println(Message.NO_HISTORY);
-            return;
+        // a one-line result: "Worker [W 1] has been added.", "Salary has been adjusted." or
+        // "No salary has been adjusted yet."
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
         }
-        System.out.println(String.format(Constants.HEADER_FORMAT, Message.LABEL_CODE,
-                Message.LABEL_NAME, Message.LABEL_AGE, Message.LABEL_SALARY,
-                Message.LABEL_STATUS, Message.LABEL_DATE));
-        // one line per adjustment; toString() of the DTO is already padded
-        for (SalaryHistoryResponseDTO history : historyList) {
-            System.out.println(history);
-        }
-    }
 
-    // Prints a one-line result such as "Salary has been adjusted.".
-    public void showMessage(String message) {
-        System.out.println(message);
+        // the table of option 4
+        if (responseDTO.getRowList() != null) {
+            System.out.println(String.format(Constants.HEADER_FORMAT, Message.LABEL_CODE,
+                    Message.LABEL_NAME, Message.LABEL_AGE, Message.LABEL_SALARY,
+                    Message.LABEL_STATUS, Message.LABEL_DATE));
+
+            // one line per adjustment, text built by the model's toString()
+            for (String row : responseDTO.getRowList()) {
+                System.out.println(row);
+            }
+        }
     }
 }
