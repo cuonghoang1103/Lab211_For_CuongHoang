@@ -8,32 +8,33 @@ package dto;
  */
 public class SortResponseDTO {
 
-    // The array before sorting.
-    private String unsorted;
-    // The same array after sorting.
-    private String sorted;
+    // The array before sorting, as the screen shows it ("[2, 6, 3]").
+    private String unsortedArray;
+
+    // The same array after sorting, as the screen shows it.
+    private String sortedArray;
 
     // JavaBean constructor: an empty response, filled through the setters.
     public SortResponseDTO() {
     }
 
     // Returns the array before sorting.
-    public String getUnsorted() {
-        return unsorted;
+    public String getUnsortedArray() {
+        return unsortedArray;
     }
 
     // Sets the array before sorting.
-    public void setUnsorted(String unsorted) {
-        this.unsorted = unsorted;
+    public void setUnsortedArray(String unsortedArray) {
+        this.unsortedArray = unsortedArray;
     }
 
     // Returns the array after sorting.
-    public String getSorted() {
-        return sorted;
+    public String getSortedArray() {
+        return sortedArray;
     }
 
     // Sets the array after sorting.
-    public void setSorted(String sorted) {
-        this.sorted = sorted;
+    public void setSortedArray(String sortedArray) {
+        this.sortedArray = sortedArray;
     }
 }

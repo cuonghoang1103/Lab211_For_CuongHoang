@@ -7,15 +7,17 @@ import service.SortService;
 import view.SortView;
 
 /**
- * CONTROLLER: takes the request from main, asks the service for the result, and hands
- * that result to the view.
+ * CONTROLLER (Facade): takes the request from main, lets the service do the work, and hands
+ * the result to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class SortController {
 
-    // Generates and sorts; configured with the quick sort strategy.
+    // Generates, keeps and sorts the array with quick sort (Controller -> Service ->
+    // Repository -> Model).
     private SortService sortService;
+
     // Prints the result.
     private SortView sortView;
 
@@ -25,10 +27,13 @@ public class SortController {
         sortView = new SortView();
     }
 
-    // The only workflow of the program: service computes, view displays.
+    // The only workflow (the brief's Function 2): the service sorts, the view shows the
+    // result ONCE.
     public void sortArray(SortRequestDTO requestDTO) {
-        SortResponseDTO response = sortService.sortRandomArray(requestDTO);
-        sortView.setResponse(response);
+        SortResponseDTO responseDTO = sortService.sortRandomArray(requestDTO);
+
+        // hand the result to the view, then render it - once for the whole flow
+        sortView.setResponseDTO(responseDTO);
         sortView.display();
     }
 }
