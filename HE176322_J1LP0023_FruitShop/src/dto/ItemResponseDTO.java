@@ -9,10 +9,13 @@ public class ItemResponseDTO {
 
     // Fruit name.
     private String fruitName;
+
     // Units bought.
     private int quantity;
+
     // Price of one unit.
     private double price;
+
     // Price x quantity.
     private double amount;
 

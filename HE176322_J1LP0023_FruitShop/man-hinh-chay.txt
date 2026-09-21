@@ -51,7 +51,7 @@ FRUIT SHOP SYSTEM
 2. View orders
 3. Shopping (for buyer)
 4. Exit
-(Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
+ (Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
 Your choice: Fruit ID: Fruit name: Price: Quantity: Origin: Fruit F001 has been created.
 Do you want to continue (Y/N)? Fruit ID: Fruit ID F001 already exists.
 Fruit ID: Fruit name: Price: Quantity: Origin: Fruit F002 has been created.
@@ -68,7 +68,7 @@ FRUIT SHOP SYSTEM
 2. View orders
 3. Shopping (for buyer)
 4. Exit
-(Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
+ (Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
 Your choice: List of Fruit:
 | ++ Item ++ | ++ Fruit Name ++ | ++ Origin ++ | ++ Price ++ |
            1  Coconut            Vietnam        2$
@@ -90,9 +90,9 @@ List of Fruit:
            2  Orange             US             3$
            3  Apple              Thailand       4$
 Please choose item (0 to return to main screen): You selected: Orange
-Please input quantity: Do you want to order now (Y/N) Product | Quantity | Price | Amount
-Coconut                 3       2$       6$
-Orange                  2       3$       6$
+Please input quantity: Do you want to order now (Y/N)  Product | Quantity | Price | Amount
+ Coconut                 3       2$       6$
+ Orange                  2       3$       6$
 Total: 12$
 Input your name: Thank you Marry Carie, your order has been saved.
 
@@ -101,7 +101,7 @@ FRUIT SHOP SYSTEM
 2. View orders
 3. Shopping (for buyer)
 4. Exit
-(Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
+ (Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
 Your choice: Customer: Marry Carie
 Product | Quantity | Price | Amount
 1. Coconut                 3       2$       6$
@@ -113,7 +113,7 @@ FRUIT SHOP SYSTEM
 2. View orders
 3. Shopping (for buyer)
 4. Exit
-(Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
+ (Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
 Your choice: List of Fruit:
 | ++ Item ++ | ++ Fruit Name ++ | ++ Origin ++ | ++ Price ++ |
            1  Coconut            Vietnam        2$
@@ -127,8 +127,8 @@ List of Fruit:
            2  Orange             US             3$
            3  Apple              Thailand       4$
 Please choose item (0 to return to main screen): You selected: Coconut
-Please input quantity: Do you want to order now (Y/N) Product | Quantity | Price | Amount
-Coconut                 7       2$      14$
+Please input quantity: Do you want to order now (Y/N)  Product | Quantity | Price | Amount
+ Coconut                 7       2$      14$
 Total: 14$
 Input your name: Thank you John Smith, your order has been saved.
 
@@ -137,12 +137,13 @@ FRUIT SHOP SYSTEM
 2. View orders
 3. Shopping (for buyer)
 4. Exit
-(Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
+ (Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
 Your choice: Customer: Marry Carie
 Product | Quantity | Price | Amount
 1. Coconut                 3       2$       6$
 2. Orange                  2       3$       6$
 Total: 12$
+
 Customer: John Smith
 Product | Quantity | Price | Amount
 1. Coconut                 7       2$      14$
@@ -153,5 +154,5 @@ FRUIT SHOP SYSTEM
 2. View orders
 3. Shopping (for buyer)
 4. Exit
-(Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
+ (Please choose 1 to create product, 2 to view order, 3 for shopping, 4 to Exit program).
 Your choice: Goodbye.

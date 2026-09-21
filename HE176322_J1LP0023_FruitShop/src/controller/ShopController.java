@@ -1,10 +1,8 @@
 package controller;
 
-import constants.Message;
 import dto.FruitRequestDTO;
-import dto.FruitResponseDTO;
 import dto.OrderRequestDTO;
-import java.util.ArrayList;
+import dto.ShopResponseDTO;
 import repository.FruitRepository;
 import repository.OrderRepository;
 import service.FruitService;
@@ -13,7 +11,8 @@ import view.ShopView;
 
 /**
  * CONTROLLER (and Facade): receives a request DTO from main, asks a service to do the
- * work, and hands the result to the view.
+ * work, and hands the answer to the view - one render per flow. No Scanner, no print, no
+ * model; a broken rule is thrown as an Exception(Message.X) for main to print.
  *
  * @author HE176322
  */
@@ -21,8 +20,10 @@ public class ShopController {
 
     // Rules of the shop owner: create and list fruits.
     private FruitService fruitService;
+
     // Rules of the buyer: cart, stock check, orders.
     private OrderService orderService;
+
     // Prints every result.
     private ShopView shopView;
 
@@ -30,71 +31,100 @@ public class ShopController {
     // stock the owner sees.
     public ShopController() {
         FruitRepository fruitRepository = new FruitRepository();
+
         fruitService = new FruitService(fruitRepository);
         orderService = new OrderService(fruitRepository, new OrderRepository());
         shopView = new ShopView();
     }
 
-    // Create fruit, first step: refuses an id already used.
+    // Option 1, check only (no render, nothing stored): an id already used is thrown
+    // ("Fruit ID F001 already exists."), so main asks the id again at once.
     public void checkFruitId(FruitRequestDTO requestDTO) throws Exception {
         fruitService.checkFruitId(requestDTO);
     }
 
-    // Create fruit: stores it and shows "Fruit F001 has been created.".
+    // Option 1, one fruit: stores it, then the view prints "Fruit F001 has been created."
+    // - once.
     public void createFruit(FruitRequestDTO requestDTO) throws Exception {
-        String fruitId = fruitService.createFruit(requestDTO);
-        shopView.showMessage(String.format(Message.CREATE_SUCCESS, fruitId));
+        ShopResponseDTO responseDTO = fruitService.createFruit(requestDTO);
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
     }
 
-    // Shows every fruit with its quantity in stock (after the owner answers N).
-    public void displayStock() {
-        shopView.displayStock(fruitService.getAllFruits());
+    // Option 1, the answer N: the brief's "display all Fruits what are created" - every
+    // fruit with its quantity in stock - once.
+    public void displayFruits() {
+        ShopResponseDTO responseDTO = fruitService.getStock();
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
     }
 
-    // View orders: every customer with the items bought and the total.
-    public void viewOrders() throws Exception {
-        shopView.displayOrders(orderService.getAllOrders());
+    // Option 2: every order, customer by customer - once; nobody has ordered yet is
+    // thrown.
+    public void displayOrders() throws Exception {
+        ShopResponseDTO responseDTO = orderService.getAllOrders();
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
     }
 
-    // Shopping, first step: refuses when the shop has no fruit, empties the cart.
-    public void startShopping() throws Exception {
-        orderService.startShopping();
+    // Option 3, a round begins: the buyer's "List of Fruit" - once; an empty shop is
+    // thrown. Answers with the number of fruits listed, so main knows the legal items
+    // (0..that number) and can ask the item again at once.
+    public int displayFruitList() throws Exception {
+        ShopResponseDTO responseDTO = fruitService.getFruitList();
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
+        return responseDTO.getFruitList().size();
     }
 
-    // Shows the buyer's "List of Fruit" and returns how many items it has.
-    public int displayFruitList() {
-        ArrayList<FruitResponseDTO> fruits = fruitService.getAllFruits();
-        shopView.displayFruitList(fruits);
-        return fruits.size();
-    }
-
-    // Shows "You selected: Coconut" for the chosen item.
+    // Option 3, an item chosen: "You selected: Coconut" - once.
     public void selectFruit(OrderRequestDTO requestDTO) {
-        String fruitName = orderService.selectFruit(requestDTO);
-        shopView.showMessage(String.format(Message.SELECTED, fruitName));
+        ShopResponseDTO responseDTO = orderService.selectFruit(requestDTO);
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
     }
 
-    // Puts the chosen quantity in the cart; refuses more than the stock left.
+    // Option 3, a quantity typed: puts it in the cart; more than the stock left is thrown
+    // ("Only 5 Orange left in stock."). Nothing to render: the brief's question is next.
     public void addToCart(OrderRequestDTO requestDTO) throws Exception {
         orderService.addToCart(requestDTO);
     }
 
-    // Shows the cart with its total, before the name is asked.
+    // Option 3, the answer Y: the cart with its total - once.
     public void displayCart() {
-        shopView.displayCart(orderService.getCart());
+        ShopResponseDTO responseDTO = orderService.getCart();
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
     }
 
-    // Saves the order and thanks the customer.
-    public void placeOrder(OrderRequestDTO requestDTO) {
-        String customerName = orderService.placeOrder(requestDTO);
-        shopView.showMessage(String.format(Message.ORDER_SUCCESS, customerName));
+    // Option 3, the name typed: saves the order, then "Thank you ..." - once.
+    public void saveOrder(OrderRequestDTO requestDTO) {
+        ShopResponseDTO responseDTO = orderService.saveOrder(requestDTO);
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
     }
 
-    // Leaves the shopping screen; a non-empty cart is thrown away with a message.
+    // Option 3, item 0: leaves the shop; a cart with fruits is thrown away and the view
+    // says so - once (an empty cart prints nothing).
     public void cancelShopping() {
-        // only a cart that had fruits is worth a message
-        if (orderService.cancelShopping()) {
-            shopView.showMessage(Message.ORDER_CANCELLED);
-        }
+        ShopResponseDTO responseDTO = orderService.cancelShopping();
+
+        // one render for the whole flow
+        shopView.setResponseDTO(responseDTO);
+        shopView.display();
     }
 }

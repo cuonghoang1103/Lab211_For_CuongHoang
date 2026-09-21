@@ -1,7 +1,8 @@
 package model;
 
 /**
- * MODEL: one line of a cart or of an order - which fruit, how many, at what price.
+ * MODEL: one line of a cart or of an order - which fruit, how many, at what price. The
+ * amount of the line (price x quantity) is counted by the service, not here.
  *
  * @author HE176322
  */
@@ -9,10 +10,13 @@ public class Item {
 
     // Id of the fruit bought, to find it again in the shop.
     private String fruitId;
+
     // Name of the fruit, kept so the order still reads well later.
     private String fruitName;
+
     // Price of one unit at the moment of buying.
     private double price;
+
     // Units bought.
     private int quantity;
 
@@ -66,10 +70,5 @@ public class Item {
     // Changes the units bought.
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    // Amount of the line = price x quantity (the brief's "Amount" column).
-    public double getAmount() {
-        return price * quantity;
     }
 }

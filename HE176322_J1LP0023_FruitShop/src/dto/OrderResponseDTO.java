@@ -3,16 +3,18 @@ package dto;
 import java.util.ArrayList;
 
 /**
- * DTO controller -> view: a whole cart or a whole saved order.
+ * DTO controller -> view: a whole cart or a whole saved order - its lines and its total.
  *
  * @author HE176322
  */
 public class OrderResponseDTO {
 
-    // Customer name (empty for the cart, which has no owner yet).
+    // Customer name (null for the cart, which has no owner yet).
     private String customerName;
+
     // The lines, in the order the fruits were chosen.
-    private ArrayList<ItemResponseDTO> items = new ArrayList<>();
+    private ArrayList<ItemResponseDTO> itemList;
+
     // Sum of the amounts.
     private double total;
 
@@ -31,13 +33,13 @@ public class OrderResponseDTO {
     }
 
     // Returns the lines.
-    public ArrayList<ItemResponseDTO> getItems() {
-        return items;
+    public ArrayList<ItemResponseDTO> getItemList() {
+        return itemList;
     }
 
     // Changes the lines.
-    public void setItems(ArrayList<ItemResponseDTO> items) {
-        this.items = items;
+    public void setItemList(ArrayList<ItemResponseDTO> itemList) {
+        this.itemList = itemList;
     }
 
     // Returns the total.

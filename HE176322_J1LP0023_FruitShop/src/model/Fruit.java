@@ -9,12 +9,16 @@ public class Fruit {
 
     // Unique id, e.g. F001.
     private String fruitId;
+
     // Name shown to the buyer.
     private String fruitName;
+
     // Price of one unit, greater than 0.
     private double price;
+
     // Units still in stock, never below 0.
     private int quantity;
+
     // Country the fruit comes from.
     private String origin;
 

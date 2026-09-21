@@ -9,8 +9,10 @@ public class OrderRequestDTO {
 
     // Item number chosen in the fruit list.
     private int itemNumber;
+
     // Quantity to buy.
     private int quantity;
+
     // Name typed to finish the order.
     private String customerName;
 

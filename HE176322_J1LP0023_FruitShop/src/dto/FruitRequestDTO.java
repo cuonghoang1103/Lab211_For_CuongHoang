@@ -9,12 +9,16 @@ public class FruitRequestDTO {
 
     // Fruit id typed.
     private String fruitId;
+
     // Fruit name typed.
     private String fruitName;
+
     // Price typed.
     private double price;
+
     // Quantity in stock typed.
     private int quantity;
+
     // Origin typed.
     private String origin;
 

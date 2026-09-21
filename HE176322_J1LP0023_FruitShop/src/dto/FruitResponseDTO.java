@@ -9,12 +9,16 @@ public class FruitResponseDTO {
 
     // Item number shown in the first column (1, 2, 3...).
     private int itemNumber;
+
     // Fruit name.
     private String fruitName;
+
     // Origin.
     private String origin;
+
     // Price of one unit.
     private double price;
+
     // Units in stock (only the owner's table shows it).
     private int quantity;
 
