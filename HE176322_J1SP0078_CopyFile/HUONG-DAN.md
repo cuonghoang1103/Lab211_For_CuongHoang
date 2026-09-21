@@ -26,11 +26,11 @@
 
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
-| `public Config readFileConfig(Config config) throws ExceptionHandle` | Function 1 | `repository/ConfigRepository` — đúng chữ ký |
-| `public void createFileConfig(Config config) throws ExceptionHandle` | Function 2 | `repository/ConfigRepository` — đúng chữ ký |
-| `public void checkConfig(Config config) throws ExceptionHandle` | Function 3 | `service/CopyService` — đúng chữ ký |
+| `public Config readFileConfig(Config config) throws ExceptionHandle` | Function 1 | `repository/ConfigRepository` — đúng tên, tham số, kiểu trả về; `throws HandleException` (có `// brief:`) |
+| `public void createFileConfig(Config config) throws ExceptionHandle` | Function 2 | `repository/ConfigRepository` — như trên |
+| `public void checkConfig(Config config) throws ExceptionHandle` | Function 3 | `service/CopyService` — như trên |
 | `public List<String> copyFile(Config config)` | Function 4 | `service/CopyService` — đúng chữ ký (có `// brief:`) |
-| Lớp `Config`, lớp `ExceptionHandle` | trong chữ ký | `model/Config`, `exceptions/ExceptionHandle` |
+| Lớp `Config`, lớp `ExceptionHandle` | trong chữ ký | `model/Config`, `exceptions/HandleException` — **đổi tên** theo tờ checklist 1.3 (tên lớp exception phải kết thúc bằng `Exception`), có `// brief: ExceptionHandle` ngay trên khai báo |
 | Thông báo | 5 hộp trong sơ đồ | `constants/Message` — **chép đúng từng chữ** |
 
 ---
@@ -92,26 +92,26 @@ HE176322_J1SP0078_CopyFile/
 ├── source/            dữ liệu mẫu để chép (đề cho D:\Data — không máy nào có)
 └── src/
     ├── model/         Config                3 thiết lập (JavaBean)
-    ├── dto/           ConfigRequestDTO      3 thiết lập gõ vào + cờ newConfig   (main ──► controller)
-    │                  CopyResponseDTO       danh sách tên file đã chép          (controller ──► view)
-    ├── exceptions/    ExceptionHandle       ngoại lệ đề bắt, extends Exception
-    ├── repository/    ConfigRepository      readFileConfig · createFileConfig (file config.properties)
-    ├── service/       CopyService           checkConfig · copyFile
+    ├── dto/           ConfigRequestDTO      3 thiết lập gõ vào + lineList (Main đọc)  (main ──► controller)
+    │                  CopyResponseDTO       fileNameList: tên file đã chép             (controller ──► view)
+    ├── exceptions/    HandleException       ngoại lệ đề bắt (đề gọi ExceptionHandle), extends Exception
+    ├── repository/    ConfigRepository      lineList · loadData · readFileConfig · createFileConfig
+    ├── service/       CopyService           saveConfig · copyFiles · checkConfig · copyFile
     │                  DataTypeFilter        Strategy: lọc file theo DATA_TYPE
-    ├── controller/    CopyController        Facade: service ↔ view
-    ├── view/          CopyView              in danh sách file (hộp 5)
+    ├── controller/    CopyController        Facade: createFileConfig · copyFile
+    ├── view/          CopyView              field responseDTO · setResponseDTO · display() (hộp 5)
     ├── constants/     Message, Constants
     ├── utils/         Validation            getText, getChoice
     │                  FileUtils             đọc/ghi dòng, listFiles, mkdirs, copyBinary, isSameContent
-    └── main/          Main                  menu + Scanner
+    └── main/          Main                  menu + Scanner + form + ĐỌC config.properties
 ```
 
 | Lớp | Vai | Vì sao ở đó |
 |---|---|---|
-| `ConfigRepository` | nơi **duy nhất** biết config nằm ở `config.properties` và dòng có dạng `KEY=value` | lưu/nạp dữ liệu = repository (Guide) |
+| `ConfigRepository` | giữ **dữ liệu** của bài: các dòng `config.properties` do `Main` đọc (`lineList`); nơi **duy nhất** biết dòng có dạng `KEY=value` (`readFileConfig` tách, `createFileConfig` ghi qua `FileUtils`) | tờ checklist 1.1: *"Bắt buộc phải có repository"*, repository = data + CRUD đơn giản |
 | `CopyService` | kiểm cấu hình, chép file | nghiệp vụ ngoài CRUD = service (Guide) |
 | `FileUtils` | thao tác đĩa thuần (byte, dòng, thư mục) | Guide: utils *"đọc/ghi file"*, static |
-| `ExceptionHandle` | mang câu lỗi của đề | đề bắt tên lớp này; package `exceptions` (HD) |
+| `HandleException` | mang câu lỗi của đề | đề đặt tên `ExceptionHandle`; tờ checklist 1.3 bắt tên kết thúc bằng `Exception` → `HandleException` (`// brief: ExceptionHandle`); package `exceptions` (HD) |
 
 **Menu** — đề vẽ hộp `============ Copy Program =========` rỗng, nên bài tự đặt: `1. Copy File` (bài chính),
 `2. Input Configure File` (nhập lại cấu hình — không thì phải xoá file tay), `3. Exit`.
@@ -119,17 +119,29 @@ HE176322_J1SP0078_CopyFile/
 **Luồng chức năng 1:**
 
 ```
-Main: controller.isConfigExist()?  ── không ──► in "File Configure is not found!", đọc 3 ô, dto.newConfig = true
-Main: controller.copyFile(dto)          (gọi đúng 1 lần)
-   controller ──► view: "---- Check Configure File -----"
-   controller ──► service.loadConfig(dto)
-                     ├─ newConfig? → repository.createFileConfig(config)   → lỗi: "File Configure cannot create"
-                     ├─ repository.readFileConfig(new Config())            → lỗi: "Can't read File Configure"
-                     └─ checkConfig(config)                                → lỗi đầu tiên gặp
-   controller ──► view: "Copy is running..."
-   controller ──► service.copyFiles() → copyFile(config) → CopyResponseDTO ──► view.display()
-Main: catch (ExceptionHandle e) → in e.getMessage() + "System shutdown", running = false
+Main: FileUtils.isFile("config.properties")?  ── không ──► hộp 2: in "File Configure is not found!", đọc 3 ô
+          └─ inputConfig ─► controller.createFileConfig(requestDTO)   (không render)
+                 service.saveConfig ─► repository.createFileConfig(config) ─► FileUtils.writeLines
+                 lỗi ─► hộp 3: "File Configure cannot create"
+Main: in "---- Check Configure File -----"                     (tiêu đề hộp 4)
+Main: FileUtils.readLines("config.properties") ─► requestDTO.lineList   → lỗi: "Can't read File Configure"
+Main: controller.copyFile(requestDTO)                            (1 lần)
+   service.copyFiles(requestDTO)
+       ├─ repository.loadData(requestDTO)                         (giữ các dòng Main đọc)
+       ├─ repository.readFileConfig(config)                       (dòng ─► Config)
+       ├─ checkConfig(config)                                     → lỗi đầu tiên gặp
+       └─ copyFile(config)                                        → tên file đã chép
+   controller ──► CopyResponseDTO(fileNameList) ──► view.setResponseDTO(r) ──► view.display()   (1 lần: hộp 5)
+Main: catch (Exception e) → in e.getMessage() + "System shutdown", running = false
 ```
+
+Vì sao chức năng 1 có **thể** gọi controller 2 lần: chỉ khi **chưa có** `config.properties`. Đề ghi
+*"After input, program create file config and perform next steps"* và ảnh đề vẽ hộp 2 ─► hộp 3
+(`File Configure cannot create`) **không có** tiêu đề `---- Check Configure File -----` — nên file phải được tạo
+(`controller.createFileConfig`, **không render**, dùng lại đúng hàm của mục menu 2) **trước** khi `Main` in tiêu đề
+hộp 4 và đọc file. Có file sẵn thì chỉ 1 lần gọi. View vẫn render **đúng 1 lần** mỗi luồng (tờ checklist 1.1).
+**Nên hỏi thầy**: "chưa có file config thì em gọi `createFileConfig` rồi mới `copyFile` để màn hình đúng hộp 3 của
+đề — thầy có chấp nhận không, hay muốn gộp làm 1 lần gọi (khi đó tiêu đề Check in ra trước câu `cannot create`)?"
 
 ### 3.1 Design Pattern
 
@@ -152,15 +164,15 @@ Main: catch (ExceptionHandle e) → in e.getMessage() + "System shutdown", runni
 |---|---|---|
 | 1 | `model/Config.java` | 3 field `private` + ctor rỗng + ctor đủ + get/set + `toString` |
 | 2 | `dto/ConfigRequestDTO`, `CopyResponseDTO` | JavaBean |
-| 3 | `exceptions/ExceptionHandle.java` | `extends Exception`, 2 constructor |
-| 4 | `utils/FileUtils.java` | `isFile`, `isFolder`, `makeFolder`, `isSamePath`, `readLines`, `writeLines`, `listFiles`, `copyBinary`, `isSameContent` |
-| 5 | `repository/ConfigRepository.java` | `isConfigExist`, **`readFileConfig`**, **`createFileConfig`** |
-| 6 | `service/DataTypeFilter.java` | tách DATA_TYPE, `accept` |
-| 7 | `service/CopyService.java` | `saveConfig`, `loadConfig`, **`checkConfig`**, **`copyFile`**, `copyFiles` |
-| 8 | `view/CopyView.java` | `setResponse`, `display`, `showMessage` |
-| 9 | `controller/CopyController.java` | `isConfigExist`, `createFileConfig`, `copyFile` |
-| 10 | `constants/Message`, `Constants` | chép chữ trong sơ đồ |
-| 11 | `utils/Validation`, `main/Main` | menu, form 3 ô, bắt `ExceptionHandle` → dừng |
+| 3 | `exceptions/HandleException.java` | `extends Exception`, 2 constructor, `// brief: ExceptionHandle` |
+| 4 | `utils/FileUtils.java` | `isFile`, `isFolder`, `makeFolder`, `isSamePath`, `readLines` (ném `Can't read File Configure`), `writeLines`, `listFiles`, `copyBinary`, `isSameContent` |
+| 5 | `repository/ConfigRepository.java` | `lineList`, `loadData`, **`readFileConfig`** (+ `parseSetting`), **`createFileConfig`** |
+| 6 | `service/DataTypeFilter.java` | tách DATA_TYPE (`toExtension`), `accept` |
+| 7 | `service/CopyService.java` | `saveConfig`, `copyFiles`, **`checkConfig`**, **`copyFile`** (+ `copyOneFile`) |
+| 8 | `view/CopyView.java` | field `responseDTO`, `setResponseDTO`, `display()` |
+| 9 | `controller/CopyController.java` | `createFileConfig`, `copyFile` (1 lần `display()`) |
+| 10 | `constants/Message`, `Constants` | chép chữ trong sơ đồ; `SETTING_FORMAT`, `EXTENSION_FORMAT` |
+| 11 | `utils/Validation`, `main/Main` | `final` + constructor `private`; menu, form 3 ô, đọc `config.properties`, bắt `Exception` → dừng |
 
 **Bẫy hay gặp:**
 
@@ -198,11 +210,11 @@ Main: catch (ExceptionHandle e) → in e.getMessage() + "System shutdown", runni
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `FileUtils.copyBinary(source, target);` trong `CopyService.copyFile` |
+| Breakpoint | dòng `FileUtils.copyBinary(source, target);` trong `CopyService.copyOneFile` (được `copyFile` gọi cho từng file) |
 | Chạy | **Ctrl+F5**, chọn `1` với cấu hình ở test #1 |
-| Quan sát | **Variables**: `source` (file đang chép), `copied` (tên đã chép); **F7** vào `copyBinary` xem `count` mỗi vòng |
+| Quan sát | **Variables**: `source` (file đang chép), `fileNameList` (tên đã chép); **F7** vào `copyBinary` xem `count` mỗi vòng |
 | Chứng minh lọc | breakpoint trong `DataTypeFilter.accept` — `notes.txt` trả `false` |
-| Chứng minh dừng | breakpoint ở `throw new ExceptionHandle(Message.SOURCE_NOT_FOUND)` → **F8** rơi vào `catch (ExceptionHandle e)` của `Main` → `running = false` |
+| Chứng minh dừng | breakpoint ở `throw new HandleException(Message.SOURCE_NOT_FOUND)` → **F8** rơi vào `catch (Exception e)` của `Main` → `running = false` |
 
 ---
 
@@ -210,18 +222,22 @@ Main: catch (ExceptionHandle e) → in e.getMessage() + "System shutdown", runni
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: field `private` trong `Config`, 2 DTO. **Kế thừa**: `ExceptionHandle extends Exception`; `DataTypeFilter implements FileFilter`. **Đa hình**: `File.listFiles` gọi `accept` qua biến kiểu `FileFilter` → chạy bản của `DataTypeFilter`; `@Override toString()` trong `Config`. **Trừu tượng**: `Main` gọi `controller.copyFile(dto)` không biết có file config, repository hay filter. |
-| Sao `ExceptionHandle` extends `Exception`, không `RuntimeException`? | Ngoại lệ **checked**: compiler bắt mọi nơi gọi `checkConfig` phải xử lý — config sai là chuyện **bình thường** của chương trình, không phải bug. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: field `private` trong `Config`, 2 DTO. **Kế thừa**: `HandleException extends Exception`; `DataTypeFilter implements FileFilter`. **Đa hình**: `File.listFiles` gọi `accept` qua biến kiểu `FileFilter` → chạy bản của `DataTypeFilter`; `@Override toString()` trong `Config`. **Trừu tượng**: `Main` gọi `controller.copyFile(dto)` không biết có file config, repository hay filter. |
+| Sao `HandleException` extends `Exception`, không `RuntimeException`? | Ngoại lệ **checked**: compiler bắt mọi nơi gọi `checkConfig` phải xử lý — config sai là chuyện **bình thường** của chương trình, không phải bug. |
 | `readFileConfig` trả `Config` vì sao, khi đã sửa chính `config` truyền vào? | Đề bắt kiểu trả về đó; nó cho viết gọn `config = readFileConfig(new Config())`. |
-| `copyFile` sao trả `List<String>` mà không `ArrayList`? | **Đề ghi chữ ký** `List<String> copyFile(Config)` nên em giữ (dòng có `// brief:`). Bên trong em khai báo `ArrayList<String> copied = new ArrayList<>()`. `List` là **interface** (hợp đồng: add/get/size), `ArrayList` là **lớp cài đặt** bằng mảng động; trả về kiểu interface cho phép sau này đổi lớp cài đặt mà nơi gọi không phải sửa. Chỗ nào em tự quyết thì em dùng kiểu cụ thể `ArrayList`. |
+| `copyFile` sao trả `List<String>` mà không `ArrayList`? | **Đề ghi chữ ký** `List<String> copyFile(Config)` nên em giữ (dòng có `// brief:`). Bên trong em khai báo `ArrayList<String> fileNameList = new ArrayList<>()`. `List` là **interface** (hợp đồng: add/get/size), `ArrayList` là **lớp cài đặt** bằng mảng động; trả về kiểu interface cho phép sau này đổi lớp cài đặt mà nơi gọi không phải sửa. Chỗ nào em tự quyết thì em dùng kiểu cụ thể `ArrayList`. |
 | `copyFile` không có `throws` — file lỗi thì sao? | Báo bằng **vắng mặt**: file không chép được hoặc chép ra khác nguồn thì không có trong danh sách. Đó là giới hạn của chữ ký đề cho. |
 | `checkConfig` trả `void`? | Kết quả là **có lỗi hay không**; có thì `throw`, không thì chạy tiếp — không còn gì để trả. |
 | Sao `checkConfig` dừng ở lỗi đầu tiên? | Hộp lỗi trong đề là **danh mục**: "not input" và "can't find" không thể cùng đúng; kiểm "có tồn tại không" một tên rỗng là vô nghĩa. |
-| Access modifier? | Field đều `private`. `isBlank`, `isSameFolder` **private** — chỉ `CopyService` dùng. Hàm `public` là hàm lớp khác gọi: `checkConfig`/`copyFile` (**đề ghi `public`** trong chữ ký; controller dùng chúng qua `loadConfig`/`copyFiles`), `readFileConfig`/`createFileConfig` (service gọi), `accept` (JDK gọi). Constructor `Message`, `Constants`, `Validation`, `FileUtils` **private** — không cho `new`. |
+| Access modifier? | Field đều `private`. `isBlank`, `isSameFolder`, `copyOneFile` **private** — chỉ `CopyService` dùng; `parseSetting` private trong `ConfigRepository`, `toExtension` private trong `DataTypeFilter`. Hàm `public` là hàm lớp khác gọi: `checkConfig`/`copyFile` (**đề ghi `public`** trong chữ ký; controller dùng chúng qua `copyFiles`), `loadData`/`readFileConfig`/`createFileConfig` (service gọi), `accept` (JDK gọi). Constructor `Message`, `Constants`, `Validation`, `FileUtils` **private** — không cho `new`. |
 | static ở đâu, bỏ thì sao? | Chỉ ở `utils` (Guide: *"phải dùng static method"*), hằng `constants`, hàm trong `Main`. `FileUtils.copyBinary` không dùng dữ liệu đối tượng nào. Bỏ `static` → `FileUtils.copyBinary(...)` lỗi biên dịch; phải bỏ `private` constructor, `new FileUtils()` trong service rồi gọi qua đối tượng. `Main` có biến static? **Không** — Scanner là biến cục bộ. |
-| `isConfigExist` trả `boolean`? | Main chỉ cần có/không để quyết định hỏi form. |
-| Sao Main gọi controller 2 lần ở chức năng 1? | `isConfigExist()` là **kiểm tra trước** (như `checkExistDoctor` ở P0055): chỉ `Main` được đọc bàn phím nên nó phải biết **trước** có cần hỏi form không. Việc chép vẫn gọi `copyFile(dto)` **đúng 1 lần**. |
-| SOLID? | **S**: repository lo file config, service lo nghiệp vụ, `FileUtils` lo byte, view lo in. **O**: luật lọc mới = class `FileFilter` mới. **L**: mọi `FileFilter` thay được cho nhau trong `listFiles`. **I**: `FileFilter` chỉ 1 hàm. **D**: `FileUtils.listFiles` phụ thuộc `FileFilter` (trừu tượng), không phụ thuộc `DataTypeFilter`. |
+| Ai kiểm "có file config chưa", ai **đọc** file? | `Main` (tờ checklist 1.1: *"đọc từ file ... thực hiện ở Main"*): `FileUtils.isFile(Constants.CONFIG_FILE)` quyết định hỏi form; `FileUtils.readLines(Constants.CONFIG_FILE)` đọc các dòng vào `ConfigRequestDTO.lineList`. Repository giữ các dòng đó; `readFileConfig` tách chúng thành `Config`. |
+| Chép file (đọc byte nguồn) sao không ở `Main`? | Chép là **nghiệp vụ** `copyFile(Config)` của đề — luồng byte từ nguồn sang đích, không phải đọc **dữ liệu** vào chương trình; nên ở service, qua `FileUtils.copyBinary`. Dữ liệu của bài (`config.properties`) thì `Main` đọc. |
+| Sao Main gọi controller 2 lần ở chức năng 1? | Chỉ khi **chưa có** file config: `createFileConfig` (tạo file, **không render** — lỗi thì in hộp 3 ngay sau form như ảnh đề) rồi `copyFile` (1 lần). Có file sẵn thì chỉ gọi `copyFile`. Xem mục 3 "Vì sao chức năng 1 có thể gọi controller 2 lần". |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: controller gọi `copyView.setResponseDTO(r)` rồi `copyView.display()` (không tham số) **1 lần**; `display()` in cả hộp 5 (`Copy is running...`, tiêu đề, tên file, `Copy is finished...`). Tiêu đề hộp 4 do `Main` in (như mọi tiêu đề mục), lỗi do `Main` in `e.getMessage()`. |
+| Sao đổi tên `ExceptionHandle` → `HandleException`? | Tờ checklist 1.3: *"Tên của class exception kết thúc bằng Exception"*. Tên đề đặt vẫn ghi ở `// brief: ExceptionHandle` ngay trên khai báo lớp. **Nên hỏi thầy** nếu thầy muốn giữ đúng tên đề. |
+| `Main` sao `final` + constructor `private`? | Tờ checklist 3.4: lớp chỉ có hàm `static` phải `final` và có constructor `private`. |
+| SOLID? | **S**: repository giữ dữ liệu config, service lo nghiệp vụ, `FileUtils` lo byte, view lo in. **O**: luật lọc mới = class `FileFilter` mới. **L**: mọi `FileFilter` thay được cho nhau trong `listFiles`. **I**: `FileFilter` chỉ 1 hàm. **D**: `FileUtils.listFiles` phụ thuộc `FileFilter` (trừu tượng), không phụ thuộc `DataTypeFilter`. |
 | Độ phức tạp? | Chép: O(tổng số byte); lọc: O(số file × số loại). |
 
 ---
@@ -231,7 +247,7 @@ Main: catch (ExceptionHandle e) → in e.getMessage() + "System shutdown", runni
 | Thầy bảo | Sửa | Không đụng |
 |---|---|---|
 | Chép cả thư mục con | `FileUtils.listFiles` đệ quy + `DataTypeFilter.accept` nhận thư mục | controller, view, main |
-| Không ghi đè file đã có ở đích | `CopyService.copyFile`: `if (target.exists()) continue;` | các lớp khác |
+| Không ghi đè file đã có ở đích | `CopyService.copyOneFile`: `if (target.exists()) { return false; }` | các lớp khác |
 | In thêm kích thước file | `CopyResponseDTO` thêm danh sách cỡ, `CopyView.display` | repository |
 | Thêm khoá `MAX_SIZE` trong config | `Config`, `ConfigRequestDTO`, `Constants`, `Message`, `ConfigRepository` (đọc/ghi), `Main` (form), filter mới | `CopyController` |
 | Đổi câu thông báo | chỉ `Message` | mọi file khác |
@@ -249,4 +265,23 @@ Main: catch (ExceptionHandle e) → in e.getMessage() + "System shutdown", runni
 | `config.properties` | — | **không ship sẵn** | để lần chạy đầu đi đúng hộp 2 của đề (`File Configure is not found!`) |
 | Kịch bản test | bản cũ: 10 lần chạy dùng chung 1 thư mục | `REPLACE_REFERENCE = True`, 10 kịch bản tự đủ | `verify.py` cho mỗi lần chạy một thư mục mới |
 | Kiến trúc | `bo/CopyManager` + Scanner trong `Validator` | MVC Guide: repository + service + `FileUtils`, Scanner chỉ ở `main` | luật thầy |
-| `ExceptionHandle` | bản cũ để trong `utils` | `exceptions/` | HD: package `exceptions` |
+| `ExceptionHandle` | bản cũ để trong `utils` | `exceptions/HandleException` | HD: package `exceptions`; tờ checklist 1.3: tên exception kết thúc bằng `Exception` (`// brief: ExceptionHandle`) — **hỏi thầy** nếu muốn giữ tên đề |
+| Đọc `config.properties` | bản trước: repository tự đọc; controller có `isConfigExist` | `Main` kiểm + đọc (`FileUtils.isFile/readLines`), repository giữ `lineList` | tờ checklist 1.1: đọc file ở `Main` |
+| Hộp 3 `File Configure cannot create` | bản trước: in **sau** tiêu đề `---- Check Configure File -----` | in **ngay sau form**, không có tiêu đề Check — đúng ảnh đề (hộp 2 ─► hộp 3) | tạo file trước (`createFileConfig`), rồi mới in tiêu đề hộp 4 |
+| View | bản trước: `showMessage(String)` ×2 + `display()` trong 1 luồng | 1 field `responseDTO` + `display()` không tham số, 1 lần | tờ checklist 1.1: render 1 lần/luồng; `Copy is running...` in cùng lần render (sau khi chép xong — màn hình giống hệt vì lúc chép không in gì) |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỗ trong code |
+|---|---|
+| 1.1 MVC + repository | `repository/ConfigRepository` (`lineList`); `Main` kiểm + đọc `config.properties` bằng `FileUtils`; `CopyController.copyFile` gọi `copyView.display()` đúng 1 lần; controller không import `model` |
+| 1.1 View | `CopyView` chỉ có `setResponseDTO` + `display()` không tham số |
+| 1.3 / 1.5 Tên | `HandleException` (`// brief: ExceptionHandle`); `lineList`, `settingList`, `fileNameList`, `extensionList`, `fileList`, `fileArray`, `bufferArray` |
+| 2.6 / 3.7 | biến khai báo đầu block và khởi tạo luôn: `String line = "";`, `int choice = 0;`, `byte[] bufferArray = new byte[Constants.BUFFER_SIZE]; int count = 0;` (`FileUtils.copyBinary`), `String key = ""; String value = "";` (`ConfigRepository.parseSetting`) |
+| 2.8 | dòng trống sau vùng khai báo, trước mọi comment, giữa các khối `if` (vd `CopyService.checkConfig`) |
+| 3.3 | `if ((choice < min) \|\| (choice > max))`, `(value == null) \|\| value.trim().isEmpty()`, `... \|\| (separator < 0)` |
+| 3.4 | `public final class Main` + `private Main() { }`; `FileUtils`, `Validation`, `Constants`, `Message` cũng vậy |
+| 3.8 | không nối chuỗi bằng `+`: `String.format(Constants.SETTING_FORMAT, ...)`, `String.format(Constants.EXTENSION_FORMAT, ...)` |
+| Còn lại (rủi ro chấp nhận) | `String[] args` của `main`; tham số setter/constructor trùng tên field (`this.x = x`); chức năng 1 gọi controller 2 lần **khi chưa có file config** (lý do ở mục 3) |

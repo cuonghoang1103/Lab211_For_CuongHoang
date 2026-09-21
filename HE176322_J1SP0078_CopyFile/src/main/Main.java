@@ -4,16 +4,22 @@ import constants.Constants;
 import constants.Message;
 import controller.CopyController;
 import dto.ConfigRequestDTO;
-import exceptions.ExceptionHandle;
 import java.util.Scanner;
+import utils.FileUtils;
 import utils.Validation;
 
 /**
- * MAIN: the work flow - the menu loop and the keyboard.
+ * MAIN: the work flow - the menu loop. Every keyboard read, every validation and the
+ * reading of config.properties happen here; the check and the copy then take one call of
+ * the controller.
  *
  * @author HE176322
  */
-public class Main {
+public final class Main {
+
+    // Private constructor: Main only has static methods (checklist 3.4).
+    private Main() {
+    }
 
     // Starts the program: shows the menu until Exit, or until a config error stops the
     // program (the brief: "show error message and stop program").
@@ -21,10 +27,13 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         CopyController controller = new CopyController();
         boolean running = true;
+        int choice = 0;
+
         // show the menu again after every function, until the program stops
         while (running) {
             System.out.println(Message.MENU);
-            int choice = inputChoice(sc);
+            choice = inputChoice(sc);
+
             // a config error ends the program with "System shutdown"
             try {
                 // run the function the user picked
@@ -33,19 +42,22 @@ public class Main {
                     case Constants.MENU_COPY:
                         copyFile(sc, controller);
                         break;
+
                     // option 2: type a new config file
                     case Constants.MENU_INPUT:
                         inputConfig(sc, controller);
                         break;
+
                     // option 3: stop the loop
                     case Constants.MENU_EXIT:
                         running = false;
                         break;
+
                     // unreachable: inputChoice only returns 1..3
                     default:
                         break;
                 }
-            } catch (ExceptionHandle e) {
+            } catch (Exception e) {
                 // one line of the brief's error box, then stop
                 System.out.println(e.getMessage());
                 System.out.println(Message.SYSTEM_SHUTDOWN);
@@ -56,14 +68,16 @@ public class Main {
 
     // Asks for a menu choice until it is a number from 1 to 3.
     private static int inputChoice(Scanner sc) {
+        String line = "";
+
         // keep asking until Validation accepts the line
         while (true) {
             System.out.print(Message.INPUT_CHOICE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints the reason and loops again
             try {
-                return Validation.getChoice(line, Constants.MENU_MIN,
-                        Constants.MENU_EXIT);
+                return Validation.getChoice(line, Constants.MENU_MIN, Constants.MENU_EXIT);
             } catch (Exception e) {
                 // "You must input a number." or "Please choose from 1 to 3."
                 System.out.println(e.getMessage());
@@ -71,36 +85,43 @@ public class Main {
         }
     }
 
-    // Reads the three settings of the brief's form into the DTO.
-    private static void readConfig(Scanner sc, ConfigRequestDTO dto) {
+    // Reads the three settings of the brief's form (box 2) into a new request.
+    private static ConfigRequestDTO inputConfigForm(Scanner sc) {
+        ConfigRequestDTO requestDTO = new ConfigRequestDTO();
+
+        // the brief's form: its title, then the three settings
         System.out.println(Message.TITLE_INPUT);
         System.out.print(Message.INPUT_COPY_FOLDER);
-        dto.setCopyFolder(Validation.getText(sc.nextLine()));
+        requestDTO.setCopyFolder(Validation.getText(sc.nextLine()));
         System.out.print(Message.INPUT_DATA_TYPE);
-        dto.setDataType(Validation.getText(sc.nextLine()));
+        requestDTO.setDataType(Validation.getText(sc.nextLine()));
         System.out.print(Message.INPUT_PATH);
-        dto.setPath(Validation.getText(sc.nextLine()));
+        requestDTO.setPath(Validation.getText(sc.nextLine()));
+        return requestDTO;
     }
 
-    // Option 1: asks for the config when the file is missing, then calls the controller
-    // once to check and copy.
-    private static void copyFile(Scanner sc, CopyController controller)
-            throws ExceptionHandle {
-        ConfigRequestDTO dto = new ConfigRequestDTO();
-        // the brief: no config file -> the user types it first
-        if (!controller.isConfigExist()) {
+    // Option 2, and box 2 of option 1: reads a new config and asks the controller to save
+    // it into config.properties ("File Configure cannot create" when it cannot).
+    private static void inputConfig(Scanner sc, CopyController controller) throws Exception {
+        controller.createFileConfig(inputConfigForm(sc));
+    }
+
+    // Option 1: when config.properties is missing, the user types it and it is created
+    // first (boxes 2 and 3); then main reads the file and calls the controller once to
+    // check it and copy (boxes 4 and 5).
+    private static void copyFile(Scanner sc, CopyController controller) throws Exception {
+        ConfigRequestDTO requestDTO = new ConfigRequestDTO();
+
+        // the brief: "If file config is not exist, prompt user to input file config"
+        if (!FileUtils.isFile(Constants.CONFIG_FILE)) {
             System.out.println(Message.CONFIG_NOT_FOUND);
-            readConfig(sc, dto);
-            dto.setNewConfig(true);
+            inputConfig(sc, controller);
         }
-        controller.copyFile(dto);
-    }
 
-    // Option 2: reads a new config and asks the controller to save it.
-    private static void inputConfig(Scanner sc, CopyController controller)
-            throws ExceptionHandle {
-        ConfigRequestDTO dto = new ConfigRequestDTO();
-        readConfig(sc, dto);
-        controller.createFileConfig(dto);
+        // box 4 works on the FILE ("perform next steps with existed file"), read here in
+        // main (checklist 1.1): "Can't read File Configure" when it cannot be read
+        System.out.println(Message.TITLE_CHECK);
+        requestDTO.setLineList(FileUtils.readLines(Constants.CONFIG_FILE));
+        controller.copyFile(requestDTO);
     }
 }

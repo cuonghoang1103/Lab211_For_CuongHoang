@@ -12,8 +12,10 @@ public class Config {
 
     // COPY_FOLDER: the folder the files are copied from.
     private String copyFolder;
+
     // DATA_TYPE: the accepted file types.
     private String dataType;
+
     // PATH: the folder the files are copied into.
     private String path;
 

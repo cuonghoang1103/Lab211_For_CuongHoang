@@ -11,20 +11,20 @@ import java.util.ArrayList;
 public class CopyResponseDTO {
 
     // Names of the copied files, in alphabetical order.
-    private ArrayList<String> fileNames;
+    private ArrayList<String> fileNameList;
 
     // JavaBean constructor: an empty result (no file copied).
     public CopyResponseDTO() {
-        this.fileNames = new ArrayList<>();
+        this.fileNameList = new ArrayList<>();
     }
 
     // Returns the names of the copied files.
-    public ArrayList<String> getFileNames() {
-        return fileNames;
+    public ArrayList<String> getFileNameList() {
+        return fileNameList;
     }
 
     // Sets the names of the copied files.
-    public void setFileNames(ArrayList<String> fileNames) {
-        this.fileNames = fileNames;
+    public void setFileNameList(ArrayList<String> fileNameList) {
+        this.fileNameList = fileNameList;
     }
 }

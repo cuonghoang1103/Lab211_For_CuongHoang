@@ -1,6 +1,7 @@
 package utils;
 
 import constants.Constants;
+import constants.Message;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -20,7 +21,8 @@ import java.util.Arrays;
 
 /**
  * File and folder helpers: read/write the lines of a text file, list a folder, create a
- * folder, copy a file byte for byte.
+ * folder, copy a file byte for byte. readLines is called by main (checklist 1.1: main
+ * reads the files); writeLines by the repository; the rest by the service.
  *
  * @author HE176322
  */
@@ -43,6 +45,8 @@ public final class FileUtils {
     // Makes sure the folder exists, creating it (and its missing parents) when needed.
     public static boolean makeFolder(String path) {
         File folder = new File(path);
+
+        // already there, or created now
         return folder.isDirectory() || folder.mkdirs();
     }
 
@@ -51,29 +55,37 @@ public final class FileUtils {
         return new File(first).getCanonicalFile().equals(new File(second).getCanonicalFile());
     }
 
-    // Reads every line of a UTF-8 text file.
-    public static ArrayList<String> readLines(String path) throws IOException {
-        ArrayList<String> lines = new ArrayList<>();
+    // Reads every line of the UTF-8 config file; the brief's "Can't read File Configure"
+    // comes from here.
+    public static ArrayList<String> readLines(String path) throws Exception {
+        ArrayList<String> lineList = new ArrayList<>();
+        String line = "";
+
         // try-with-resources closes the file even when reading fails
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new FileInputStream(path), StandardCharsets.UTF_8))) {
-            String line = reader.readLine();
+            line = reader.readLine();
+
             // readLine() returns null at the end of the file
             while (line != null) {
-                lines.add(line);
+                lineList.add(line);
                 line = reader.readLine();
             }
+        } catch (IOException e) {
+            // missing, locked or unreadable file
+            throw new Exception(Message.CANNOT_READ);
         }
-        return lines;
+
+        return lineList;
     }
 
     // Replaces the content of a UTF-8 text file with the given lines.
-    public static void writeLines(String path, ArrayList<String> lines) throws IOException {
+    public static void writeLines(String path, ArrayList<String> lineList) throws IOException {
         // try-with-resources flushes and closes the file even on failure
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(path), StandardCharsets.UTF_8))) {
             // one element of the list = one line of the file
-            for (String line : lines) {
+            for (String line : lineList) {
                 writer.write(line);
                 writer.newLine();
             }
@@ -83,52 +95,68 @@ public final class FileUtils {
     // Lists the entries of a folder that the filter accepts, sorted by name (listFiles
     // returns them in whatever order the disk likes).
     public static ArrayList<File> listFiles(String folder, FileFilter filter) {
-        ArrayList<File> result = new ArrayList<>();
-        File[] children = new File(folder).listFiles(filter);
+        ArrayList<File> fileList = new ArrayList<>();
+        File[] fileArray = new File(folder).listFiles(filter);
+
         // null means the folder does not exist or cannot be read
-        if (children == null) {
-            return result;
+        if (fileArray == null) {
+            return fileList;
         }
-        Arrays.sort(children);
-        result.addAll(Arrays.asList(children));
-        return result;
+
+        // the disk order differs between machines; sorted by name is always the same
+        Arrays.sort(fileArray);
+        fileList.addAll(Arrays.asList(fileArray));
+        return fileList;
     }
 
     // Copies one file as BYTES - FileInputStream/FileOutputStream, never
     // FileReader/FileWriter.
-    public static void copyBinary(File from, File to) throws IOException {
-        // both streams are closed (in reverse order) even when write() fails
-        try (InputStream in = new BufferedInputStream(new FileInputStream(from));
-                OutputStream out = new BufferedOutputStream(new FileOutputStream(to))) {
-            byte[] buffer = new byte[Constants.BUFFER_SIZE];
-            int count = in.read(buffer);
-            // read() returns -1 when the whole file has been read
-            while (count != Constants.END_OF_STREAM) {
-                out.write(buffer, 0, count);
-                count = in.read(buffer);
+    public static void copyBinary(File source, File target) throws IOException {
+        byte[] bufferArray = new byte[Constants.BUFFER_SIZE];
+        int count = 0;
+
+        // the source stream is closed even when reading fails
+        try (InputStream input = new BufferedInputStream(new FileInputStream(source))) {
+            // the target stream is closed (before the source) even when write() fails
+            try (OutputStream output = new BufferedOutputStream(new FileOutputStream(target))) {
+                count = input.read(bufferArray);
+
+                // read() returns -1 when the whole file has been read
+                while (count != Constants.END_OF_STREAM) {
+                    output.write(bufferArray, 0, count);
+                    count = input.read(bufferArray);
+                }
             }
         }
     }
 
     // Compares two files byte for byte, so a copy can be PROVED identical.
-    public static boolean isSameContent(File first, File second) throws IOException {
+    public static boolean isSameContent(File source, File target) throws IOException {
+        int sourceByte = 0;
+
         // different sizes can never be the same content
-        if (first.length() != second.length()) {
+        if (source.length() != target.length()) {
             return false;
         }
-        // both streams are closed even when reading fails
-        try (InputStream left = new BufferedInputStream(new FileInputStream(first));
-                InputStream right = new BufferedInputStream(new FileInputStream(second))) {
-            int x = left.read();
-            // walk both files together until the end of the first one
-            while (x != Constants.END_OF_STREAM) {
-                // one different byte is enough to say "not the same"
-                if (x != right.read()) {
-                    return false;
+
+        // the source stream is closed even when reading fails
+        try (InputStream sourceInput = new BufferedInputStream(new FileInputStream(source))) {
+            // the target stream too
+            try (InputStream targetInput = new BufferedInputStream(new FileInputStream(target))) {
+                sourceByte = sourceInput.read();
+
+                // walk both files together until the end of the source
+                while (sourceByte != Constants.END_OF_STREAM) {
+                    // one different byte is enough to say "not the same"
+                    if (sourceByte != targetInput.read()) {
+                        return false;
+                    }
+
+                    sourceByte = sourceInput.read();
                 }
-                x = left.read();
             }
         }
+
         return true;
     }
 }
