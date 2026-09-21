@@ -3,27 +3,23 @@ package view;
 import dto.CsvResponseDTO;
 
 /**
- * VIEW: prints the "Done" lines and the current CSV content.
+ * VIEW: prints the result of every option. It receives the data through its attribute
+ * (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class CsvView {
 
-    // The content to display, handed over by the controller.
-    private CsvResponseDTO response;
+    // The result to print, handed over by the controller.
+    private CsvResponseDTO responseDTO;
 
-    // Receives the content the next display() call will print.
-    public void setResponse(CsvResponseDTO response) {
-        this.response = response;
+    // Receives the result the next display() will print.
+    public void setResponseDTO(CsvResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints the whole CSV content, one row per line.
+    // Prints the result: "Import: Done", "Format: Done" or "Export: Done".
     public void display() {
-        System.out.println(response.getDataCSV());
-    }
-
-    // Prints a one-line result such as "Import: Done".
-    public void showMessage(String message) {
-        System.out.println(message);
+        System.out.println(responseDTO.getMessage());
     }
 }

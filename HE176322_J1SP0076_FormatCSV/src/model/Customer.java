@@ -4,7 +4,8 @@ import constants.Constants;
 
 /**
  * MODEL: one row of the customer's CSV file - ID, Name, Email, Phone, Address - a
- * JavaBean (private fields, public no-argument constructor, getters/setters).
+ * JavaBean (private fields, public no-argument constructor, getters/setters). It only
+ * describes the row: no print, no input.
  *
  * @author HE176322
  */
@@ -12,27 +13,21 @@ public class Customer {
 
     // First column.
     private String id;
+
     // Second column.
     private String name;
+
     // Third column.
     private String email;
+
     // Fourth column.
     private String phone;
+
     // Fifth column.
     private String address;
 
-    // JavaBean constructor: an empty row.
+    // JavaBean constructor: an empty row, filled through the setters.
     public Customer() {
-    }
-
-    // Creates a row with every column filled in.
-    public Customer(String id, String name, String email, String phone,
-            String address) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
     }
 
     // Returns the ID.
@@ -89,7 +84,6 @@ public class Customer {
     // form "1, Nguyen Van A, anv@gmail.com, 098889999, ...".
     @Override
     public String toString() {
-        return id + Constants.FIELD_JOIN + name + Constants.FIELD_JOIN + email
-                + Constants.FIELD_JOIN + phone + Constants.FIELD_JOIN + address;
+        return String.format(Constants.CUSTOMER_FORMAT, id, name, email, phone, address);
     }
 }

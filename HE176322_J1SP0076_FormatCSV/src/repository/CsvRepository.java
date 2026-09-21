@@ -2,13 +2,15 @@ package repository;
 
 import constants.Constants;
 import constants.Message;
+import dto.CsvRequestDTO;
 import java.util.ArrayList;
 import java.util.Arrays;
 import utils.FileUtils;
 
 /**
- * REPOSITORY: holds the brief's "global variable dataCSV" and loads/saves it - the
- * brief's importCSV and exportCSV.
+ * REPOSITORY: holds the data of the program - the brief's "global variable dataCSV" - and
+ * only simple CRUD on it: keep what main read, give it back, replace it, save it. No
+ * rule, no print, no reading of files.
  *
  * @author HE176322
  */
@@ -26,30 +28,28 @@ public class CsvRepository {
         return dataCSV;
     }
 
-    // Replaces the content (used by the formatters).
+    // Replaces the content (used by the two formats).
     public void setDataCSV(String dataCSV) {
         this.dataCSV = dataCSV;
     }
 
-    // Function 1 (importCSV): reads the file into dataCSV.
-    public void importCSV(String path) throws Exception {
-        // the brief: "Check file exist or not"
-        if (!FileUtils.isExist(path)) {
-            throw new Exception(Message.PATH_NOT_EXIST);
-        }
-        ArrayList<String> lines = FileUtils.readLines(path);
-        dataCSV = String.join(Constants.NEW_LINE, lines);
+    // Function 1 (importCSV), last step: the lines main read become dataCSV.
+    public void importCSV(CsvRequestDTO requestDTO) {
+        dataCSV = String.join(Constants.NEW_LINE, requestDTO.getLineList());
     }
 
     // Function 4 (exportCSV): writes dataCSV into a new file (an existing file is
-    // replaced).
+    // replaced); the writing itself is FileUtils' job.
     public void exportCSV(String path) throws Exception {
+        ArrayList<String> lineList = new ArrayList<>();
+
         // nothing to export before an import
         if (dataCSV == null) {
             throw new Exception(Message.NO_DATA);
         }
-        ArrayList<String> lines = new ArrayList<>(
-                Arrays.asList(dataCSV.split(Constants.LINE_SPLIT)));
-        FileUtils.writeLines(path, lines);
+
+        // one row of dataCSV = one line of the new file
+        lineList.addAll(Arrays.asList(dataCSV.split(Constants.LINE_SPLIT)));
+        FileUtils.writeLines(path, lineList);
     }
 }

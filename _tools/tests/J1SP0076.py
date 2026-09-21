@@ -5,7 +5,13 @@ first run ("Demo data file created: import.csv") and its run 1 imports
 export.csv left behind by run 0, while verify.py gives every run a fresh
 copy of the project root. Here import.csv is SHIPPED at the project root (the
 brief's d:\\import.csv), so that line is gone and each run creates the files
-it reads back. Every other screen line is the reference's / the brief's.
+it reads back.
+
+21/09/2026 (paper checklist + "match the brief 100%"): the program no longer
+prints the whole CSV after Import / Format. The brief's "Expectation of User
+interface" shows only "Import: Done" / "Format: Done" / "Export: Done" under
+each title, so that is all the screen shows now. The formatting itself is
+checked by opening the exported file (HUONG-DAN §5), not on screen.
 
 import.csv (project root): a header row, then 4 customers with the brief's
 two faults - row 1 is the brief's own example, row 3 has no space after its
@@ -28,45 +34,23 @@ NAME = "--------- Format Name -------\n"
 EXPORT = "--------- Export CSV ------\nEnter Path:"
 NODATA = "No CSV file has been imported\n"
 
-RAW = ("ID, Name, Email, Phone, Address\n"
-       "1, Nguyen   van a, anv@gmail.com, 098889999, Cau Giay     -   Ha    Noi    - Viet Nam\n"
-       "2, tran  thi   b, ttb@gmail.com, 0912345678, Thanh   Xuan   - Ha Noi - Viet Nam\n"
-       "3,le  van   c ,lvc@gmail.com,0987654321,Hai   Chau  - Da  Nang - Viet Nam\n"
-       "4, pham van d, pvd@gmail.com, 0900000000,\n")
-NAMED = ("ID, Name, Email, Phone, Address\n"
-         "1, Nguyen Van A, anv@gmail.com, 098889999, Cau Giay     -   Ha    Noi    - Viet Nam\n"
-         "2, Tran Thi B, ttb@gmail.com, 0912345678, Thanh   Xuan   - Ha Noi - Viet Nam\n"
-         "3, Le Van C, lvc@gmail.com, 0987654321, Hai   Chau  - Da  Nang - Viet Nam\n"
-         "4, Pham Van D, pvd@gmail.com, 0900000000, \n")
-ADDRESSED = ("ID, Name, Email, Phone, Address\n"
-             "1, Nguyen   van a, anv@gmail.com, 098889999, Cau Giay - Ha Noi - Viet Nam\n"
-             "2, tran  thi   b, ttb@gmail.com, 0912345678, Thanh Xuan - Ha Noi - Viet Nam\n"
-             "3, le  van   c, lvc@gmail.com, 0987654321, Hai Chau - Da Nang - Viet Nam\n"
-             "4, pham van d, pvd@gmail.com, 0900000000, \n")
-BOTH = ("ID, Name, Email, Phone, Address\n"
-        "1, Nguyen Van A, anv@gmail.com, 098889999, Cau Giay - Ha Noi - Viet Nam\n"
-        "2, Tran Thi B, ttb@gmail.com, 0912345678, Thanh Xuan - Ha Noi - Viet Nam\n"
-        "3, Le Van C, lvc@gmail.com, 0987654321, Hai Chau - Da Nang - Viet Nam\n"
-        "4, Pham Van D, pvd@gmail.com, 0900000000, \n")
-
 RUNS = [
     # the brief's flow 1 -> 2 -> 3 -> 4 -> 5, then the exported file is
-    # imported back to prove it holds both formats
+    # imported back to prove it was written
     ("1\nimport.csv\n2\n3\n4\nexport.csv\n1\nexport.csv\n5\n",
-     MENU + IMPORT + "Import: Done\n" + RAW
-     + MENU + ADDRESS + "Format: Done\n" + ADDRESSED
-     + MENU + NAME + "Format: Done\n" + BOTH
+     MENU + IMPORT + "Import: Done\n"
+     + MENU + ADDRESS + "Format: Done\n"
+     + MENU + NAME + "Format: Done\n"
      + MENU + EXPORT + "Export: Done\n"
-     + MENU + IMPORT + "Import: Done\n" + BOTH
+     + MENU + IMPORT + "Import: Done\n"
      + MENU),
 
-    # Format Name alone changes only the Name column (Address keeps its
-    # spaces); exporting then re-importing the half-formatted data
+    # Format Name alone, export, then the new file is imported back
     ("1\nimport.csv\n3\n4\nnames.csv\n1\nnames.csv\n5\n",
-     MENU + IMPORT + "Import: Done\n" + RAW
-     + MENU + NAME + "Format: Done\n" + NAMED
+     MENU + IMPORT + "Import: Done\n"
+     + MENU + NAME + "Format: Done\n"
      + MENU + EXPORT + "Export: Done\n"
-     + MENU + IMPORT + "Import: Done\n" + NAMED
+     + MENU + IMPORT + "Import: Done\n"
      + MENU),
 
     # every error: menu letters / out of range; options 2, 3, 4 before any
@@ -81,7 +65,7 @@ RUNS = [
      + MENU + EXPORT + NODATA
      + MENU + IMPORT + "Path doesn't exist\n"
      + MENU + IMPORT + "Cannot read file\n"
-     + MENU + IMPORT + "Import: Done\n" + RAW
+     + MENU + IMPORT + "Import: Done\n"
      + MENU + EXPORT + "Cannot write file\n"
      + MENU),
 ]

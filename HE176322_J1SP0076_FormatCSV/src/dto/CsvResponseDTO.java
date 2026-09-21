@@ -1,32 +1,27 @@
 package dto;
 
 /**
- * DTO carrying the current CSV content FROM the controller OUT TO the view, so the user
- * can see what import/format produced.
+ * DTO carrying the result of an option FROM the controller OUT TO the view: the one line
+ * to print, such as "Import: Done".
  *
  * @author HE176322
  */
 public class CsvResponseDTO {
 
-    // The whole CSV as text, one row per line.
-    private String dataCSV;
+    // The line to print: "Import: Done", "Format: Done" or "Export: Done".
+    private String message;
 
-    // JavaBean constructor: an empty response.
+    // JavaBean constructor: an empty result, filled through the setter.
     public CsvResponseDTO() {
     }
 
-    // Creates the response with its content.
-    public CsvResponseDTO(String dataCSV) {
-        this.dataCSV = dataCSV;
+    // Returns the line to print.
+    public String getMessage() {
+        return message;
     }
 
-    // Returns the content.
-    public String getDataCSV() {
-        return dataCSV;
-    }
-
-    // Sets the content.
-    public void setDataCSV(String dataCSV) {
-        this.dataCSV = dataCSV;
+    // Sets the line to print.
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

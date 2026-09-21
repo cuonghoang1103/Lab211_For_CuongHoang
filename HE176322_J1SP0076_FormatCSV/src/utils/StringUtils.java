@@ -23,21 +23,26 @@ public final class StringUtils {
     // Makes the first character of every word upper case; the rest of each word is left
     // as typed (the brief only asks for the first character).
     public static String capitalizeWords(String text) {
+        StringBuilder result = new StringBuilder();
+        String[] wordArray = text.split(Constants.SPACE);
+
         // an empty field has no word to change
         if (text.isEmpty()) {
             return text;
         }
-        StringBuilder result = new StringBuilder();
-        String[] words = text.split(Constants.SPACE);
+
         // every word: upper-case its first letter, keep the rest
-        for (int i = 0; i < words.length; i++) {
+        for (int i = 0; i < wordArray.length; i++) {
             // one space between words, none before the first
             if (i > 0) {
                 result.append(Constants.SPACE);
             }
-            result.append(Character.toUpperCase(words[i].charAt(0)));
-            result.append(words[i].substring(1));
+
+            // the first letter upper case, then the rest as typed
+            result.append(Character.toUpperCase(wordArray[i].charAt(0)));
+            result.append(wordArray[i].substring(1));
         }
+
         return result.toString();
     }
 }

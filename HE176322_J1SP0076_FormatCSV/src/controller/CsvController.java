@@ -2,57 +2,62 @@ package controller;
 
 import constants.Message;
 import dto.CsvRequestDTO;
+import dto.CsvResponseDTO;
 import service.CsvService;
 import view.CsvView;
 
 /**
- * CONTROLLER (and Facade): receives the request from main, asks the service to do the
- * work, and lets the view show the result.
+ * CONTROLLER (Facade): receives the request from main, lets the service do the work, and
+ * hands the result to the view ONCE per flow. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class CsvController {
 
-    // Does the import, formatting and export.
+    // Keeps dataCSV and does the import, the formatting and the export.
     private CsvService csvService;
-    // Prints the results.
+
+    // Prints the result of every option.
     private CsvView csvView;
 
-    // Creates the controller with its service and view.
+    // Creates the controller together with its service and its view.
     public CsvController() {
         csvService = new CsvService();
         csvView = new CsvView();
     }
 
-    // Option 1: imports the file, then shows it.
-    public void importCSV(CsvRequestDTO requestDTO) throws Exception {
-        csvService.importCSV(requestDTO.getPath());
+    // Option 1 (importCSV): the service keeps the lines main read, then the view says so.
+    public void importCSV(CsvRequestDTO requestDTO) {
+        csvService.importCSV(requestDTO);
         showResult(Message.IMPORT_DONE);
     }
 
-    // Option 2: formats every Address, then shows the data.
+    // Option 2 (formatAddress): formats every Address of dataCSV, then the view says so.
     public void formatAddress() throws Exception {
         csvService.formatAddress(csvService.getDataCSV());
         showResult(Message.FORMAT_DONE);
     }
 
-    // Option 3: formats every Name, then shows the data.
+    // Option 3 (formatName): formats every Name of dataCSV, then the view says so.
     public void formatName() throws Exception {
         csvService.formatName(csvService.getDataCSV());
         showResult(Message.FORMAT_DONE);
     }
 
-    // Option 4: writes the current data into a new file.
+    // Option 4 (exportCSV): writes dataCSV into the file main asked for, then the view
+    // says so.
     public void exportCSV(CsvRequestDTO requestDTO) throws Exception {
         csvService.exportCSV(requestDTO.getPath());
-        csvView.showMessage(Message.EXPORT_DONE);
+        showResult(Message.EXPORT_DONE);
     }
 
-    // Shows a "Done" line and then the current data, so the user can SEE what the step
-    // changed.
-    private void showResult(String doneMessage) {
-        csvView.showMessage(doneMessage);
-        csvView.setResponse(csvService.getData());
+    // Hands the success line to the view and renders it - the only render of the flow.
+    private void showResult(String message) {
+        CsvResponseDTO responseDTO = new CsvResponseDTO();
+
+        // the view receives the line through its attribute, then prints it
+        responseDTO.setMessage(message);
+        csvView.setResponseDTO(responseDTO);
         csvView.display();
     }
 }
