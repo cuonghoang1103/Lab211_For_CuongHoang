@@ -12,8 +12,10 @@ public class PersonResponseDTO {
 
     // Name shown in the first column.
     private String name;
+
     // Address shown in the second column.
     private String address;
+
     // Money shown in the last column.
     private double money;
 

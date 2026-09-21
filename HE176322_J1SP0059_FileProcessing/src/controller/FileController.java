@@ -1,23 +1,23 @@
 package controller;
 
-import constants.Message;
 import dto.FileRequestDTO;
-import dto.ReportResponseDTO;
+import dto.FileResponseDTO;
 import service.FileService;
 import service.SalaryComparator;
 import view.FileView;
 
 /**
- * CONTROLLER: receives a request DTO from main, asks the service to do the work, and
- * hands the result to the view.
+ * CONTROLLER (Facade): receives a request DTO from main, asks the service to do the work,
+ * and hands the answer to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class FileController {
 
-    // Does the file work; configured with the salary order.
+    // Does the work of both functions; configured with the salary order.
     private FileService fileService;
-    // Prints the results.
+
+    // Prints the answer of each function.
     private FileView fileView;
 
     // Creates the controller: the service gets SalaryComparator as its sorting strategy.
@@ -26,19 +26,23 @@ public class FileController {
         fileView = new FileView();
     }
 
-    // Option 1: finds the persons earning at least the money entered and lets the view
-    // print the table, Max and Min.
+    // Option 1: finds the persons earning at least the money entered; the view shows the
+    // table, Max and Min.
     public void findPerson(FileRequestDTO requestDTO) throws Exception {
-        ReportResponseDTO report = fileService.findPerson(requestDTO);
-        fileView.setReport(report);
+        FileResponseDTO responseDTO = fileService.findPerson(requestDTO);
+
+        // hand the answer to the view, then render it - once for the whole flow
+        fileView.setResponseDTO(responseDTO);
         fileView.display();
     }
 
-    // Option 2: copies every single word of the source into the new file.
+    // Option 2: copies every single word of the source into the new file; the view shows
+    // "Copy done...".
     public void copyText(FileRequestDTO requestDTO) throws Exception {
-        // the brief's copy status: true means the new file is written
-        if (fileService.copyText(requestDTO)) {
-            fileView.showMessage(Message.COPY_DONE);
-        }
+        FileResponseDTO responseDTO = fileService.copyText(requestDTO);
+
+        // hand the answer to the view, then render it - once for the whole flow
+        fileView.setResponseDTO(responseDTO);
+        fileView.display();
     }
 }

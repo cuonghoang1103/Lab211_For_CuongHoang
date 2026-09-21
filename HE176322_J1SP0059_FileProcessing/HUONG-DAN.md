@@ -43,11 +43,17 @@ Min: Nghia
 
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
-| `public List<Person> getPerson(String path, double money) throws Exception` | *"Must set the function"* | `FileService.getPerson` — **đúng chữ ký** |
-| Danh sách: *"least money on the head of list, most money on the last"* | | `Collections.sort(persons, personOrder)` với `SalaryComparator` |
-| `public static boolean copyWordOneTimes(String source, String destination) throws Exception` | *"Must set the function"* | `FileUtils.copyWordOneTimes` — **đúng chữ ký, kể cả `static`** |
-| Lỗi `Path doesn't exist` · `Can’t read file` · `Can’t write file` | | `constants/Message` — **chép đúng từng chữ** (dấu `’` cong như đề) |
+| `public List<Person> getPerson(String path, double money) throws Exception` | *"Must set the function"* | `FileService.getPerson` — **đúng chữ ký**; `path` là **khoá** để lấy người của tệp đó trong `PersonRepository` (Main đã đọc tệp) |
+| Danh sách: *"least money on the head of list, most money on the last"* | | `Collections.sort(foundList, personOrder)` với `SalaryComparator` |
+| `public static boolean copyWordOneTimes(String source, String destination) throws Exception` | *"Must set the function"* | `FileService.copyWordOneTimes` — **đúng tên, tham số, kiểu trả về, `throws`**; **bỏ `static`** (xem mục 9 — hỏi thầy) |
+| Lỗi `Path doesn't exist` · `Can’t read file` · `Can’t write file` | | `constants/Message` — **chép đúng từng chữ** (dấu `’` cong như đề); hai lỗi đọc ném ở `FileUtils.readLines` (Main gọi), lỗi ghi ở `FileUtils.writeLines` (repository gọi) |
 | Dùng `BufferedReader/BufferedWriter/File/FileReader/FileWriter/IOException/ArrayList/List` · `Collections` · `Comparator` | Suggest | `FileUtils`, `FileService`, `SalaryComparator` |
+
+**Đối chiếu đề gốc** (`Lab211/J1.S.P0059/J1.S.P0059.docx`, 21/09/2026): menu, `Enter Path:`/`Enter Money:`,
+bảng TAB, dòng trống, `Max:`/`Min:`, màn hình Copy và `Copy done...` **khớp từng ký tự**. Ba số `1` `2` `3`
+dưới khung giao diện của đề là **nhãn của ba hộp** (menu → Person info → Copy), không phải chữ in ra. Hai
+dòng đề không vẽ nhưng cho phép: `Enter your choice: ` (đề: *"The program prompts users to select an
+option"*) và `Goodbye.` khi thoát.
 
 ---
 
@@ -81,7 +87,7 @@ Với money = 0: ba người lương 0 đứng đầu **theo đúng thứ tự t
 
 `story.txt`: `the cat and the dog` / `the dog sees the cat`
 
-| Từ đọc được | `words.add(...)` | Set sau đó |
+| Từ đọc được | `wordSet.add(...)` | Set sau đó |
 |---|---|---|
 | the, cat, and | thêm | the, cat, and |
 | the | **đã có → bỏ qua** | |
@@ -113,39 +119,62 @@ HE176322_J1SP0059_FileProcessing/
 ├── test.txt · story.txt                    dữ liệu mẫu (gốc project)
 └── src/
     ├── model/       Person                 name, address, salary (JavaBean) — tên lớp do đề đặt
-    ├── dto/         FileRequestDTO         path, money, source, destination   (main ──► controller)
+    ├── dto/         FileRequestDTO         path, money, source, destination, lineList (main ──► controller)
     │                PersonResponseDTO      1 dòng bảng + toString() định dạng TAB
-    │                ReportResponseDTO      các dòng + maxName + minName         (controller ──► view)
+    │                FileResponseDTO        message | personList + maxName + minName (controller ──► view)
+    ├── repository/  PersonRepository       personMap: đường dẫn ──► người của tệp đó · loadData · getPersonList
+    │                TextRepository         lineMap: đường dẫn ──► các dòng · loadData · getLineList · saveLineList
     ├── service/     SalaryComparator       «ConcreteStrategy» lương tăng dần
-    │                FileService            getPerson · findPerson · copyText (Context của Strategy)
-    ├── controller/  FileController         cắm SalaryComparator vào service; service ──► view
-    ├── view/        FileView               in bảng + Max/Min, "Copy done..."
-    ├── utils/       FileUtils              readLines · writeLines · copyWordOneTimes (static)
+    │                FileService            getPerson · copyWordOneTimes · findPerson · copyText (Context)
+    ├── controller/  FileController         cắm SalaryComparator vào service; service ──► view (1 lần/luồng)
+    ├── view/        FileView               field responseDTO + setResponseDTO + display() không tham số
+    ├── utils/       FileUtils              readLines (Main gọi) · writeLines (repository gọi) — static
     │                Validation             getChoice · getNonBlank · getMoney (static)
     ├── constants/   Message · Constants
-    └── main/        Main                   menu + Scanner
+    └── main/        Main                   menu + Scanner + ĐỌC TỆP (FileUtils) ──► RequestDTO
 ```
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
-| Sao có `service` mà không có `repository`? | Guide: repository = **giữ một tập dữ liệu + CRUD**. Bài này không giữ gì giữa hai lần chọn menu — mỗi lần tìm là **đọc lại file**. Lọc + sắp + Max/Min là **"report"** → `service`. |
-| Sao `copyWordOneTimes` ở `utils`? | Đề bắt nó **`static`**, mà luật thầy chỉ cho static ở `utils`/`constants`/`main`; và việc của nó là **chép file sang file** — đúng vai `FileUtils` (*"đọc/ghi file"*). |
-| Sao có cả `getPerson` và `findPerson`? | `getPerson` giữ **đúng chữ ký đề** (trả `List<Person>`). Controller **không được thấy model** → `findPerson` gọi `getPerson` rồi đổi sang `ReportResponseDTO`. |
-| Sao Max/Min tính ở service chứ không ở view? | View *"chỉ hiển thị"*. Danh sách đã sắp nên Min = `get(0)`, Max = `get(size - 1)` — service điền sẵn vào DTO. |
+| **Sao bài có `repository`?** | Tờ checklist 1.1: *"Bắt buộc phải có repository"*, và repository = *"chứa data và CRUD đơn giản"*. Data của bài này là **nội dung các tệp**: `PersonRepository` giữ người của từng tệp người (`HashMap<String, ArrayList<Person>> personMap`, khoá = đường dẫn), `TextRepository` giữ các dòng của từng tệp văn bản (`lineMap`). Chỉ có thêm/lấy/lưu — **không lọc, không sắp, không in, không đọc tệp**. |
+| **Đọc tệp ở đâu?** | Ở **Main** (tờ checklist 1.1: *"Toàn bộ việc nhập dữ liệu/Validate/đọc từ file/mã hóa thực hiện ở Main"*): `FileUtils.readLines(path)` → `requestDTO.setLineList(...)`. Repository **parse + lưu** các dòng đó (`loadData`). Ghi tệp mới là `FileUtils.writeLines`, do `TextRepository.saveLineList` gọi. |
+| Sao `getPerson(path, money)` vẫn nhận `path` khi Main đã đọc tệp? | Giữ **đúng chữ ký đề**. `path` giờ là **khoá**: `personRepository.getPersonList(path)` trả đúng người của tệp đó. Cùng lý do, `copyWordOneTimes(source, destination)` lấy dòng của `source` trong `TextRepository` và lưu kết quả dưới `destination`. |
+| Sao `copyWordOneTimes` ở `service` và **không `static`**? | Lọc "mỗi từ một lần" là **nghiệp vụ** → service (tờ giấy 1.1). Luật thầy chỉ cho `static` ở `utils`/`constants`/hàm của `main` → service **không static**. Đề ghi `public static` — dòng `// brief:` ngay trên hàm; hỏi thầy nếu thầy muốn giữ `static` (mục 9). |
+| Sao có cả `getPerson` và `findPerson`? | `getPerson` giữ **đúng chữ ký đề** (trả `List<Person>`). Controller **không được thấy model** → `findPerson` gọi `getPerson` rồi đổi sang `FileResponseDTO`. |
+| Sao Max/Min tính ở service chứ không ở view? | View *"chỉ hiển thị"*. Danh sách đã sắp nên Min = dòng đầu, Max = dòng cuối — service điền sẵn vào DTO. |
+| **View nhận dữ liệu thế nào?** | Qua **thuộc tính**: `FileView` có field `private FileResponseDTO responseDTO` + `setResponseDTO(...)`; `display()` **không tham số** in theo những gì đã set (`message` → 1 dòng; `personList` → bảng). Mỗi luồng controller gọi `setResponseDTO` rồi `display()` **đúng 1 lần**. |
+| **Validate ở đâu?** | Ở **Main**, qua `utils/Validation`: `getChoice` (menu), `getNonBlank` (đường dẫn, tên tệp), `getMoney` (số, ≥ 0). Sai thì Main in `e.getMessage()` và hỏi lại. |
 
 **Luồng Option 1:**
 
 ```
-Main: đọc path (hỏi lại khi trống), money (hỏi lại khi sai/âm) ──► FileRequestDTO ──► controller.findPerson(dto)
+Main: path (hỏi lại khi trống), money (hỏi lại khi sai/âm)
+      FileUtils.readLines(path)      → "Path doesn't exist" / "Can’t read file" (Main bắt, in, về menu)
+      ──► FileRequestDTO (path, money, lineList) ──► controller.findPerson(dto)       ← gọi 1 lần
    controller ──► service.findPerson(dto)
+                    ├─ personRepository.loadData(dto)       → toPerson + toSalary: lương hỏng = 0 → personMap
                     └─ getPerson(path, money)
-                          ├─ FileUtils.readLines(path)    → "Path doesn't exist" / "Can’t read file"
-                          ├─ toPerson(line) + toSalary    → lương hỏng = 0
+                          ├─ personRepository.getPersonList(path)
                           ├─ giữ salary >= money
-                          └─ Collections.sort(persons, personOrder)   ← Strategy
+                          └─ Collections.sort(foundList, personOrder)   ← Strategy
                     ├─ đổi Person → PersonResponseDTO
-                    └─ minName = đầu, maxName = cuối
-   controller ──► view.setReport(report) ──► view.display()
+                    └─ minName = dòng đầu, maxName = dòng cuối
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()    ← render 1 lần
+```
+
+**Luồng Option 2:**
+
+```
+Main: source, destination (hỏi lại khi trống)
+      FileUtils.readLines(source)    → "Path doesn't exist" / "Can’t read file"
+      ──► FileRequestDTO (source, destination, lineList) ──► controller.copyText(dto)   ← gọi 1 lần
+   controller ──► service.copyText(dto)
+                    ├─ textRepository.loadData(dto)         → lineMap[source] = các dòng
+                    └─ copyWordOneTimes(source, destination)
+                          ├─ LinkedHashSet wordSet: mỗi từ một lần, giữ thứ tự gặp
+                          └─ textRepository.saveLineList(destination, ...) → FileUtils.writeLines → "Can’t write file"
+                    └─ true → message = "Copy done..."
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()    ← render 1 lần
 ```
 
 ### 3.1 Design Pattern — **Strategy** (thầy đánh giá cao Design Pattern)
@@ -168,7 +197,7 @@ Ngoài ra: **MVC** ("MVC JSP" — controller ~ Servlet, view ~ JSP, `Person` ~ J
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `Person` giữ dữ liệu · `FileUtils` đọc/ghi · `FileService` lọc/sắp/tính Max-Min · `SalaryComparator` chỉ so 2 người · `FileView` in |
+| **S** | `Person` mô tả 1 người · `PersonRepository`/`TextRepository` giữ dữ liệu · `FileUtils` đọc/ghi · `FileService` lọc/sắp/tính Max-Min, lọc từ · `SalaryComparator` chỉ so 2 người · `FileView` in |
 | **O** | thứ tự mới = lớp `Comparator` mới, không sửa `FileService` |
 | **L** | mọi `Comparator<Person>` giữ "ít tiền trước" thay được `SalaryComparator` mà chương trình vẫn đúng |
 | **I** | `Comparator` chỉ bắt viết đúng 1 hàm `compare` |
@@ -182,18 +211,20 @@ Ngoài ra: **MVC** ("MVC JSP" — controller ~ Servlet, view ~ JSP, `Person` ~ J
 
 | Bước | File | Việc | Lưu ý |
 |---|---|---|---|
-| 1 | `model/Person.java` | 3 field private (`salary` là `double`) + ctor rỗng + ctor đủ + get/set + `toString()` | JavaBean · **Alt+Insert** |
-| 2 | `dto/FileRequestDTO.java` | path, money, source, destination | ctor rỗng + get/set |
-| 3 | `dto/PersonResponseDTO.java`, `ReportResponseDTO.java` | 1 dòng bảng (`toString` = `ROW_FORMAT`, `Locale.US`) · danh sách + maxName + minName | |
-| 4 | `utils/FileUtils.java` | `readLines` · `writeLines` · **`copyWordOneTimes`** | `final` + ctor `private` + static |
-| 5 | `service/SalaryComparator.java` | `compare` = `Double.compare(lương1, lương2)` | `@Override` |
-| 6 | `service/FileService.java` | field `personOrder` + ctor; **`getPerson`** · `findPerson` · `copyText` · `toPerson`/`getPart`/`toSalary` (private) | |
-| 7 | `constants/Message.java`, `Constants.java` | câu của đề (TAB `\t`, dấu `’` = `\u2019`), `SEPARATOR`, chỉ số cột, `ROW_FORMAT` | gõ dần khi bước trên cần |
-| 8 | `view/FileView.java` | `setReport` · `display` · `showMessage` | |
-| 9 | `controller/FileController.java` | ctor cắm `SalaryComparator`; `findPerson` · `copyText` | **không** Scanner |
-| 10 | `utils/Validation.java` | `getChoice` · `getNonBlank` · `getMoney` | |
-| 11 | `main/Main.java` | menu + `inputText` · `inputMoney` · `findPerson` · `copyText` | Scanner **chỉ ở đây** |
-| 12 | — | **Alt+Shift+F**, **F6**, đi hết bảng test mục 5 | |
+| 1 | `model/Person.java` | 3 field private (`salary` là `double`) + ctor rỗng + ctor đủ + get/set + `toString()` (`String.format`) | JavaBean · **Alt+Insert** |
+| 2 | `dto/FileRequestDTO.java` | path, money, source, destination, **`lineList`** (các dòng Main đọc được) | ctor rỗng + get/set |
+| 3 | `dto/PersonResponseDTO.java`, `FileResponseDTO.java` | 1 dòng bảng (`toString` = `ROW_FORMAT`, `Locale.US`) · `message` + `personList` + maxName + minName | |
+| 4 | `utils/FileUtils.java` | `readLines` · `writeLines` | `final` + ctor `private` + static |
+| 5 | `repository/PersonRepository.java` | `personMap`; `loadData` · `getPersonList` · `toPerson`/`getPart`/`toSalary` (private) | lương hỏng → 0 **ở đây** |
+| 6 | `repository/TextRepository.java` | `lineMap`; `loadData` · `getLineList` · `saveLineList` (gọi `FileUtils.writeLines`) | |
+| 7 | `service/SalaryComparator.java` | `compare` = `Double.compare(lương1, lương2)` | `@Override` |
+| 8 | `service/FileService.java` | field `personOrder` + 2 repository + ctor; **`getPerson`** · **`copyWordOneTimes`** · `findPerson` · `copyText` | comment `// brief:` trên 2 hàm đề |
+| 9 | `constants/Message.java`, `Constants.java` | câu của đề (TAB `\t`, dấu `’` = `\u2019`), `SEPARATOR`, chỉ số cột, `ROW_FORMAT`, `PERSON_FORMAT` | gõ dần khi bước trên cần |
+| 10 | `view/FileView.java` | field `responseDTO` · `setResponseDTO` · `display()` · `displayResult()` (private) | `display()` **không tham số** |
+| 11 | `controller/FileController.java` | ctor cắm `SalaryComparator`; `findPerson` · `copyText` — mỗi hàm `setResponseDTO` + `display()` đúng 1 lần | **không** Scanner, **không** model |
+| 12 | `utils/Validation.java` | `getChoice` · `getNonBlank` · `getMoney` | |
+| 13 | `main/Main.java` | `final` + ctor `private`; menu + `inputText` · `inputMoney` · `findPerson` · `copyText` (đọc tệp bằng `FileUtils.readLines`) | Scanner **chỉ ở đây** |
+| 14 | — | **Alt+Shift+F**, **F6**, đi hết bảng test mục 5 | |
 
 **Bẫy hay gặp:**
 
@@ -233,10 +264,11 @@ Ngoài ra: **MVC** ("MVC JSP" — controller ~ Servlet, view ~ JSP, `Person` ~ J
 |---|---|
 | Breakpoint | dòng `if (person.getSalary() >= money) {` trong `FileService.getPerson` |
 | Chạy debug | **Ctrl+F5**, chọn 1, `test.txt`, `800` |
-| Quan sát | tab **Variables**: `line`, `person` (mở ra xem `salary` — dòng `Hoang` là `0.0`), `persons` tăng dần |
-| Bước | **F7** vào `toPerson` → `toSalary`: với `abc`, **F8** thấy nhảy vào `catch` rồi `return 0` |
+| Quan sát | tab **Variables**: `person` (mở ra xem `salary` — dòng `Hoang` là `0.0`), `foundList` tăng dần |
+| Bước | breakpoint ở `personList.add(toPerson(line));` trong `PersonRepository.loadData` → **F7** vào `toPerson` → `toSalary`: với `abc`, **F8** thấy nhảy vào `catch` rồi `return 0` |
+| Đọc tệp | breakpoint ở `requestDTO.setLineList(FileUtils.readLines(...))` trong `Main.findPerson` → **F7**: thấy `Path doesn't exist` / `Can’t read file` ném ra **từ Main** (không phải từ service) |
 | Sắp xếp | breakpoint trong `SalaryComparator.compare` → **F5** nhiều lần: thấy `Collections.sort` gọi strategy để so từng cặp |
-| Copy | breakpoint ở `words.add(word);` trong `FileUtils.copyWordOneTimes`, xem `words` không tăng khi gặp `the` lần 2 |
+| Copy | breakpoint ở `wordSet.add(word);` trong `FileService.copyWordOneTimes`, xem `wordSet` không tăng khi gặp `the` lần 2 |
 
 ---
 
@@ -248,7 +280,7 @@ Ngoài ra: **MVC** ("MVC JSP" — controller ~ Servlet, view ~ JSP, `Person` ~ J
 |---|---|
 | 4 tính chất OOP ở đâu? | **Đóng gói**: 3 field `private` trong `Person`, đổi qua setter. **Kế thừa**: `SalaryComparator implements Comparator<Person>`; mọi lớp `extends Object` và em ghi đè `toString()`. **Đa hình**: `Collections.sort` gọi `compare` qua biến kiểu `Comparator` — chạy bản của `SalaryComparator`; `println(person)` gọi `toString()` của `PersonResponseDTO`. **Trừu tượng**: `FileService` chỉ biết `Comparator`, không biết so theo gì. |
 | Sao `salary` là `double`, không `String`? | Phải **so sánh và sắp** lương; dạng chuỗi thì `"1000"` đứng trước `"700"`. |
-| Sao `Person` có constructor rỗng? | **MVC JSP**: model/DTO là **JavaBean** — field `private`, constructor rỗng `public`, get/set. `toPerson` dùng chính constructor rỗng + setter. |
+| Sao `Person` có constructor rỗng? | **MVC JSP**: model/DTO là **JavaBean** — field `private`, constructor rỗng `public`, get/set. `PersonRepository.toPerson` dùng chính constructor rỗng + setter. |
 
 ### Access modifier, static, kiểu trả về
 
@@ -256,23 +288,25 @@ Ngoài ra: **MVC** ("MVC JSP" — controller ~ Servlet, view ~ JSP, `Person` ~ J
 |---|---|
 | `getPerson` sao `public` dù chỉ `findPerson` gọi? | **Đề bắt** đúng chữ ký `public List<Person> getPerson(...)` — đó là hợp đồng đề chấm. |
 | `findPerson`, `copyText` sao `public`? | `FileController` (lớp khác) gọi. |
-| `toPerson`, `getPart`, `toSalary` sao `private`? | Chỉ `FileService` dùng; không phải hợp đồng của lớp. |
+| `toPerson`, `getPart`, `toSalary` sao `private`? | Chỉ `PersonRepository.loadData` dùng; không phải hợp đồng của lớp. |
+| `displayResult` sao `private`? | Chỉ `display()` của chính `FileView` gọi; controller chỉ được gọi `setResponseDTO` + `display()`. |
 | `compare` sao `public`? | Nó **ghi đè** hàm của interface `Comparator` — hàm interface luôn `public`, không được hạ quyền. |
-| Sao `copyWordOneTimes` là `static`? | **Đề bắt** `public static boolean`. Nó không dùng dữ liệu đối tượng nào (chỉ 2 đường dẫn vào) — và em đặt nó ở `utils`, nơi duy nhất thầy cho static. |
+| Sao `copyWordOneTimes` **không** `static` dù đề ghi `static`? | Nó là **nghiệp vụ** (lọc từ) nên ở `service`, và giờ nó **dùng dữ liệu của đối tượng** (`textRepository`) — hàm static không truy cập được field của đối tượng. Luật thầy: static chỉ ở `utils`/`constants`/hàm `main`. Tên, tham số, kiểu trả về, `throws` vẫn đúng đề; dòng `// brief:` ghi nguyên chữ ký đề. |
 | Sao `FileUtils`, `Validation` `static`? | Cùng đường dẫn/chuỗi vào → cùng kết quả, không có trạng thái. Guide: *"phải dùng static method"*, `final`, constructor `private`. |
-| **Bỏ `static` thì sao?** | `FileUtils.readLines(...)` báo lỗi biên dịch; phải bỏ `private` constructor, tạo `FileUtils fileUtils = new FileUtils();` trong `FileService` rồi gọi qua đối tượng. Riêng `copyWordOneTimes` thì **trái chữ ký đề**. |
+| **Bỏ `static` thì sao?** | `FileUtils.readLines(...)` trong `Main` (và `FileUtils.writeLines(...)` trong `TextRepository`) báo lỗi biên dịch; phải bỏ `private` constructor, tạo `FileUtils fileUtils = new FileUtils();` rồi gọi qua đối tượng. |
 | Hàm trong `Main` sao `static`? | `main` là `static`; thầy: *"cấm static với biến, có thể dùng với hàm"* → `Scanner sc` là biến cục bộ. |
 | `getPerson` trả `List<Person>`? | Chữ ký đề. Bên trong em tạo `ArrayList<Person>` — `ArrayList` **là một** `List`, trả lên kiểu cha được. |
-| `copyWordOneTimes` trả `boolean` mà luôn `true`? | Đề: *"Output: copy status"*; mọi thất bại đề liệt kê bằng `Exception`, nên đến được `return` là đã chép xong. Controller vẫn kiểm `if (...)` rồi mới in `Copy done...`. |
+| `copyWordOneTimes` trả `boolean` mà luôn `true`? | Đề: *"Output: copy status"*; mọi thất bại đề liệt kê bằng `Exception`, nên đến được `return` là đã chép xong. `FileService.copyText` vẫn kiểm `if (...)` rồi mới đặt `Copy done...` vào `FileResponseDTO`. |
+| `getPerson` `throws Exception` mà bên trong không ném gì? | **Chữ ký đề**. Hai lỗi đọc tệp (`Path doesn't exist`, `Can’t read file`) giờ ném ở `FileUtils.readLines` — **Main** gọi, vì tờ checklist bắt đọc tệp ở Main. Để `throws` lại vẫn đúng Java và giữ chỗ cho lỗi sau này. |
 | `compare` trả `int`? | Hợp đồng `Comparator`: âm = đứng trước, 0 = bằng, dương = đứng sau. |
 
 ### Collection
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| **Sao chỗ này `List`, chỗ kia `ArrayList`?** | `List` là **interface**, `ArrayList` là **lớp cài đặt** bằng mảng động. Em khai báo kiểu cụ thể `ArrayList` ở mọi chỗ **tự chọn**; chỉ `getPerson` (và biến nhận kết quả của nó) giữ `List` vì **đề bắt chữ ký** — dòng đó có comment `// brief:`. |
-| Sao `LinkedHashSet` cho copy? | `Set` tự bỏ phần tử trùng ("mỗi từ một lần"); `HashSet` làm xáo thứ tự, `LinkedHashSet` giữ thứ tự gặp đầu tiên → file ra dễ kiểm. |
-| Sao không hàm nào 3 tham số? | Thầy: *"không truyền 3 tham số 1 hàm"* → path/money/source/destination gói trong `FileRequestDTO`. `getPerson(path, money)` và `copyWordOneTimes(source, destination)` đúng 2 tham số của đề. |
+| **Sao chỗ này `List`, chỗ kia `ArrayList`?** | `List` là **interface**, `ArrayList` là **lớp cài đặt** bằng mảng động. Em khai báo kiểu cụ thể `ArrayList` ở mọi chỗ **tự chọn**; chỉ kiểu trả về của `getPerson` giữ `List` vì **đề bắt chữ ký** — dòng đó có comment `// brief:`. Repository dùng `HashMap` (khoá = đường dẫn tệp) nên tên biến kết thúc bằng `Map` (tờ checklist 1.5). |
+| Sao `LinkedHashSet wordSet` cho copy? | `Set` tự bỏ phần tử trùng ("mỗi từ một lần"); `HashSet` làm xáo thứ tự, `LinkedHashSet` giữ thứ tự gặp đầu tiên → file ra dễ kiểm. |
+| Sao không hàm nào 3 tham số? | Thầy: *"không truyền 3 tham số 1 hàm"* → path/money/source/destination/lineList gói trong `FileRequestDTO`. `getPerson(path, money)` và `copyWordOneTimes(source, destination)` đúng 2 tham số của đề. |
 
 ### Thuật toán / file
 
@@ -290,12 +324,12 @@ Ngoài ra: **MVC** ("MVC JSP" — controller ~ Servlet, view ~ JSP, `Person` ~ J
 
 | Thầy bảo | Sửa file | Không phải đụng |
 |---|---|---|
-| Lương bằng nhau thì sắp theo **tên** | thêm `service/SalaryThenNameComparator` + 1 dòng ở `FileController` | `FileService`, `Main`, view |
-| In thêm **tổng lương / lương trung bình** | `FileService.findPerson` tính → field mới trong `ReportResponseDTO` → `FileView.display` + câu trong `Message` | `FileUtils`, `Main` |
-| Copy **không phân biệt hoa thường** | `copyWordOneTimes`: `words.add(word.toLowerCase())` | mọi file khác |
+| Lương bằng nhau thì sắp theo **tên** | thêm `service/SalaryThenNameComparator` + 1 dòng ở `FileController` | `FileService`, repository, `Main`, view |
+| In thêm **tổng lương / lương trung bình** | `FileService.findPerson` tính → field mới trong `FileResponseDTO` → `FileView.displayResult` + câu trong `Message` | `FileUtils`, repository, `Main` |
+| Copy **không phân biệt hoa thường** | `FileService.copyWordOneTimes`: `wordSet.add(word.toLowerCase())` | mọi file khác |
 | Copy bỏ **dấu câu** | `Constants.WORD_SEPARATOR` = `"[^\\p{L}\\p{N}]+"` | code |
-| Ghi các từ **trên một dòng** | `copyWordOneTimes`: nối bằng `" "` rồi `writeLines` một phần tử | service, controller |
-| Chỉ lấy người lương **lớn hơn hẳn** (>) | `getPerson`: `>=` → `>` | mọi file khác |
+| Ghi các từ **trên một dòng** | `FileService.copyWordOneTimes`: nối bằng `String.join(" ", wordSet)` rồi `saveLineList` một phần tử | repository, controller |
+| Chỉ lấy người lương **lớn hơn hẳn** (>) | `FileService.getPerson`: `>=` → `>` | mọi file khác |
 
 ---
 
@@ -308,8 +342,27 @@ Ngoài ra: **MVC** ("MVC JSP" — controller ~ Servlet, view ~ JSP, `Person` ~ J
 | Tiền nhập sai ở bàn phím | đề: *"The amount not less than 0, wrong format, it defaults to 0"* | **hỏi lại** (`You must input a number.` / `Money must not be less than 0.`); lương sai **trong file** mới thành 0 | câu đề không nói rõ áp cho bàn phím hay file; giữ cách của bản cũ — xem mục 7 |
 | Lương âm trong file | đề không nói | thành 0 | đề: *"not less than 0"* |
 | Không ai đủ lương | đề không nói | `No person found.` (không in Max/Min) | giữ như bản cũ |
-| `getPerson` ở đâu | đề không nói lớp | `FileService` (+ `findPerson` đổi sang DTO) | tính toán/report → service; controller không được thấy `Person` |
-| `copyWordOneTimes` ở đâu | đề: `public static` | `utils/FileUtils` | static chỉ được ở utils; việc của nó là chép file |
+| `getPerson` ở đâu | đề không nói lớp | `FileService` (+ `findPerson` đổi sang DTO); người lấy từ `PersonRepository` theo `path` | tính toán/report → service; controller không được thấy `Person` |
+| `copyWordOneTimes` ở đâu | đề: `public static`; bản trước: `utils/FileUtils` (static, tự đọc + ghi tệp) | `service/FileService`, **không `static`**; dòng của nguồn lấy từ `TextRepository`, ghi qua `saveLineList` | tờ checklist 1.1: đọc tệp ở Main, nghiệp vụ ở service; luật thầy: static chỉ ở utils/constants/main. **Đề đặt `public static boolean copyWordOneTimes(...)`, tờ checklist bắt đọc tệp ở Main và nghiệp vụ ở service — hỏi thầy nếu thầy muốn giữ `static`** |
 | File mẫu | bản cũ tự sinh `test.txt` lúc chạy | **giao sẵn** `test.txt`, `story.txt` ở gốc project | ít code hơn; đường dẫn `d:\test.txt` của đề chỉ có trên máy tác giả |
 | Số tiền in ra | đề: `1000.0` | `%.1f` + `Locale.US` | khớp đề; lương lớn không bị in kiểu `1.5E7`. Lương lẻ bị làm tròn 1 chữ số (`1234.56` → `1234.6`) |
 | Kiến trúc | bản cũ: `bo/ui/utils`, Scanner trong `Validator` | MVC theo Guide, Scanner **chỉ ở `main`** | luật thầy |
+| Đọc tệp | bản trước: `FileService.getPerson` và `FileUtils.copyWordOneTimes` tự mở tệp | **Main** đọc bằng `FileUtils.readLines` → `FileRequestDTO.lineList` → repository `loadData` | tờ checklist 1.1: *"Toàn bộ việc nhập dữ liệu/Validate/đọc từ file/mã hóa thực hiện ở Main"*. Màn hình không đổi: lỗi đọc vẫn in ngay sau hai câu hỏi |
+| Repository | bản trước: không có | `PersonRepository` (`personMap`) + `TextRepository` (`lineMap`) | tờ checklist 1.1: *"Bắt buộc phải có repository"* |
+| View | bản trước: `setReport(report)` + `showMessage(String)` | field `responseDTO` + `setResponseDTO` + `display()` không tham số; controller render **1 lần/luồng** | tờ checklist 1.1: *"View ... nhận qua thuộc tính (Nên để ResponseDTO)"* |
+| `ReportResponseDTO` | bản trước | đổi thành `FileResponseDTO` (thêm `message` cho "Copy done...") | một ResponseDTO cho cả hai luồng, View không nhận tham số |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `Main` chỉ dùng `FileController`, `FileRequestDTO`, `Validation`, `FileUtils` (đọc tệp ở `Main.findPerson`/`copyText`). `FileController` không import `model`. Có `repository/PersonRepository`, `TextRepository`. `FileView.display()` không tham số, mỗi luồng gọi đúng 1 lần. |
+| **1.3 / 1.4** tên | Lớp là danh từ (`PersonRepository`, `FileResponseDTO`…); hàm mở đầu bằng động từ (`loadData`, `getPersonList`, `saveLineList`, `displayResult`). |
+| **1.5** tên biến | `personMap`, `lineMap`, `lineList`, `personList`, `foundList`, `rowList`, `wordSet`, `partArray` — collection đuôi `List`/`Set`/`Map`, mảng đuôi `Array`. |
+| **2.6 / 3.7** khai báo | Mọi biến cục bộ khai báo **đầu block** và **khởi tạo luôn**: `String line = "";` (Main), `int choice = 0;`, `double salary = Constants.DEFAULT_SALARY;` (`PersonRepository.toSalary`). |
+| **2.8** dòng trống | Một dòng trống giữa các field/hằng (xem `Constants`, `Message`), sau vùng khai báo, trước mỗi comment, sau `}` của mỗi khối. |
+| **3.3** ngoặc | `if ((choice < min) \|\| (choice > max))`, `if ((input == null) \|\| input.trim().isEmpty())`, `... \|\| (salary < Constants.MIN_MONEY)`. |
+| **3.4** lớp chỉ có static | `Main`, `FileUtils`, `Validation`, `Constants`, `Message`: `final` + constructor `private`. |
+| **3.8** cộng chuỗi | Không `+=` chuỗi; `Person.toString()` dùng `String.format(Constants.PERSON_FORMAT, ...)`. |

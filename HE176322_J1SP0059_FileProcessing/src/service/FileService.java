@@ -1,20 +1,23 @@
 package service;
 
 import constants.Constants;
+import constants.Message;
 import dto.FileRequestDTO;
+import dto.FileResponseDTO;
 import dto.PersonResponseDTO;
-import dto.ReportResponseDTO;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import model.Person;
-import utils.FileUtils;
+import repository.PersonRepository;
+import repository.TextRepository;
 
 /**
- * SERVICE and Strategy CONTEXT: the business work of the two functions - turning the
- * lines of the file into persons, keeping those who earn enough, sorting them and naming
- * the richest and the poorest; and the word copy.
+ * SERVICE and Strategy CONTEXT: the business work of the two functions - keeping the
+ * persons who earn enough, sorting them and naming the richest and the poorest; and
+ * finding every single word of a text. The data comes from the repositories.
  *
  * @author HE176322
  */
@@ -23,101 +26,102 @@ public class FileService {
     // The order of the result list (SalaryComparator: poorest first).
     private Comparator<Person> personOrder;
 
-    // Creates the service with the order the result must be sorted in.
+    // The persons of each person file main read (Service -> Repository -> Model).
+    private PersonRepository personRepository;
+
+    // The lines of each text file of "Copy text".
+    private TextRepository textRepository;
+
+    // Creates the service with the order the result must be sorted in, and its two stores.
     public FileService(Comparator<Person> personOrder) {
         this.personOrder = personOrder;
+        personRepository = new PersonRepository();
+        textRepository = new TextRepository();
     }
 
-    // The brief's getPerson: every person of the file whose salary is greater than or
-    // equal to money, sorted so the person with the least money is the head of the list
-    // and the one with the most is the last.
-    // brief: "public List<Person> getPerson(String path, double money)"
+    // The brief's getPerson: every person of the file at path whose salary is greater than
+    // or equal to money, sorted so the person with the least money is the head of the list
+    // and the one with the most is the last. The persons come from the repository (main
+    // read the file), so the path is the key of that file there.
+    // brief: "public List<Person> getPerson(String path, double money) throws Exception"
     public List<Person> getPerson(String path, double money) throws Exception {
-        ArrayList<String> lines = FileUtils.readLines(path);
-        ArrayList<Person> persons = new ArrayList<>();
-        // one line of the file = one person
-        for (String line : lines) {
-            // blank lines are not persons
-            if (line.trim().isEmpty()) {
-                continue;
-            }
-            Person person = toPerson(line);
+        ArrayList<Person> foundList = new ArrayList<>();
+
+        // look at every person the repository keeps for that file
+        for (Person person : personRepository.getPersonList(path)) {
             // the brief: keep those with salary >= the money entered
             if (person.getSalary() >= money) {
-                persons.add(person);
+                foundList.add(person);
             }
         }
+
         // Strategy: sort() does the sorting, personOrder decides the order;
         // the sort is stable, so equal salaries keep their file order
-        Collections.sort(persons, personOrder);
-        return persons;
+        Collections.sort(foundList, personOrder);
+        return foundList;
     }
 
-    // Function 1 for the controller: runs getPerson and turns its list into the report
-    // the view prints (rows + max + min).
-    public ReportResponseDTO findPerson(FileRequestDTO requestDTO) throws Exception {
-        // brief: getPerson returns a List
-        List<Person> persons = getPerson(requestDTO.getPath(), requestDTO.getMoney());
-        ArrayList<PersonResponseDTO> rows = new ArrayList<>();
-        // copy each model object into the DTO the view is allowed to see
-        for (Person person : persons) {
-            rows.add(new PersonResponseDTO(person.getName(), person.getAddress(),
+    // The brief's copyWordOneTimes: finds every single word of the source file, each word
+    // counted only once, and writes them into the new file, one word per line, in the
+    // order they first appear. The lines of the source come from the repository.
+    // brief: "public static boolean copyWordOneTimes(String source, String destination)" -
+    // no static here: static is kept for utils/constants/main (see HUONG-DAN)
+    public boolean copyWordOneTimes(String source, String destination) throws Exception {
+        LinkedHashSet<String> wordSet = new LinkedHashSet<>();
+
+        // look at every line of the source file
+        for (String line : textRepository.getLineList(source)) {
+            // split the line at spaces/tabs; add() ignores repeated words
+            for (String word : line.trim().split(Constants.WORD_SEPARATOR)) {
+                // a blank line splits into one empty "word": skip it
+                if (!word.isEmpty()) {
+                    wordSet.add(word);
+                }
+            }
+        }
+
+        // one word per line in the new file ("Can't write file" comes from here)
+        textRepository.saveLineList(destination, new ArrayList<>(wordSet));
+        return true;
+    }
+
+    // Function 1 for the controller: keeps the persons of the file main read, runs getPerson
+    // and turns its list into the answer the view prints (rows + Max + Min).
+    public FileResponseDTO findPerson(FileRequestDTO requestDTO) throws Exception {
+        FileResponseDTO responseDTO = new FileResponseDTO();
+        ArrayList<PersonResponseDTO> rowList = new ArrayList<>();
+
+        personRepository.loadData(requestDTO);
+
+        // copy each person getPerson found into the DTO the view is allowed to see
+        for (Person person : getPerson(requestDTO.getPath(), requestDTO.getMoney())) {
+            rowList.add(new PersonResponseDTO(person.getName(), person.getAddress(),
                     person.getSalary()));
         }
-        ReportResponseDTO report = new ReportResponseDTO();
-        report.setPersons(rows);
-        // the list is sorted: the head earns the least, the last the most
-        if (!persons.isEmpty()) {
-            report.setMinName(persons.get(0).getName());
-            report.setMaxName(persons.get(persons.size() - 1).getName());
+
+        responseDTO.setPersonList(rowList);
+
+        // the rows keep the sorted order: the head earns the least, the last the most
+        if (!rowList.isEmpty()) {
+            responseDTO.setMinName(rowList.get(0).getName());
+            responseDTO.setMaxName(rowList.get(rowList.size() - 1).getName());
         }
-        return report;
+
+        return responseDTO;
     }
 
-    // Function 2 for the controller: copies every single word of the source into the
-    // destination through the brief's copyWordOneTimes.
-    public boolean copyText(FileRequestDTO requestDTO) throws Exception {
-        return FileUtils.copyWordOneTimes(requestDTO.getSource(),
-                requestDTO.getDestination());
-    }
+    // Function 2 for the controller: keeps the lines main read from the source, runs
+    // copyWordOneTimes and answers with "Copy done..." when the new file is written.
+    public FileResponseDTO copyText(FileRequestDTO requestDTO) throws Exception {
+        FileResponseDTO responseDTO = new FileResponseDTO();
 
-    // Turns one line "name;address;salary" into a Person.
-    private Person toPerson(String line) {
-        // -1 keeps empty fields: "Lan;Hue;" gives 3 parts, the last empty
-        String[] parts = line.split(Constants.SEPARATOR, Constants.KEEP_EMPTY_FIELDS);
-        Person person = new Person();
-        person.setName(parts[Constants.INDEX_NAME].trim());
-        person.setAddress(getPart(parts, Constants.INDEX_ADDRESS));
-        person.setSalary(toSalary(getPart(parts, Constants.INDEX_SALARY)));
-        return person;
-    }
+        textRepository.loadData(requestDTO);
 
-    // Returns one field of a split line, or an empty text when the line is too short to
-    // have it.
-    private String getPart(String[] parts, int index) {
-        // the line stops before this field
-        if (index >= parts.length) {
-            return "";
+        // the brief's copy status: true means the new file is written
+        if (copyWordOneTimes(requestDTO.getSource(), requestDTO.getDestination())) {
+            responseDTO.setMessage(Message.COPY_DONE);
         }
-        return parts[index].trim();
-    }
 
-    // The brief: "If the salary of some person is in wrong format (not a number, not
-    // inputted) to set it to default value zero", and "the amount not less than 0".
-    private double toSalary(String text) {
-        double salary;
-        // a wrong format must not stop the reading of the other lines
-        try {
-            salary = Double.parseDouble(text);
-        } catch (NumberFormatException e) {
-            // "abc" or "": wrong format -> default 0
-            return Constants.DEFAULT_SALARY;
-        }
-        // negative, NaN or infinite: not a legal amount -> default 0
-        if (Double.isNaN(salary) || Double.isInfinite(salary)
-                || salary < Constants.MIN_MONEY) {
-            return Constants.DEFAULT_SALARY;
-        }
-        return salary;
+        return responseDTO;
     }
 }

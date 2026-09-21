@@ -11,8 +11,10 @@ public class Person {
 
     // Name of the person.
     private String name;
+
     // Address of the person.
     private String address;
+
     // Salary; a double, not a String, because the program COMPARES and SORTS salaries,
     // and as text "1000" would come before "700".
     private double salary;
@@ -62,6 +64,6 @@ public class Person {
     // data file, "name;address;salary".
     @Override
     public String toString() {
-        return name + Constants.SEPARATOR + address + Constants.SEPARATOR + salary;
+        return String.format(Constants.PERSON_FORMAT, name, address, salary);
     }
 }
