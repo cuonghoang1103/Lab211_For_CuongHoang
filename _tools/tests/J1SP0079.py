@@ -78,6 +78,13 @@ RUNS = [
     # time the existing self.zip must not be zipped into itself
     ("1\ndata\ndata\nself\n1\ndata\ndata\nself\n3\n",
      MENU + COMP + RESULT + LIST + MENU + COMP + RESULT + LIST + MENU),
+    # the brief's Test.docx: "Enter Source Folder: D:/Test2/FileName1.txt" zips ONE
+    # file into D:/Test/FileZip.zip, then "D:/Test/FileZip.zip" is unzipped into the
+    # same folder "D:/Test/" (trailing slash) - here with data/hello.txt
+    ("1\ndata/hello.txt\nTest\nFileZip\n2\nTest/FileZip.zip\nTest/\n3\n",
+     MENU + COMP + RESULT + "File name hello.txt\nSuccessfully\n"
+     + MENU + EXTR + RESULT + "File name hello.txt\nSuccessfully\n"
+     + MENU),
     # menu validation and blank answers are asked again
     ("abc\n\n0\n4\n1\n\ndata\n  \nout\n\nz\n3\n",
      MENU + "You must input a number.\n"

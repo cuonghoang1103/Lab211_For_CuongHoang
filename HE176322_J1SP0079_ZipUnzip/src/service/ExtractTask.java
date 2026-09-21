@@ -35,6 +35,10 @@ public class ExtractTask extends ArchiveTask {
     @Override
     protected void process(ArchiveJob job) throws IOException {
         File destination = new File(job.getDestinationPath());
+        Enumeration<? extends ZipEntry> entryEnumeration = null;
+        ZipEntry entry = null;
+        File target = null;
+
         // the zip file is closed even when an entry fails
         try (ZipFile zip = openZip(job.getSourcePath())) {
             // a valid zip with no entry at all: nothing to report as done
@@ -42,27 +46,36 @@ public class ExtractTask extends ArchiveTask {
                 throw new IOException(String.format(Message.NO_ENTRY,
                         job.getSourcePath()));
             }
-            Enumeration<? extends ZipEntry> entries = zip.entries();
-            // one entry per turn, in the order they were zipped
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                File target = new File(destination, entry.getName());
+
+            // the entries, in the order they were zipped
+            entryEnumeration = zip.entries();
+
+            // one entry per turn
+            while (entryEnumeration.hasMoreElements()) {
+                entry = entryEnumeration.nextElement();
+                target = new File(destination, entry.getName());
+
                 // zip slip guard: never write outside the destination folder
                 if (!FileUtils.isInside(target, destination)) {
                     throw new IOException(String.format(Message.ENTRY_OUTSIDE,
                             entry.getName()));
                 }
+
                 // a folder entry only creates the folder
                 if (entry.isDirectory()) {
                     FileUtils.makeFolder(target);
                 } else {
                     // a file entry: make its folder, then copy its bytes
                     FileUtils.makeFolder(target.getParentFile());
-                    // both streams of this one entry are closed afterwards
-                    try (InputStream in = zip.getInputStream(entry);
-                            OutputStream out = new FileOutputStream(target)) {
-                        FileUtils.copyStream(in, out);
+
+                    // the bytes of this one entry, read from the zip
+                    try (InputStream in = zip.getInputStream(entry)) {
+                        // written to the target file; both streams are closed afterwards
+                        try (OutputStream out = new FileOutputStream(target)) {
+                            FileUtils.copyStream(in, out);
+                        }
                     }
+
                     job.addFileName(entry.getName());
                 }
             }

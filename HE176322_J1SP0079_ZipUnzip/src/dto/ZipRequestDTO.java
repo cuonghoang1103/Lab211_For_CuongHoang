@@ -10,8 +10,10 @@ public class ZipRequestDTO {
 
     // Folder to zip, or zip file to unzip.
     private String sourcePath;
+
     // Destination folder.
     private String destinationPath;
+
     // Zip file name (compression only).
     private String zipName;
 

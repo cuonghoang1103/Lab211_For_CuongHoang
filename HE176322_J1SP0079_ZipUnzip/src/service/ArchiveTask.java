@@ -14,30 +14,36 @@ import utils.FileUtils;
  */
 public abstract class ArchiveTask {
 
-    // The template method: runs the steps in their fixed order.
+    // The template method: runs the steps in their fixed order; true when every step
+    // worked (the brief: the functions return the status).
     public final boolean execute(ArchiveJob job) {
-        job.setFileNames(new ArrayList<String>());
+        File destination = new File(job.getDestinationPath());
+
+        // a fresh job: no file has gone through, nothing has failed
+        job.setFileNameList(new ArrayList<String>());
         job.setError("");
+
         // any IO problem stops the job and becomes its reason
         try {
             checkSource(job);
-            File destination = new File(job.getDestinationPath());
+
             // both jobs: the destination folder is created when missing
             if (!FileUtils.makeFolder(destination)) {
                 throw new IOException(String.format(Message.CANNOT_CREATE_FOLDER,
                         job.getDestinationPath()));
             }
+
             process(job);
             return true;
         } catch (IOException e) {
-            // the message is shown by the view before "Failed"
+            // the reason is shown by the view before "Failed"
             job.setError(e.getMessage());
             return false;
         }
     }
 
-    // Step 1, different for each job: the source must exist (a folder to zip, a file to
-    // unzip).
+    // Step 1, different for each job: the source must exist (a folder or a file to zip, a
+    // zip file to unzip).
     protected abstract void checkSource(ArchiveJob job) throws IOException;
 
     // Step 3, different for each job: zip or unzip, recording every file name into the

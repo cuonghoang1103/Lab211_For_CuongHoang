@@ -28,19 +28,24 @@ public final class FileUtils {
     // Adds every folder and file under "folder" to the list, depth-first and sorted by
     // name (listFiles returns them in whatever order the disk likes, so two runs could
     // otherwise zip in a different order).
-    public static void listAll(File folder, ArrayList<File> result) {
-        File[] children = folder.listFiles();
+    public static void listAll(File folder, ArrayList<File> fileList) {
+        File[] childArray = folder.listFiles();
+
         // null means the folder cannot be read: nothing to add
-        if (children == null) {
+        if (childArray == null) {
             return;
         }
-        Arrays.sort(children);
+
+        // the same order on every machine
+        Arrays.sort(childArray);
+
         // a folder is added, then walked; a file is just added
-        for (File child : children) {
-            result.add(child);
+        for (File child : childArray) {
+            fileList.add(child);
+
             // go down into sub-folders
             if (child.isDirectory()) {
-                listAll(child, result);
+                listAll(child, fileList);
             }
         }
     }
@@ -48,7 +53,7 @@ public final class FileUtils {
     // The name of "file" relative to "folder", with "/" separators on every system (the
     // zip format demands "/"), and a trailing "/" for a folder: data +
     // data/docs/guide.txt gives "docs/guide.txt".
-    public static String relativeName(File folder, File file) {
+    public static String getRelativeName(File folder, File file) {
         return folder.toURI().relativize(file.toURI()).getPath();
     }
 
@@ -61,7 +66,10 @@ public final class FileUtils {
     // Tells whether "target" lies INSIDE "folder" once "..", "." and links are resolved -
     // the zip slip guard: an entry named ../../x must not escape the destination folder.
     public static boolean isInside(File target, File folder) throws IOException {
-        String root = folder.getCanonicalPath() + File.separator;
+        String root = String.format(Constants.FOLDER_FORMAT, folder.getCanonicalPath(),
+                File.separator);
+
+        // the canonical path of the target must start with the folder's own path
         return target.getCanonicalPath().startsWith(root);
     }
 
@@ -69,12 +77,13 @@ public final class FileUtils {
     // is the shared ZipOutputStream, and closing it would end the whole zip after the
     // first file.
     public static void copyStream(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[Constants.BUFFER_SIZE];
-        int count = in.read(buffer);
+        byte[] bufferArray = new byte[Constants.BUFFER_SIZE];
+        int count = in.read(bufferArray);
+
         // read() returns -1 at the end of the stream (or of the zip entry)
         while (count != Constants.END_OF_STREAM) {
-            out.write(buffer, 0, count);
-            count = in.read(buffer);
+            out.write(bufferArray, 0, count);
+            count = in.read(bufferArray);
         }
     }
 }

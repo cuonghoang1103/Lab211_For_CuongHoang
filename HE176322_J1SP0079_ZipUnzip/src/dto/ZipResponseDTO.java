@@ -12,15 +12,17 @@ public class ZipResponseDTO {
 
     // The status the brief's compressTo/extractTo return.
     private boolean success;
+
     // Names of the files zipped or unzipped.
-    private ArrayList<String> fileNames;
+    private ArrayList<String> fileNameList;
+
     // Why the job failed; empty on success.
     private String error;
 
     // JavaBean constructor: an empty result, filled through the setters.
     public ZipResponseDTO() {
-        this.fileNames = new ArrayList<>();
-        this.error = "";
+        fileNameList = new ArrayList<>();
+        error = "";
     }
 
     // Tells whether the job succeeded.
@@ -34,13 +36,13 @@ public class ZipResponseDTO {
     }
 
     // Returns the names of the files.
-    public ArrayList<String> getFileNames() {
-        return fileNames;
+    public ArrayList<String> getFileNameList() {
+        return fileNameList;
     }
 
     // Sets the names of the files.
-    public void setFileNames(ArrayList<String> fileNames) {
-        this.fileNames = fileNames;
+    public void setFileNameList(ArrayList<String> fileNameList) {
+        this.fileNameList = fileNameList;
     }
 
     // Returns the reason of a failure.
