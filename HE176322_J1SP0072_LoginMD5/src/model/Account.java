@@ -1,29 +1,38 @@
 package model;
 
+import constants.Constants;
 import java.util.Date;
 
 /**
  * MODEL: one account of the brief - username, password, name, phone, email, address, date
- * of birth - plus the ID addAccount returns.
+ * of birth - plus the id addAccount returns. The password is only ever the MD5 digest main
+ * computed.
  *
  * @author HE176322
  */
 public class Account {
 
-    // Unique ID; the repository gives it (last ID + 1).
+    // Unique id; the repository gives it (last id + 1).
     private int id;
+
     // Login name; unique, compared without regard to case.
     private String username;
+
     // MD5 digest of the password (32 hex digits); the plain text is never kept.
     private String password;
+
     // Full name, used in "Hi ".
     private String name;
+
     // Phone number: 10 or 11 digits.
     private String phone;
+
     // Email address.
     private String email;
+
     // Address (the brief puts no rule on it).
     private String address;
+
     // Date of birth, parsed from dd/MM/yyyy.
     private Date dob;
 
@@ -31,12 +40,12 @@ public class Account {
     public Account() {
     }
 
-    // Returns the ID.
+    // Returns the id.
     public int getId() {
         return id;
     }
 
-    // Sets the ID.
+    // Sets the id.
     public void setId(int id) {
         this.id = id;
     }
@@ -112,9 +121,9 @@ public class Account {
     }
 
     // Polymorphism: overrides Object.toString() so an account reads as one line in the
-    // debugger.
+    // debugger (id, username, name - never the digest).
     @Override
     public String toString() {
-        return id + " " + username + " " + name;
+        return String.format(Constants.ACCOUNT_FORMAT, id, username, name);
     }
 }

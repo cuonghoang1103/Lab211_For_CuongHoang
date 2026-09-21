@@ -9,20 +9,25 @@ public final class Constants {
 
     // Smallest option of the main menu.
     public static final int MENU_MIN = 1;
+
     // Menu option: add an account.
     public static final int MENU_ADD = 1;
+
     // Menu option: login.
     public static final int MENU_LOGIN = 2;
+
     // Menu option: exit; also the largest option.
     public static final int MENU_EXIT = 3;
 
-    // ID of the very first account.
+    // Id of the very first account.
     public static final int FIRST_ID = 1;
 
     // The brief: date of birth is dd/MM/yyyy.
     public static final String DOB_FORMAT = "dd/MM/yyyy";
+
     // The brief: a phone number is 10 or 11 digits and nothing else.
     public static final String PHONE_REGEX = "^\\d{10,11}$";
+
     // A modest email shape, like the brief's nghianv@t.com: a local part, an "@", a
     // domain, a dot, and a suffix of at least two letters.
     public static final String EMAIL_REGEX
@@ -30,11 +35,18 @@ public final class Constants {
 
     // Name of the hash algorithm the brief asks for.
     public static final String HASH_ALGORITHM = "MD5";
+
     // One byte of the digest as two lower-case hex digits, zero padded.
     public static final String HEX_FORMAT = "%02x";
 
-    // The answer that opens the change-password screen (any case).
+    // The answer that opens the change-password screen (typed in any case).
     public static final String YES = "Y";
+
+    // Any other answer to "Y/N": not now.
+    public static final String NO = "N";
+
+    // How an account reads in the debugger: id, username, name.
+    public static final String ACCOUNT_FORMAT = "%d %s %s";
 
     // Private constructor: a holder of constants is never instantiated.
     private Constants() {

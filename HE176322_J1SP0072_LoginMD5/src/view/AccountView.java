@@ -4,34 +4,36 @@ import constants.Message;
 import dto.AccountResponseDTO;
 
 /**
- * VIEW: the only place (with main) allowed to print results.
+ * VIEW: the only place (with main) allowed to print results. It receives the data through
+ * its attribute (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class AccountView {
 
-    // The account that has just logged in, handed over by the controller.
-    private AccountResponseDTO account;
+    // The answer to print, handed over by the controller.
+    private AccountResponseDTO responseDTO;
 
-    // Receives the account the next display() call greets.
-    public void setAccount(AccountResponseDTO account) {
-        this.account = account;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(AccountResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints the welcome screen of the brief: the title, "Hello ", and the question "Hi ,
-    // do you want change password now?
+    // Prints what the controller set: a one-line result, or the welcome screen of the brief
+    // (the title, "Hello <username>" and the change-password question, left open for the
+    // answer main reads next).
     public void display() {
-        // nothing logged in: nothing to greet
-        if (account == null) {
-            return;
+        // a one-line result: "Account [NghiaNV] has been added with id 1." or "Password has
+        // been changed."
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
         }
-        System.out.println(Message.TITLE_WELCOME);
-        System.out.println(String.format(Message.HELLO, account.getUsername()));
-        System.out.print(String.format(Message.ASK_CHANGE, account.getName()));
-    }
 
-    // Prints a one-line result such as "Login fail.".
-    public void showMessage(String message) {
-        System.out.println(message);
+        // the welcome screen of a successful login
+        if (responseDTO.getUsername() != null) {
+            System.out.println(Message.TITLE_WELCOME);
+            System.out.println(String.format(Message.HELLO, responseDTO.getUsername()));
+            System.out.print(String.format(Message.ASK_CHANGE, responseDTO.getName()));
+        }
     }
 }

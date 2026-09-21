@@ -1,7 +1,10 @@
 package dto;
 
+import java.util.Date;
+
 /**
- * DTO carrying what the user typed, FROM main INTO the controller.
+ * DTO carrying what the user typed FROM main INTO the controller - every value already
+ * checked by main, every password already turned into its MD5 digest by main.
  *
  * @author HE176322
  */
@@ -9,24 +12,30 @@ public class AccountRequestDTO {
 
     // Username typed.
     private String username;
-    // Password typed (plain text, hashed by the repository).
+
+    // MD5 digest of the password typed (the plain text never leaves main).
     private String password;
+
     // Name typed.
     private String name;
-    // Phone typed.
+
+    // Phone typed (10 or 11 digits).
     private String phone;
+
     // Email typed.
     private String email;
+
     // Address typed.
     private String address;
-    // Date of birth typed (dd/MM/yyyy expected).
-    private String dob;
-    // Old password typed on the change screen.
+
+    // Date of birth typed, already parsed from dd/MM/yyyy.
+    private Date dob;
+
+    // MD5 digest of the old password typed on the change screen.
     private String oldPassword;
-    // New password typed.
+
+    // MD5 digest of the new password typed (twice, the same) on the change screen.
     private String newPassword;
-    // New password typed again.
-    private String renewPassword;
 
     // Creates an empty request; main fills it through the setters.
     public AccountRequestDTO() {
@@ -42,12 +51,12 @@ public class AccountRequestDTO {
         this.username = username;
     }
 
-    // Returns the password typed (plain text, hashed by the repository).
+    // Returns the digest of the password.
     public String getPassword() {
         return password;
     }
 
-    // Sets the password typed (plain text, hashed by the repository).
+    // Sets the digest of the password.
     public void setPassword(String password) {
         this.password = password;
     }
@@ -92,43 +101,33 @@ public class AccountRequestDTO {
         this.address = address;
     }
 
-    // Returns the date of birth typed (dd/MM/yyyy expected).
-    public String getDob() {
+    // Returns the date of birth.
+    public Date getDob() {
         return dob;
     }
 
-    // Sets the date of birth typed (dd/MM/yyyy expected).
-    public void setDob(String dob) {
+    // Sets the date of birth.
+    public void setDob(Date dob) {
         this.dob = dob;
     }
 
-    // Returns the old password typed on the change screen.
+    // Returns the digest of the old password.
     public String getOldPassword() {
         return oldPassword;
     }
 
-    // Sets the old password typed on the change screen.
+    // Sets the digest of the old password.
     public void setOldPassword(String oldPassword) {
         this.oldPassword = oldPassword;
     }
 
-    // Returns the new password typed.
+    // Returns the digest of the new password.
     public String getNewPassword() {
         return newPassword;
     }
 
-    // Sets the new password typed.
+    // Sets the digest of the new password.
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
-    }
-
-    // Returns the new password typed again.
-    public String getRenewPassword() {
-        return renewPassword;
-    }
-
-    // Sets the new password typed again.
-    public void setRenewPassword(String renewPassword) {
-        this.renewPassword = renewPassword;
     }
 }
