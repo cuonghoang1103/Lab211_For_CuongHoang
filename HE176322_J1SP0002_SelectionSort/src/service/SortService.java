@@ -4,54 +4,80 @@ import dto.SortRequestDTO;
 import dto.SortResponseDTO;
 import java.util.Random;
 import model.NumberArray;
+import repository.NumberRepository;
 
 /**
- * Service: generates the random array and sorts it with selection sort.
+ * SERVICE: the business of the program - generates the random numbers, keeps them in the
+ * repository and sorts them with selection sort. Called only by the controller; no print,
+ * no keyboard.
  *
  * @author HE176322
  */
 public class SortService {
 
-    // source of random numbers, reused for every element
-    private Random random = new Random();
+    // Keeps the array the service works on (Service -> Repository -> Model).
+    private NumberRepository numberRepository;
 
-    // generate the array, keep its unsorted text, sort it, return both texts
-    public SortResponseDTO sortRandomArray(SortRequestDTO requestDTO) {
-        NumberArray array = generateArray(requestDTO.getSize());
-        SortResponseDTO response = new SortResponseDTO();
-        response.setUnsorted(array.toString());
-        selectionSort(array);
-        response.setSorted(array.toString());
-        return response;
+    // Source of random numbers; one object reused for every element.
+    private Random random;
+
+    // Creates the service with an empty repository.
+    public SortService() {
+        numberRepository = new NumberRepository();
+        random = new Random();
     }
 
-    // selection sort ascending, in place - the brief's algorithm
-    private void selectionSort(NumberArray array) {
-        int size = array.getSize();
+    // The brief's Function 2: generates the array, keeps it in the repository, and returns
+    // it as text before and after the selection sort.
+    public SortResponseDTO sortRandomArray(SortRequestDTO requestDTO) {
+        SortResponseDTO responseDTO = new SortResponseDTO();
+        NumberArray numberArray = null;
+
+        // keep the random numbers in the repository, then work on the array it holds
+        numberRepository.saveNumberArray(generateValueArray(requestDTO.getSize()));
+        numberArray = numberRepository.getNumberArray();
+
+        // take the text BEFORE sorting, sort, then take the text again
+        responseDTO.setUnsortedArray(numberArray.toString());
+        sortBySelection(numberArray);
+        responseDTO.setSortedArray(numberArray.toString());
+        return responseDTO;
+    }
+
+    // The brief's selection sort, ascending and in place: find the minimum of the unsorted
+    // part and swap it with the first element of that part, until one number is left.
+    private void sortBySelection(NumberArray numberArray) {
+        int size = numberArray.getSize();
+
         // i is the first position of the unsorted part
-        for (int i = 0; i < size - 1; i++) {
+        for (int i = 0; i < (size - 1); i++) {
             int minIndex = i;
+
             // find the minimum of the unsorted part
             for (int j = i + 1; j < size; j++) {
                 // strictly smaller: on a tie keep the first one found
-                if (array.getValue(j) < array.getValue(minIndex)) {
+                if (numberArray.getValue(j) < numberArray.getValue(minIndex)) {
                     minIndex = j;
                 }
             }
+
             // bring the minimum to the front of the unsorted part
             if (minIndex != i) {
-                array.swap(i, minIndex);
+                numberArray.swap(i, minIndex);
             }
         }
     }
 
-    // random numbers in [0, size), like the brief's example
-    private NumberArray generateArray(int size) {
-        int[] values = new int[size];
-        // fill every position with a random number
+    // Generates "random integer in number range input": each number is in [0, size), like
+    // the brief's screen (size 10 gives numbers from 0 to 9).
+    private int[] generateValueArray(int size) {
+        int[] valueArray = new int[size];
+
+        // fill every position with a random number from 0 to size - 1
         for (int i = 0; i < size; i++) {
-            values[i] = random.nextInt(size);
+            valueArray[i] = random.nextInt(size);
         }
-        return new NumberArray(values);
+
+        return valueArray;
     }
 }
