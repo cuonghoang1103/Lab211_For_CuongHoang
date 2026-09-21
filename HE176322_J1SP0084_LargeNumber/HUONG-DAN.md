@@ -1,7 +1,8 @@
 # J1.S.P0084 — Large Number (nhân số lớn)
 
 > Bài thuật toán **vẫn phải MVC** (thầy: *"các bài liên quan thuật toán … cũng phải làm MVC"*,
-> QUY-TAC-THAY §2). Khung giống hệt bài mẫu P0001: thuật toán ở **service**, không repository.
+> QUY-TAC-THAY §2). Thuật toán ở **service**; **repository giữ hai số** mà thuật toán làm việc
+> (tờ checklist giấy 1.1: *"Bắt buộc phải có repository"*).
 
 | | |
 |---|---|
@@ -10,10 +11,16 @@
 | Chạy | NetBeans: **File ▸ Open Project** → **F6** |
 | Lớp chạy | `main.Main` |
 | Kiểm tự động | `python3 _tools/verify.py J1SP0084` → 9 kịch bản × 2 locale |
+| Tờ checklist giấy của thầy | 25 mục — bài này đạt thế nào: **mục 10** |
 
 ---
 
 ## 1. Đề bài nói gì
+
+> **Đề gốc thầy phát** (`J1.S.P0084.txt`): *"multiply two digit number inputted from keyboard then
+> display result to screen. Note: size of inputted number is unlimited"*; Guidelines: *"Try to use
+> array to store the result and two digit number"*. Màn hình, 3 bước (Function 1–3) và các ghi chú
+> dưới đây lấy từ **bản đề mở rộng** trên trang CodeLab — không trái đề gốc.
 
 - Nhập **2 số nguyên** từ bàn phím, in **tích**. Số chữ số **không giới hạn** — vượt xa `long`.
 - Đọc mỗi số là **chuỗi**, đổi thành **mảng chữ số** 0–9.
@@ -101,33 +108,41 @@ Hai vòng lồng m × n + một vòng nhớ m + n → **O(m × n)**. Hai số 10
 
 ```
 HE176322_J1SP0084_LargeNumber/src/
-├── model/      LargeNumber                int[] digits (đơn vị ở index 0), getDigit, toString bỏ số 0 đầu
+├── model/      LargeNumber                int[] digitArray (đơn vị ở index 0), getDigit,
+│                                          toString bỏ số 0 đầu
+├── repository/ NumberRepository           GIỮ 2 số (LargeNumber firstNumber, secondNumber)
+│                                          saveFirstNumber/saveSecondNumber · getFirstNumber/getSecondNumber
 ├── dto/        MultiplyRequestDTO         2 chuỗi số            (main ──► controller)
 │               MultiplyResponseDTO        2 số + tích (chuỗi)   (controller ──► view)
 ├── service/    LargeNumberService         chuỗi → mảng, multiplyDigits ← thuật toán của đề ở ĐÂY
-├── controller/ MultiplyController         cắm Schoolbook vào service; service ──► view
-├── view/       MultiplyView               in "A x B = R"
+├── controller/ MultiplyController         service ──► view (setResponseDTO + display 1 lần)
+├── view/       MultiplyView               field responseDTO + display() không tham số: in "A x B = R"
 ├── constants/  Message, Constants         câu chữ · BASE = 10
 ├── utils/      Validation                 getDigits(chuỗi) → chuỗi toàn chữ số hoặc ném lỗi
-└── main/       Main                       Scanner + gọi controller 1 lần
+└── main/       Main                       final + private Main(); Scanner + gọi controller 1 lần
 ```
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
-| Sao có `service` mà không có `repository`? | Không lưu gì, không CRUD. Nhân số là **"tính toán nghiệp vụ"** (Guide) → service. |
+| **Sao bài có `repository`?** | Tờ checklist giấy 1.1: *"**Bắt buộc phải có repository**"* — kể cả bài thuật toán. Repository giữ **dữ liệu đầu vào mà thuật toán làm việc**: hai số đã đổi thành mảng chữ số (`NumberRepository.firstNumber`, `secondNumber`), với `save…/get…` đơn giản. Service **cất** hai số vào repository (bước 1 của đề) rồi **lấy từ repository** ra nhân (bước 2). Luồng đúng hình thầy vẽ: Controller → Service → Repository → Model. |
+| Sao nhân **không** nằm ở repository? | Checklist 1.1: *"Repository chỉ chứa data và CRUD methods đơn giản. Nếu có nghiệp vụ tính toán thì cần thêm Services"*. Nhân số là **"tính toán nghiệp vụ"** → `LargeNumberService`. |
 | Sao `LargeNumber` không tự nhân? | Model mô tả **con số** (chữ số, in ra chữ). Cách nhân là **nghiệp vụ** → nằm ở service. |
 | Sao `Validation` không dùng `Long.parseLong`? | Nó từ chối đúng những số bài này sinh ra để xử lý. Kiểm **từng ký tự** 0–9. |
 | Controller có thấy `LargeNumber` không? | Không — DTO chỉ chở **chuỗi**. |
+| **View nhận dữ liệu thế nào?** | Qua **thuộc tính**: `MultiplyView` có field `private MultiplyResponseDTO responseDTO` + `setResponseDTO(...)`; `display()` **không tham số**. Controller gọi `setResponseDTO` rồi `display()` **đúng 1 lần** (checklist 1.1). |
+| **Validate ở đâu?** | Chỉ ở **`Main`**: `inputNumber` đọc dòng, `Validation.getDigits` kiểm; sai thì in `You must input digit.` và hỏi lại. Chuỗi đã sạch mới vào `MultiplyRequestDTO`. |
 
-**Luồng chạy:**
+**Luồng chạy:** Main → RequestDTO → Controller → Service → Repository → Model; ResponseDTO → View **1 lần**.
 
 ```
-Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──► controller.multiply(dto)
-   controller ──► service.multiply(dto)
-                     ├─ toLargeNumber(first), toLargeNumber(second)
-                     ├─ multiplyDigits(a, b)             ← thuật toán của đề chạy ở đây
-                     └─ 3 × toString()                    ← bỏ số 0 đầu
-   controller ──► view.setResponse(response) ──► view.display()
+Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──► controller.multiply(requestDTO)   (1 lần)
+   controller ──► service.multiply(requestDTO)
+                     ├─ numberRepository.saveFirstNumber(toLargeNumber(first))     ← bước 1 của đề
+                     ├─ numberRepository.saveSecondNumber(toLargeNumber(second))
+                     ├─ multiplyDigits(repo.getFirstNumber(), repo.getSecondNumber())
+                     │                                    ← bước 2: thuật toán của đề chạy ở đây
+                     └─ 3 × toString()                    ← bước 3: bỏ số 0 đầu
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()   (1 lần)
 ```
 
 ### 3.1 Design Pattern trong bài
@@ -135,7 +150,7 @@ Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──►
 | Pattern | Ở đâu |
 |---|---|
 | **MVC** — thầy gọi là "MVC JSP" | controller điều hướng (như Servlet) · view hiển thị (như trang JSP) · model là JavaBean |
-| **Facade** | controller: `Main` chỉ gọi `controller.multiply(dto)`, không biết service/model/view phía sau |
+| **Facade** | controller: `Main` chỉ gọi `controller.multiply(requestDTO)`, không biết service/repository/model/view phía sau |
 
 > Bài chỉ 60 LOC nên **không thêm lớp pattern GoF** — ghi chú slide SOLID của thầy cảnh báo *"trừu tượng hoá sớm … vi phạm YAGNI"*. Phép nhân schoolbook nằm gọn trong **một hàm** `multiplyDigits` của `LargeNumberService`.
 
@@ -152,7 +167,7 @@ Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──►
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `LargeNumber` giữ chữ số · `LargeNumberService` đổi chuỗi + nhân · `Validation` kiểm · `MultiplyView` in |
+| **S** | `LargeNumber` giữ chữ số · `NumberRepository` giữ 2 số · `LargeNumberService` đổi chuỗi + nhân · `Validation` kiểm · `MultiplyView` in |
 | **O** | đổi thuật toán chỉ sửa **một hàm** `multiplyDigits` |
 | **L** | bài chưa có lớp con riêng — chỉ `extends Object` |
 | **I** | không có interface — bài chưa cần |
@@ -166,23 +181,26 @@ Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──►
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/LargeNumber.java` | `private int[] digits` + constructor rỗng (số 0) + constructor đủ + get/set + `getLength` · `getDigit` · `toString` |
+| 1 | `model/LargeNumber.java` | `private int[] digitArray` + constructor rỗng (số 0) + constructor đủ + get/set + `getLength` · `getDigit` · `toString` |
 | 2 | `dto/MultiplyRequestDTO.java`, `MultiplyResponseDTO.java` | JavaBean |
-| 3 | `service/LargeNumberService.java` | `multiply(dto)`; `toLargeNumber` (chuỗi → mảng); **`multiplyDigits`** (2 vòng lồng + vòng nhớ, `private`) |
-| 4 | `view/MultiplyView.java` | `setResponse` · `display` |
-| 5 | `controller/MultiplyController.java` | `new LargeNumberService()`; `multiply(dto)` |
-| 6 | `constants/Message.java`, `Constants.java` | prompt, lỗi, `BASE = 10` |
-| 7 | `utils/Validation.java` | `getDigits` kiểm từng ký tự |
-| 8 | `main/Main.java` | `inputNumber(sc, prompt)` + gọi controller **1 lần** |
+| 3 | `repository/NumberRepository.java` | 2 field `LargeNumber firstNumber`, `secondNumber` (constructor: số 0) + `saveFirstNumber` · `saveSecondNumber` · `getFirstNumber` · `getSecondNumber` |
+| 4 | `service/LargeNumberService.java` | constructor `new NumberRepository()`; `multiply(requestDTO)`; `toLargeNumber` (chuỗi → mảng); **`multiplyDigits`** (2 vòng lồng + vòng nhớ, `private`) |
+| 5 | `view/MultiplyView.java` | field `responseDTO` · `setResponseDTO` · `display()` không tham số |
+| 6 | `controller/MultiplyController.java` | `new LargeNumberService()`; `multiply(requestDTO)` = `setResponseDTO` + `display()` 1 lần |
+| 7 | `constants/Message.java`, `Constants.java` | prompt, lỗi, `BASE = 10` |
+| 8 | `utils/Validation.java` | `getDigits` kiểm từng ký tự |
+| 9 | `main/Main.java` | `public final class Main` + `private Main()`; `inputNumber(sc, prompt)` + gọi controller **1 lần** |
 
 **Bẫy hay gặp:**
 
-1. Lưu chữ số **trái sang phải** mà vẫn viết `result[i + j]` → sai vị trí. Hoặc đảo khi đọc, hoặc tính
+1. Lưu chữ số **trái sang phải** mà vẫn viết `resultArray[i + j]` → sai vị trí. Hoặc đảo khi đọc, hoặc tính
    `(lenA-1-i) + (lenB-1-j)`.
 2. Bỏ số 0 đầu bằng "dừng ở chữ số khác 0 đầu tiên" → nhập `0 × 5` in ra **dòng trống**. Vòng phải
    dừng ở **index 0** (`top > 0`).
 3. Nhớ ngay trong vòng nhân vẫn đúng nhưng dễ sai; tách **một vòng nhớ** riêng sau cùng thì gọn.
 4. `Integer.parseInt` để kiểm "có phải số" → số 20 chữ số bị báo sai.
+5. Viết `k < resultArray.length - 1` hay `top > 0 && digitArray[top] == 0` không ngoặc → sai
+   checklist 3.3. Viết `k < (resultArray.length - 1)` và `(top > 0) && (digitArray[top] == 0)`.
 
 ---
 
@@ -206,10 +224,11 @@ Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──►
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `result[i + j] += first.getDigit(i) * second.getDigit(j);` |
+| Breakpoint | dòng `resultArray[i + j] += first.getDigit(i) * second.getDigit(j);` |
 | Chạy | **Ctrl+F5**, nhập `123` và `45` |
-| Quan sát | tab **Variables**: `i`, `j`, mở mảng `result` — so với bảng mục 2.3 |
-| Vòng nhớ | breakpoint `result[k + 1] += …` — xem 15 → 5, ô sau +1 |
+| Quan sát | tab **Variables**: `i`, `j`, mở mảng `resultArray` — so với bảng mục 2.3 |
+| Vòng nhớ | breakpoint `resultArray[k + 1] += …` — xem 15 → 5, ô sau +1 |
+| Repository | breakpoint `firstNumber = numberRepository.getFirstNumber();` — mở `numberRepository` → `firstNumber.digitArray` = `{3, 2, 1}` (đơn vị trước) |
 | F7 | ở `LargeNumberService.multiply` bấm **F7** vào `multiplyDigits(...)` → vào 2 vòng lồng |
 | Bỏ 0 đầu | breakpoint trong `LargeNumber.toString`, xem `top` giảm từ 4 xuống 3 |
 
@@ -232,8 +251,10 @@ Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──►
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: `digits` `private` trong `LargeNumber`, đọc qua `getDigit`. **Kế thừa**: mọi lớp ngầm `extends Object`; `LargeNumber` ghi đè `toString()`. **Đa hình**: `toString()` có `@Override` — in tích tự bỏ số 0 đầu. **Trừu tượng**: `Main` chỉ gọi `controller.multiply(dto)`. |
-| `multiply` trả `LargeNumber` mà không `void`? | Tích là **số mới**; hai số vào không đổi. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: `digitArray` `private` trong `LargeNumber`, đọc qua `getDigit`. **Kế thừa**: mọi lớp ngầm `extends Object`; `LargeNumber` ghi đè `toString()`. **Đa hình**: `toString()` có `@Override` — in tích tự bỏ số 0 đầu. **Trừu tượng**: `Main` chỉ gọi `controller.multiply(requestDTO)`. |
+| `multiplyDigits` trả `LargeNumber` mà không `void`? | Tích là **số mới**; hai số vào không đổi. (`multiply` của service trả `MultiplyResponseDTO` — gói sẵn 3 chuỗi cho view.) |
+| `saveFirstNumber` trả `void`? | Chỉ **cất** số vào repository; lấy ra bằng `getFirstNumber()`. |
+| Sao tên `digitArray` mà không `digits`? | Checklist 1.5: *"tên biến kiểu Array kết thúc bằng Array"*. |
 | `getDigits` (Validation) trả `String` mà không `long`? | Số có thể dài hơn mọi kiểu số của Java. |
 | `toLargeNumber` sao `private`? | Chỉ `LargeNumberService` dùng. |
 | `getDigit`, `getLength` sao `public`? | `LargeNumberService` (lớp khác, package `service`) gọi. |
@@ -261,6 +282,25 @@ Main: đọc 2 số (hỏi lại khi sai) ──► MultiplyRequestDTO ──►
 | Chỗ | Đề / bản cũ | Bài này | Lý do |
 |---|---|---|---|
 | Kiến trúc | bản cũ `entity/ui`, `BigNumber.multiply` trong model, Scanner trong `Validator` | MVC theo Guide; nhân ở **service** | luật thầy; thuật toán = nghiệp vụ |
+| **Repository** | bản trước: không có (*"không lưu gì, không CRUD"*) | `repository/NumberRepository` giữ 2 số; service cất vào rồi lấy ra nhân | tờ checklist 1.1: *"Bắt buộc phải có repository"* |
+| View | bản trước: `setResponse(...)`, field `response` | `setResponseDTO(...)`, field `responseDTO`, `display()` không tham số | checklist 1.1 — View nhận qua thuộc tính |
+| Tên mảng | bản trước: `digits`, `result` (+ `getDigits/setDigits` của model) | `digitArray`, `resultArray` (+ `getDigitArray/setDigitArray`) | checklist 1.5 — mảng kết thúc bằng `Array` |
+| Ngoặc | bản trước: `top > 0 && digits[top] == 0`, `k < result.length - 1`, `input == null \|\| …` | `(top > 0) && (digitArray[top] == 0)`, `k < (resultArray.length - 1)`, `(input == null) \|\| …` | checklist 3.3 |
+| Khai báo | bản trước: `StringBuilder text` giữa hàm, `String text` sau `if`, `String line` trong vòng lặp | gom lên đầu block, khởi tạo luôn (`String line = "";`) | checklist 2.6, 3.7 |
+| `Main` | bản trước: `public class Main`, biến `dto` | `public final class Main` + `private Main()`, biến `requestDTO` | checklist 3.4 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/NumberRepository.java` giữ `firstNumber`, `secondNumber`; `LargeNumberService.multiply` cất vào rồi lấy ra; `MultiplyController.multiply` gọi `setResponseDTO` + `display()` **1 lần**; `Main` gọi controller **1 lần** |
+| **1.5** tên biến | `digitArray`, `resultArray` (mảng → `Array`), `requestDTO`, `responseDTO`; không còn `ID` |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `LargeNumberService.multiply` (4 biến ở đầu, `= null` rồi mới gán), `LargeNumber.toString` (`StringBuilder text`, `int top`), `Validation.getDigits` (`String text = "";`), `Main.inputNumber` (`String line = "";`) |
+| **2.8** dòng trống | trước mọi comment (kể cả comment field trong DTO, `Message`), sau vùng khai báo biến, sau mỗi `}` |
+| **3.3** ngoặc tường minh | `LargeNumber.toString`: `while ((top > 0) && (digitArray[top] == 0))`; `multiplyDigits`: `k < (resultArray.length - 1)`; `Validation.getDigits`: `if ((input == null) \|\| input.trim().isEmpty())` |
+| **3.4** lớp chỉ có static | `Main`, `Validation`, `Message`, `Constants`: `final` + constructor `private` |
 | Dòng trống giữa input và kết quả | chữ đề bị dính dòng, không rõ | không có dòng trống | giữ nguyên bản tham chiếu đã kiểm |
 | Số âm, số thập phân | đề không nói | từ chối `You must input digit.` | giống bản tham chiếu; thuật toán chữ số không dấu |
 | In lại số đã nhập | — | in dạng **đã bỏ số 0 đầu** (`0012345` → `12345`) | câu hỏi và đáp án cùng một dạng số (giống bản tham chiếu) |

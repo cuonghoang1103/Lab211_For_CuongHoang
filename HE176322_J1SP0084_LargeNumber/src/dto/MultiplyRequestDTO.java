@@ -10,6 +10,7 @@ public class MultiplyRequestDTO {
 
     // The first number, digits only (already validated).
     private String firstNumber;
+
     // The second number, digits only (already validated).
     private String secondNumber;
 

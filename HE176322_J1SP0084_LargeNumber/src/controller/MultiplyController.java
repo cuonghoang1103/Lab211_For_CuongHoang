@@ -7,14 +7,15 @@ import view.MultiplyView;
 
 /**
  * Controller: sends the two numbers to the service and the product to the view (no
- * Scanner, no printing, no static).
+ * Scanner, no printing, no static, no model).
  *
  * @author HE176322
  */
 public class MultiplyController {
 
-    // multiplies the numbers
+    // multiplies the numbers (Controller -> Service -> Repository -> Model)
     private LargeNumberService largeNumberService;
+
     // prints the product
     private MultiplyView multiplyView;
 
@@ -24,10 +25,12 @@ public class MultiplyController {
         multiplyView = new MultiplyView();
     }
 
-    // the only workflow: multiply, then display
+    // the only workflow: multiply, then display ONCE
     public void multiply(MultiplyRequestDTO requestDTO) {
-        MultiplyResponseDTO response = largeNumberService.multiply(requestDTO);
-        multiplyView.setResponse(response);
+        MultiplyResponseDTO responseDTO = largeNumberService.multiply(requestDTO);
+
+        // hand the result to the view, then render it - once for the whole flow
+        multiplyView.setResponseDTO(responseDTO);
         multiplyView.display();
     }
 }

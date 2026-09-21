@@ -15,11 +15,16 @@ public final class Validation {
 
     // Checks that the line is a whole number made of digits only.
     public static String getDigits(String input) throws Exception {
+        String text = "";
+
         // a missing or empty line is not a number
-        if (input == null || input.trim().isEmpty()) {
+        if ((input == null) || input.trim().isEmpty()) {
             throw new Exception(Message.INVALID_DIGIT);
         }
-        String text = input.trim();
+
+        // the spaces around the number do not count
+        text = input.trim();
+
         // every character must be one of 0-9
         for (int i = 0; i < text.length(); i++) {
             // one bad character refuses the whole line
@@ -27,6 +32,7 @@ public final class Validation {
                 throw new Exception(Message.INVALID_DIGIT);
             }
         }
+
         return text;
     }
 }

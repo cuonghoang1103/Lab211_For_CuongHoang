@@ -10,8 +10,10 @@ public class MultiplyResponseDTO {
 
     // The first number, leading zeros removed.
     private String firstNumber;
+
     // The second number, leading zeros removed.
     private String secondNumber;
+
     // The product, leading zeros removed.
     private String product;
 
