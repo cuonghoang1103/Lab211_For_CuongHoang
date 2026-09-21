@@ -2,7 +2,7 @@
 
 > **54 project** NetBeans, viết theo đúng kiến trúc `Guide.xlsx` của thầy + lời thầy dặn trên lớp. Mỗi project: code đã **biên dịch ở chế độ Java 8**, **chạy thật** với kịch bản gõ phím (đủ happy case + mọi thông báo lỗi), so màn hình **từng ký tự** dưới 2 locale, và qua bộ kiểm luật thầy.
 
-> ⛔ **Đang sửa cả 54 bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **16/54**. Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); ⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.
+> ⛔ **Đang sửa cả 54 bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **17/54**. Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); ⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.
 
 ## Đọc theo thứ tự này
 
@@ -98,7 +98,7 @@ Mọi project đều là **MVC** và controller đóng vai **Facade**. Cột *Pa
 | 100 | `J1.S.P0078` | [Create a program to copy file](HE176322_J1SP0078_CopyFile/HUONG-DAN.md) | Khó | constants · controller · dto · exceptions · main · model · repository · service · utils · view | 14 | — | ⏳ | ✅ |
 | 130 | `J1.S.P0079` | [Create a program to zip and unzip file (project CBDT)](HE176322_J1SP0079_ZipUnzip/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · service · utils · view | 14 | Template Method | ⏳ | ✅ |
 | 150 | `J1.S.P0070` | [Login system of the Tien Phong Bank’s Ebank](HE176322_J1SP0070_EbankLogin/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 13 | — | ✅ | ✅ |
-| 150 | `J1.S.P0071` | [Task management program of CCRM project](HE176322_J1SP0071_TaskManagement/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · utils · view | 14 | Builder | ⏳ | ✅ |
+| 150 | `J1.S.P0071` | [Task management program of CCRM project](HE176322_J1SP0071_TaskManagement/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · utils · view | 14 | Builder | ✅ | ✅ |
 | 150 | `J1.S.P0072` | [Write a login function uses MD5 encryption for passwords (se](HE176322_J1SP0072_LoginMD5/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · utils · view | 12 | Builder | ⏳ | ✅ |
 | 150 | `J1.S.P0085` | [Employee management system](HE176322_J1SP0085_EmployeeManagement/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 14 | Strategy, Builder | ⏳ | ✅ |
 | 200 | `J1.L.P0015` | [Asset Management- Upgrade](HE176322_J1LP0015_AssetManagementEmployee/HUONG-DAN.md) | Khó | constants · controller · dto · main · model · repository · service · utils · view | 33 | Strategy, Template Method | ⏳ | ✅ |
