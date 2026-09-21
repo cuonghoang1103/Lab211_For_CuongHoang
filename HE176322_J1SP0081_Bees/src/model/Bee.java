@@ -38,17 +38,21 @@ public abstract class Bee {
 
     // The brief's Damage(): reduces the health by percent% of the CURRENT health (not of
     // the original 100): two hits of 20 leave 64, not 60.
-    public void Damage(int percent) {
+    // brief: Damage(int percent)
+    public void damage(int percent) {
         // the brief: a dead bee's health is frozen, and the call is no error
         if (isDead()) {
             return;
         }
+
         // the brief: the parameter is between 0 and 100
-        if (percent < Constants.MIN_PERCENT || percent > Constants.MAX_PERCENT) {
+        if ((percent < Constants.MIN_PERCENT) || (percent > Constants.MAX_PERCENT)) {
             throw new IllegalArgumentException(String.format(Message.INVALID_DAMAGE,
                     Constants.MIN_PERCENT, Constants.MAX_PERCENT));
         }
-        health = health * (Constants.MAX_PERCENT - percent) / Constants.PERCENT_BASE;
+
+        // multiply FIRST, then divide: (100 - 80) * 100 / 100.0 is exactly 20.0
+        health = (health * (Constants.MAX_PERCENT - percent)) / Constants.PERCENT_BASE;
     }
 
     // Polymorphism: overrides Object.toString(); getType() inside it runs the subclass's

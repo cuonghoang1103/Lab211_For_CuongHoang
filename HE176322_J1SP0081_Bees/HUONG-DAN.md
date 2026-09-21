@@ -2,7 +2,7 @@
 
 > Bài OOP "đủ bộ": lớp cha `abstract Bee` giữ **mọi luật chung**, 3 lớp con chỉ khai **ngưỡng chết**.
 > Hai chỗ thầy hay bắt: **`health` không có setter** (đóng gói) và **trừ % của máu HIỆN TẠI**, không
-> phải của 100. Có thêm một bài học số thực (§2.2) — học kỹ, đây là chỗ ăn điểm.
+> phải của 100. Hàm đề đặt tên `Damage()` (viết hoa) ở đây là **`damage()`** — tờ checklist 1.4 (xem §7, §9). Có thêm một bài học số thực (§2.2) — học kỹ, đây là chỗ ăn điểm.
 
 | | |
 |---|---|
@@ -18,7 +18,7 @@
 
 - 3 loại ong: **Worker** (chết khi máu < 70%), **Queen** (< 20%), **Drone** (< 50%).
 - Mỗi con có `health` kiểu số thực = **100** lúc sinh, **đọc được nhưng không ghi được từ ngoài**.
-- `Damage(int percent)` (0..100): trừ `percent`% của **máu hiện tại**. Ong đã chết: máu **đứng yên**, gọi `Damage()` vẫn không lỗi.
+- `Damage(int percent)` (0..100; trong code là `damage`): trừ `percent`% của **máu hiện tại**. Ong đã chết: máu **đứng yên**, gọi `Damage()` vẫn không lỗi.
 - 1 danh sách **30 con**: 10 Worker, 10 Queen, 10 Drone.
 - Menu: **1** tạo lại danh sách và in ra · **2** tấn công: mỗi con một số ngẫu nhiên **khác nhau** trong `[0, 80]`, gọi `Damage()`, in lại · **0** thoát.
 
@@ -54,10 +54,10 @@ Alive: 20   Dead: 10
 
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
-| `abstract Bee` với `health` (double, = 100), `Damage(percent : int) : void`, `getHealth() : double`, `isDead() : boolean` | hình UML của đề | `model/Bee.java` — **giữ đúng chữ `Damage` viết hoa** |
+| `abstract Bee` với `health` (double, = 100), `Damage(percent : int) : void`, `getHealth() : double`, `isDead() : boolean` | hình UML của đề | `model/Bee.java` — hàm là **`damage(int percent)`** (cùng tham số, cùng `void`), dòng ngay trên khai báo có `// brief: Damage(int percent)` (đổi tên vì tờ checklist 1.4, xem §9) |
 | `Worker`, `Queen`, `Drone` extends `Bee`, mỗi lớp ngưỡng riêng | Function 1 | `model/`, hàm `getThreshold()` trả 70 / 20 / 50 |
 | Không có setter cho `health` | *"there must be no public setter"* | không có `setHealth` |
-| 1 collection 30 con | Function 2 | `repository/BeeRepository` (`ArrayList<Bee>`) |
+| 1 collection 30 con | Function 2 | `repository/BeeRepository` (`ArrayList<Bee> beeList`) |
 | Ngẫu nhiên `[0, 80]` **cho từng con** | Function 3 | `service/BeeService.attackBees` |
 
 ---
@@ -65,6 +65,8 @@ Alive: 20   Dead: 10
 ## 2. Kiến thức cần biết
 
 ### 2.1 Luật `Damage` — chạy tay ví dụ của đề
+
+(Ví dụ viết theo tên của đề; trong code gọi là `w.damage(20)`.)
 
 `newHealth = currentHealth × (100 − percent) / 100`, chết khi `health < ngưỡng`:
 
@@ -105,34 +107,36 @@ HE176322_J1SP0081_Bees/src/
 ├── constants/  Message.java           menu, câu kết quả, nhãn cột, tên loại ong
 │               Constants.java         số menu, 10 con/loại, 100, 80, ngưỡng, format cột
 │               BeeType.java           enum WORKER, QUEEN, DRONE
-├── model/      Bee (abstract)         health (chỉ get) · isDead · Damage · getThreshold · getType
+├── model/      Bee (abstract)         health (chỉ get) · isDead · damage (đề: Damage) · getThreshold · getType
 │               Worker, Queen, Drone   ngưỡng + tên
 ├── dto/        BeeResponseDTO         1 dòng: no, type, damage, health, dead
-│               ColonyResponseDTO      cả bảng: các dòng + aliveCount + deadCount
-├── repository/ BeeRepository          giữ ArrayList<Bee>: clear · add · get · isEmpty
+│               ColonyResponseDTO      cả bảng: message + attack + rowList + aliveCount + deadCount
+├── repository/ BeeRepository          giữ ArrayList<Bee> beeList: clearBees · addBee · getBeeList · isEmpty
 ├── service/    BeeFactory             BeeType ──► new đúng lớp con
-│               BeeService             tạo đàn, tấn công, đếm sống/chết
-├── controller/ BeeController          service ──► view
-├── view/       BeeView                2 bảng + dòng tổng kết
+│               BeeService             tạo đàn, tấn công, đếm sống/chết, đặt câu dẫn vào ResponseDTO
+├── controller/ BeeController          service ──► view (setResponseDTO + display 1 lần mỗi luồng)
+├── view/       BeeView                field responseDTO; display() không tham số: câu dẫn + bảng + tổng kết
 ├── utils/      Validation             getChoice
-└── main/       Main                   menu + Scanner
+└── main/       Main                   final + private Main(); menu + Scanner, mỗi case gọi controller 1 lần
 ```
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
 | Sao có cả `repository` lẫn `service`? | Guide: repository *"chứa data … CRUD đơn giản"* → giữ 30 con, xoá/thêm/đọc. Tấn công ngẫu nhiên + đếm sống/chết là *"tính toán nghiệp vụ ngoài CRUD"* → service. Luồng đúng Guide: **Controller ↔ Service ↔ Repository ↔ Model**. |
-| Sao `Damage` ở model mà không ở service? | Nó là **hành vi của chính con ong** và là nơi duy nhất đổi được `health` (private, không setter). Service chỉ **chọn số** rồi gọi. |
+| Sao `damage` ở model mà không ở service? | Nó là **hành vi của chính con ong** và là nơi duy nhất đổi được `health` (private, không setter). Service chỉ **chọn số** rồi gọi. |
 | Sao không có `RequestDTO`? | Người dùng chỉ gõ số menu, số đó quyết định **gọi hàm nào** của controller — không có dữ liệu nào cần mang vào. |
 
 **Luồng Attack:**
 
 ```
-Main: chọn 2 ──► controller.attackBees()
+Main: chọn 2 ──► controller.attackBees()          (case 2 gọi controller đúng 1 lần)
    controller ──► service.attackBees()
-                    ├─ repository.isEmpty()? → throw "There is no bee list yet. Choose 1 first."
-                    ├─ for mỗi con: damage = random.nextInt(81); bee.Damage(damage); toRow(i+1, bee) + damage
-                    └─ toColony(rows): đếm sống/chết
-   controller ──► view.setColony(c) ──► view.displayAttack()
+                    ├─ repository.isEmpty()? → throw new Exception(Message.NO_BEE_LIST)
+                    ├─ beeList = repository.getBeeList()
+                    ├─ for mỗi con: damage = random.nextInt(81); bee.damage(damage); createRow(i+1, bee) + damage
+                    ├─ message = "Attacking all bees (random damage 0-80% each)...", attack = true
+                    └─ fillColony(responseDTO, rowList): rowList + đếm sống/chết
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()   (1 lần)
 Main: catch (Exception e) → in e.getMessage()
 ```
 
@@ -141,8 +145,8 @@ Main: catch (Exception e) → in e.getMessage()
 | Yếu tố | Trong bài này |
 |---|---|
 | **Name** | Template Method (nhóm Behavioral) |
-| **Problem** | 3 loại ong có **cùng** luật (máu, trừ %, đứng yên khi chết, so ngưỡng) và chỉ khác **một con số**. Viết `isDead()`/`Damage()` ở cả 3 lớp = 3 chỗ để sai, 3 chỗ phải sửa. |
-| **Solution** | `Bee` = **AbstractClass**: `isDead()` (`health < getThreshold()`) và `Damage()` (kiểm `isDead()` trước) là **template method**, viết 1 lần. `getThreshold()` = **primitive operation** `protected abstract`. `Worker`, `Queen`, `Drone` = **ConcreteClass**: chỉ trả 70 / 20 / 50 (và tên). |
+| **Problem** | 3 loại ong có **cùng** luật (máu, trừ %, đứng yên khi chết, so ngưỡng) và chỉ khác **một con số**. Viết `isDead()`/`damage()` ở cả 3 lớp = 3 chỗ để sai, 3 chỗ phải sửa. |
+| **Solution** | `Bee` = **AbstractClass**: `isDead()` (`health < getThreshold()`) và `damage()` (kiểm `isDead()` trước) là **template method**, viết 1 lần. `getThreshold()` = **primitive operation** `protected abstract`. `Worker`, `Queen`, `Drone` = **ConcreteClass**: chỉ trả 70 / 20 / 50 (và tên). |
 | **Consequences** | ✅ Luật viết **1 lần**; thêm loại ong = 1 lớp con 2 hàm (**O**). ✅ Không lớp con nào đụng được `health`. ❌ Lớp con phụ thuộc chặt khung của lớp cha: đổi luật chung là đổi cho cả 3. |
 
 ### 3.2 Design Pattern — **Factory** (Simple Factory)
@@ -162,7 +166,7 @@ Controller còn là **Facade**: `Main` chỉ biết `createBees()` và `attackBe
 |---|---|
 | **S** | `Bee` giữ luật máu · `BeeRepository` giữ đàn · `BeeService` tấn công/đếm · `BeeFactory` tạo · `BeeView` in |
 | **O** | thêm loại ong không sửa `Bee`, `BeeService`, view |
-| **L** | `Worker/Queen/Drone` thay được `Bee` ở mọi chỗ; không lớp con nào đổi nghĩa `Damage` |
+| **L** | `Worker/Queen/Drone` thay được `Bee` ở mọi chỗ; không lớp con nào đổi nghĩa `damage` |
 | **D** | `BeeService` làm việc với `Bee` (trừu tượng); chỉ factory biết lớp cụ thể |
 | **I** | không có interface — không áp dụng |
 
@@ -174,18 +178,18 @@ Controller còn là **Facade**: `Main` chỉ biết `createBees()` và `attackBe
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/Bee.java` | field `private double health`; constructor `protected` đặt 100; `getHealth` (**không** set); `isDead`; **`Damage`**; `protected abstract getThreshold`; `abstract getType`; `toString` |
+| 1 | `model/Bee.java` | field `private double health`; constructor `protected` đặt 100; `getHealth` (**không** set); `isDead`; **`damage`** (dòng trên có `// brief: Damage(int percent)`); `protected abstract getThreshold`; `abstract getType`; `toString` |
 | 2 | `model/Worker.java`, `Queen.java`, `Drone.java` | constructor rỗng `public` + 2 hàm override |
-| 3 | `dto/BeeResponseDTO.java`, `ColonyResponseDTO.java` | JavaBean |
-| 4 | `repository/BeeRepository.java` | `clearBees` · `addBee` · `getBees` (bản sao list) · `isEmpty` |
+| 3 | `dto/BeeResponseDTO.java`, `ColonyResponseDTO.java` | JavaBean; `ColonyResponseDTO` = `message`, `attack`, `rowList`, `aliveCount`, `deadCount` |
+| 4 | `repository/BeeRepository.java` | field `ArrayList<Bee> beeList`; `clearBees` · `addBee` · `getBeeList` (bản sao list) · `isEmpty` |
 | 5 | `constants/BeeType.java` | enum 3 hằng, đúng thứ tự Worker → Queen → Drone |
 | 6 | `service/BeeFactory.java` | `createBee(type)` |
-| 7 | `service/BeeService.java` | `createBees` · `attackBees` · `toRow` · `toColony` (2 cái sau `private`) |
-| 8 | `view/BeeView.java` | `setColony` · `displayNewColony` · `displayAttack` + 3 hàm phụ `private` |
+| 7 | `service/BeeService.java` | `createBees` · `attackBees` · `createRow` · `fillColony` (2 cái sau `private`) |
+| 8 | `view/BeeView.java` | field `responseDTO` · `setResponseDTO` · `display()` + 4 hàm phụ `private` (`displayColonyTable`, `displayAttackTable`, `formatHealth`, `formatStatus`) |
 | 9 | `controller/BeeController.java` | 2 hàm |
 | 10 | `constants/Message.java`, `Constants.java` | chữ, ngưỡng, format cột **đo từ đề** |
 | 11 | `utils/Validation.java` | `getChoice` (tách 2 lỗi) |
-| 12 | `main/Main.java` | menu `while` + `switch` + `inputChoice` |
+| 12 | `main/Main.java` | `public final class Main` + `private Main()`; menu `while` + `switch` (mỗi case gọi controller 1 lần) + `inputChoice` |
 
 **Bẫy hay gặp:**
 
@@ -221,9 +225,9 @@ Python, cùng chuẩn IEEE với Java), so trạng thái **chính xác**.
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `if (isDead()) {` trong `Bee.Damage` |
+| Breakpoint | dòng `if (isDead()) {` trong `Bee.damage` |
 | Chạy | **Ctrl+F5**, chọn `1` rồi `2` |
-| Bước | từ `BeeService.attackBees` bấm **F7** vào `bee.Damage(damage)`; trong `Damage` bấm **F7** vào `isDead()` rồi **F7** vào `getThreshold()` → nhảy sang **`Worker.getThreshold`** (vòng 11 sẽ nhảy sang `Queen`) = Template Method + đa hình |
+| Bước | từ `BeeService.attackBees` bấm **F7** vào `bee.damage(damage)`; trong `damage` bấm **F7** vào `isDead()` rồi **F7** vào `getThreshold()` → nhảy sang **`Worker.getThreshold`** (vòng 11 sẽ nhảy sang `Queen`) = Template Method + đa hình |
 | Quan sát | tab **Variables**: `this` (kiểu thật `Worker`), `health` trước/sau dòng gán, `percent` |
 | Ong chết | chọn `2` nhiều lần; khi `isDead()` là `true`, F8 thấy nhảy thẳng tới `return`, `health` không đổi |
 
@@ -235,30 +239,31 @@ Python, cùng chuẩn IEEE với Java), so trạng thái **chính xác**.
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: `health` `private`, chỉ `getHealth()`, **không setter** — chỉ đổi qua `Damage()`. **Kế thừa**: `Worker/Queen/Drone extends Bee`. **Đa hình**: `bee.Damage()`/`bee.isDead()` trong vòng lặp của `BeeService` — `getThreshold()` chạy bản của lớp thật. **Trừu tượng**: `abstract class Bee`, `abstract getThreshold()`, `abstract getType()`. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: `health` `private`, chỉ `getHealth()`, **không setter** — chỉ đổi qua `damage()`. **Kế thừa**: `Worker/Queen/Drone extends Bee`. **Đa hình**: `bee.damage()`/`bee.isDead()` trong vòng lặp của `BeeService` — `getThreshold()` chạy bản của lớp thật. **Trừu tượng**: `abstract class Bee`, `abstract getThreshold()`, `abstract getType()`. |
 | Sao không có `setHealth`? | Đề: *"not writable externally … no public setter"*. Có setter thì ai cũng hồi sinh được ong chết, luật "đứng yên khi chết" vô nghĩa. Đây là chỗ em **cố ý** lệch khỏi JavaBean — đề thắng. |
-| Sao `Damage` viết hoa, trái convention? | Tên **đề bắt** (*"Damage() method"*, UML của đề). Em giữ đúng tên; ở dự án thật sẽ là `damage`. |
+| Sao đề là `Damage()` mà code là `damage()`? | Tờ checklist 1.4: method **bắt đầu bằng chữ thường** và là **động từ** — `Damage` viết hoa vi phạm. Em đổi thành `damage` (cùng tham số `int percent`, cùng `void`, cùng luật) và để dòng `// brief: Damage(int percent)` ngay trên khai báo để thầy đối chiếu đề. Thầy muốn giữ đúng tên đề thì **Refactor ▸ Rename** về `Damage` là xong. |
 | Constructor `Bee()` sao `protected`? | `Bee` là abstract, không ai `new Bee()` được; chỉ constructor lớp con gọi `super()`. `protected` nói đúng điều đó. |
 | `getThreshold()` sao `protected` mà `getType()` `public`? | `getThreshold` chỉ `isDead()` (trong `Bee`) và lớp con cần. `getType` thì `BeeService` (lớp khác) gọi để điền cột Type. |
-| Ong chết gọi `Damage(90)` có lỗi không? | Không — đề bắt *"must still be invokable without error"*: `if (isDead()) return;` đứng **trước** mọi kiểm tra. |
-| `Damage(150)` trên ong sống? | Ném `IllegalArgumentException("Damage percent must be between 0 and 100.")` — lỗi lập trình, menu không bao giờ tạo ra (chỉ random 0..80). |
+| Ong chết gọi `damage(90)` có lỗi không? | Không — đề bắt *"must still be invokable without error"*: `if (isDead()) return;` đứng **trước** mọi kiểm tra. |
+| `damage(150)` trên ong sống? | Ném `IllegalArgumentException("Damage percent must be between 0 and 100.")` — lỗi lập trình, menu không bao giờ tạo ra (chỉ random 0..80). |
 
 ### Access modifier, static, kiểu trả về
 
 | Thành phần | Vì sao |
 |---|---|
 | mọi field `private` | đóng gói |
-| `getHealth/isDead/Damage/getType` `public` | `BeeService` gọi |
+| `getHealth/isDead/damage/getType` `public` | `BeeService` gọi |
 | constructor rỗng `public` ở `Worker/Queen/Drone` và 2 DTO | JavaBean (MVC JSP); factory gọi |
-| `BeeRepository.clearBees/addBee/getBees/isEmpty` `public` | `BeeService` gọi |
-| `BeeService.toRow/toColony`, `BeeView.displaySummary/formatHealth/formatStatus` `private` | chỉ dùng trong chính lớp đó |
+| `BeeRepository.clearBees/addBee/getBeeList/isEmpty` `public` | `BeeService` gọi |
+| `BeeService.createRow/fillColony`, `BeeView.displayColonyTable/displayAttackTable/formatHealth/formatStatus` `private` | chỉ dùng trong chính lớp đó |
+| `Main` `final` + constructor `private` | lớp chỉ có hàm `static` (tờ giấy 3.4) |
 | `Main.inputChoice` `private static` | chỉ `main` gọi; Guide cho phép static **hàm** ở main |
 | `Validation.getChoice` `public static` | Guide: utils *"phải dùng static method"*. **Bỏ static** → phải bỏ constructor `private` và `new Validation()` trong `Main` |
 | `getHealth` trả `double` | trừ % để lại số lẻ (88 × 0.55 = 48.4) |
 | `isDead` trả `boolean` | câu hỏi có/không |
-| `Damage` trả `void` | nó **đổi** con ong; không có gì cần trả |
+| `damage` trả `void` | nó **đổi** con ong; không có gì cần trả |
 | `getThreshold` trả `int` | đề cho ngưỡng nguyên 70/20/50 |
-| `getBees()` trả **bản sao** list | service được đánh (cùng đối tượng ong) nhưng không thêm/xoá lén khỏi đàn |
+| `getBeeList()` trả **bản sao** list | service được đánh (cùng đối tượng ong) nhưng không thêm/xoá lén khỏi đàn |
 
 ### ArrayList hay List?
 
@@ -267,6 +272,29 @@ Python, cùng chuẩn IEEE với Java), so trạng thái **chính xác**.
 | Sao `ArrayList<Bee>` mà không `List<Bee>`? | `List` là interface (hợp đồng), `ArrayList` là lớp cài đặt bằng mảng động — lấy theo vị trí nhanh, thêm cuối nhanh, đúng cách em dùng (số thứ tự = vị trí). Đề cho *"a list or array"*, em chọn và khai rõ kiểu em dùng. |
 | Khác nhau khi chạy? | Không. Khác ở chỗ khai `List` thì đổi sang `LinkedList` chỉ sửa vế phải; khai `ArrayList` thì dùng được hàm riêng của nó. |
 | Sao lưu `Bee` chứ không `Worker`? | Một danh sách chứa **cả 3 loại** — chỉ kiểu cha chung mới chứa được, và vòng lặp nhờ đa hình không cần biết con nào loại nào. |
+
+### Kiến trúc theo tờ checklist
+
+| Câu hỏi | Trả lời mẫu |
+|---|---|
+| Sao bài có repository? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. `BeeRepository` giữ **đàn ong** (`ArrayList<Bee> beeList`) + CRUD đơn giản (`clearBees`, `addBee`, `getBeeList`, `isEmpty`); không random, không đếm, không in. Tấn công + đếm sống/chết là nghiệp vụ → `BeeService`. Luồng: **Controller → Service → Repository → Model**. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: `BeeView` có `private ColonyResponseDTO responseDTO` + `setResponseDTO(...)`; `display()` **không tham số** in câu dẫn (`message`), bảng (cờ `attack` chọn có cột `Dmg` hay không) và dòng tổng kết. Mỗi luồng controller gọi `display()` **đúng 1 lần**. Bản trước: `setColony(...)` + 2 hàm `displayNewColony()`/`displayAttack()`. |
+| Câu "New bee list created …" do ai làm? | `BeeService` đặt vào `ColonyResponseDTO.message` (như câu thành công ở các bài khác); view chỉ in. |
+| Validate ở đâu? | `Main` + `utils/Validation.getChoice` (số menu 0..2). Lỗi nghiệp vụ "chưa có đàn" do service `throw new Exception(Message.NO_BEE_LIST)`, `Main` bắt và in `e.getMessage()`. |
+| Main gọi controller mấy lần mỗi case? | **1 lần**: case 1 `createBees()`, case 2 `attackBees()`. |
+
+### Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/BeeRepository` (giữ `beeList`); `BeeController` không import `model`; `BeeView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần** mỗi luồng; `Main` mỗi case gọi controller **1 lần** |
+| **1.4** tên method | `Damage` (đề) → `damage`, dòng trên có `// brief: Damage(int percent)`; `toRow`/`toColony` → `createRow`/`fillColony` |
+| **1.5** tên collection | `beeList` (repository, service), `rowList` (`ColonyResponseDTO`, service) — bản trước là `bees`, `rows` |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `Main.main`: `choice = 0` ở đầu, trong vòng chỉ gán; `Main.inputChoice`: `String line = ""`; `BeeService.attackBees`: `responseDTO`, `rowList`, `beeList = null` đầu hàm, `bee`, `damage`, `row = null` đầu thân `for`; `Validation.getChoice`: `int choice = 0` |
+| **2.8** dòng trống | giữa các field (mọi lớp, cả `Constants`/`Message`/`BeeType`), trước mọi comment đứng sau dòng code (cả comment `case` trong `BeeFactory` và `Main`), sau vùng khai báo biến, sau `}` trước câu lệnh tiếp |
+| **3.3** ngoặc | `Bee.damage`: `if ((percent < Constants.MIN_PERCENT) \|\| (percent > Constants.MAX_PERCENT))`, `health = (health * (Constants.MAX_PERCENT - percent)) / Constants.PERCENT_BASE`; `Validation.getChoice`: `((choice < min) \|\| (choice > max))` |
+| **3.4** lớp chỉ có static | `Main` (`final` + `private Main()`), `Validation`, `Constants`, `Message` |
+| **3.8** cộng chuỗi | không `+=` trên chuỗi; mọi dòng in bằng `String.format(Constants.COLONY_FORMAT / ATTACK_FORMAT, …)`; `Message.MENU` là hằng ghép từ chữ cố định (trình biên dịch nối sẵn) |
 
 ---
 
@@ -290,7 +318,12 @@ Python, cùng chuẩn IEEE với Java), so trạng thái **chính xác**.
 | Độ rộng cột | bản cũ `%-3s %-7s %10s` | đo từ mẫu đề: `1  Worker  100.00 %   Alive` | **màn hình đề** thắng (kịch bản bản cũ chỉ kiểm bằng biểu thức nên vẫn chạy chung) |
 | Dòng trống giữa các mục menu | mẫu đề có (do trình bày tài liệu) | không in | đề không nói; bản cũ cũng không in |
 | Câu lỗi `You must input a number.` · `Please choose from 0 to 2.` · `There is no bee list yet. Choose 1 first.` · `Goodbye.` | đề không cho chữ | giữ chữ bản cũ | đề im lặng |
-| `Damage` ngoài 0..100 | bản cũ ném lỗi, chữ viết cứng | ném `IllegalArgumentException` với câu trong `Message` | không viết chuỗi cứng ngoài constants; không có đường nào từ menu tới đây |
+| `damage` ngoài 0..100 | bản cũ ném lỗi, chữ viết cứng | ném `IllegalArgumentException` với câu trong `Message` | không viết chuỗi cứng ngoài constants; không có đường nào từ menu tới đây |
 | Tạo ong | bản cũ `new Worker()` trong vòng lặp | `BeeFactory` theo `BeeType` | Design Pattern (QUY-TAC-THAY §9 V7) |
 | `health` không setter, `Bee` không constructor rỗng `public` | JavaBean đòi get/set | đề cấm setter; `Bee` là abstract | đề thắng; lớp abstract không tạo được nên luật JavaBean không áp |
 | Kiến trúc | `entity/bo/ui`, Scanner trong `Validator` | MVC theo Guide, Scanner **chỉ ở `main`** | luật thầy |
+| **Tên `Damage`** | đề: `Damage()` (viết hoa); bản cũ giữ `Damage` | `damage(int percent)`, dòng ngay trên khai báo có `// brief: Damage(int percent)` | **đề đặt `Damage`, tờ checklist 1.4 bắt method bắt đầu bằng chữ thường (và là động từ) → hỏi thầy nếu thầy muốn giữ tên đề** (Refactor ▸ Rename, không đổi gì khác) |
+| View | bản 14/09: `setColony(...)` + `displayNewColony()` / `displayAttack()`; 2 câu dẫn in trong view | `setResponseDTO(ColonyResponseDTO)` + **một** `display()`; câu dẫn nằm trong `ColonyResponseDTO.message`, cờ `attack` chọn bảng | tờ giấy 1.1: view nhận qua **thuộc tính (ResponseDTO)**, render 1 lần/luồng — màn hình **không đổi** |
+| Tên | `bees`, `rows`, `toRow`, `toColony`, `getBees` | `beeList`, `rowList`, `createRow`, `fillColony`, `getBeeList` | tờ giấy 1.4, 1.5 |
+| `Main` | `public class Main`; `int choice`, `String line` khai giữa vòng lặp | `public final class Main` + `private Main()`; biến khai đầu hàm, khởi tạo luôn | tờ giấy 3.4, 2.6, 3.7 |
+| Dòng trống, ngoặc | field/hằng liền nhau; `percent < MIN \|\| percent > MAX`; `health * (…) / 100.0` | 1 dòng trống trước mọi comment; ngoặc từng phép so sánh; `(health * (…)) / 100.0` (cùng thứ tự tính — bài học §2.2 giữ nguyên) | tờ giấy 2.8, 3.3 |

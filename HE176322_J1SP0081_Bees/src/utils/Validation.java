@@ -15,7 +15,8 @@ public final class Validation {
 
     // Converts a menu choice and checks it lies in [min, max].
     public static int getChoice(String input, int min, int max) throws Exception {
-        int choice;
+        int choice = 0;
+
         // parse first, so a letter gives the "number" message
         try {
             choice = Integer.parseInt(input.trim());
@@ -23,10 +24,12 @@ public final class Validation {
             // letters or an empty line: not a number at all
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         // then check the range, so 5 gives the "range" message
-        if (choice < min || choice > max) {
+        if ((choice < min) || (choice > max)) {
             throw new Exception(String.format(Message.INVALID_RANGE, min, max));
         }
+
         return choice;
     }
 }

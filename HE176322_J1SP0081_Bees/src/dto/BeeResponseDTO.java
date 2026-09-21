@@ -1,7 +1,8 @@
 package dto;
 
 /**
- * DTO carrying ONE row of a bee table FROM the controller OUT TO the view.
+ * DTO carrying ONE row of a bee table FROM the controller OUT TO the view (inside
+ * ColonyResponseDTO).
  *
  * @author HE176322
  */
@@ -9,12 +10,16 @@ public class BeeResponseDTO {
 
     // Row number, from 1.
     private int no;
+
     // "Worker", "Queen" or "Drone".
     private String type;
+
     // Damage rolled for this bee in the last attack (attack table only).
     private int damage;
+
     // Health in percent after the operation.
     private double health;
+
     // True when the bee is dead.
     private boolean dead;
 

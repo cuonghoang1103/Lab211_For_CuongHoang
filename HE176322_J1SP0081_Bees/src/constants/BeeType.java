@@ -10,8 +10,10 @@ public enum BeeType {
 
     // A worker bee: dead below 70%.
     WORKER,
+
     // A queen bee: dead below 20%.
     QUEEN,
+
     // A drone bee: dead below 50%.
     DRONE
 }

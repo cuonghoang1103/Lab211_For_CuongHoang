@@ -25,12 +25,15 @@ public class BeeFactory {
             // a worker: dead below 70%
             case WORKER:
                 return new Worker();
+
             // a queen: dead below 20%
             case QUEEN:
                 return new Queen();
+
             // a drone: dead below 50%
             case DRONE:
                 return new Drone();
+
             // a new BeeType nobody taught the factory to build
             default:
                 throw new IllegalArgumentException(String.format(Message.UNKNOWN_BEE, type));
