@@ -9,8 +9,10 @@ public enum Course {
 
     // The Java course.
     JAVA("Java"),
+
     // The .Net course (".Net" is not a legal Java name, hence DOT_NET).
     DOT_NET(".Net"),
+
     // The C/C++ course.
     C_CPP("C/C++");
 
@@ -27,12 +29,14 @@ public enum Course {
         return label;
     }
 
-    // Finds the course whose label equals the typed text, ignoring case ("java" is Java).
-    public static Course fromLabel(String text) {
+    // Finds the course whose label equals the typed text, ignoring case ("java" is Java);
+    // null when the text is none of the three.
+    public static Course findByLabel(String text) {
         // no text at all: no course
         if (text == null) {
             return null;
         }
+
         // compare the text with each of the three labels
         for (Course course : values()) {
             // the label matches: this is the course
@@ -40,22 +44,27 @@ public enum Course {
                 return course;
             }
         }
+
         return null;
     }
 
-    // Lists the three labels, "Java, .Net, C/C++", built from the constants so the error
-    // message can never drift from the enum.
-    public static String labels() {
-        StringBuilder all = new StringBuilder();
+    // Joins the three labels into "Java, .Net, C/C++", built from the constants so the
+    // error message can never drift from the enum.
+    public static String joinLabels() {
+        StringBuilder labelBuilder = new StringBuilder();
+
         // append every label, with a separator between two of them
         for (Course course : values()) {
             // not the first label: separate it from the previous one
-            if (all.length() > 0) {
-                all.append(Constants.COURSE_SEPARATOR);
+            if (labelBuilder.length() > 0) {
+                labelBuilder.append(Constants.COURSE_SEPARATOR);
             }
-            all.append(course.label);
+
+            // then the label itself
+            labelBuilder.append(course.label);
         }
-        return all.toString();
+
+        return labelBuilder.toString();
     }
 
     // Polymorphism: the enum prints as its label, not as "DOT_NET".

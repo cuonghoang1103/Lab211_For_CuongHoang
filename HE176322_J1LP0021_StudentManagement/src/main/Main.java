@@ -4,52 +4,69 @@ import constants.Constants;
 import constants.Message;
 import controller.StudentController;
 import dto.StudentRequestDTO;
-import dto.StudentResponseDTO;
 import java.util.Scanner;
 import utils.Validation;
 
 /**
- * MAIN: the work flow of the program - the menu loop and the keyboard.
+ * MAIN: the work flow of the program - the menu loop and the keyboard. Every keyboard read
+ * and every check of the form of what was typed happen here; each menu option then calls
+ * the controller once.
  *
  * @author HE176322
  */
-public class Main {
+public final class Main {
+
+    // Private constructor: Main only has static methods (checklist 3.4).
+    private Main() {
+    }
 
     // Starts the program: shows the main screen until the user chooses Exit.
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         StudentController controller = new StudentController();
+        StudentRequestDTO requestDTO = null;
         boolean running = true;
+        int choice = 0;
+
         // show the main screen again after every function, until Exit
         while (running) {
             System.out.println(Message.MENU);
-            int choice = inputChoice(sc);
-            // any business error of the chosen function is shown here
+            choice = inputChoice(sc);
+
+            // a business error of the chosen function is shown here
             try {
-                // run the function the user picked
+                // run the function the user picked: one call to the controller per option
                 switch (choice) {
-                    // option 1: create students
+                    // option 1: read at least 10 new students, then store them all
                     case Constants.MENU_CREATE:
-                        createStudents(sc, controller);
+                        requestDTO = inputStudentList(sc, controller);
+                        controller.createStudents(requestDTO);
                         break;
-                    // option 2: find by name and sort
+
+                    // option 2: read a name (or a part of it), then find and sort
                     case Constants.MENU_FIND_SORT:
-                        findAndSort(sc, controller);
+                        requestDTO = inputSearch(sc);
+                        controller.findAndSort(requestDTO);
                         break;
-                    // option 3: find by id, then update or delete
+
+                    // option 3: read an id and the answer U or D, then update or delete
                     case Constants.MENU_UPDATE_DELETE:
-                        updateOrDelete(sc, controller);
+                        requestDTO = inputUpdateDelete(sc, controller);
+                        controller.updateOrDeleteStudent(requestDTO);
                         break;
-                    // option 4: report
+
+                    // option 4: the title, then the report
                     case Constants.MENU_REPORT:
                         System.out.println(Message.TITLE_REPORT);
                         controller.report();
                         break;
+
                     // option 5: stop the loop
                     case Constants.MENU_EXIT:
                         running = false;
                         System.out.println(Message.GOODBYE);
                         break;
+
                     // unreachable: inputChoice only returns 1..5
                     default:
                         break;
@@ -63,14 +80,16 @@ public class Main {
 
     // Asks for a menu choice until the user types a number from 1 to 5.
     private static int inputChoice(Scanner sc) {
+        String line = "";
+
         // keep asking until Validation accepts the line
         while (true) {
             System.out.print(Message.INPUT_CHOICE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints the reason and loops again
             try {
-                return Validation.getChoice(line, Constants.MENU_MIN,
-                        Constants.MENU_EXIT);
+                return Validation.getChoice(line, Constants.MENU_MIN, Constants.MENU_EXIT);
             } catch (Exception e) {
                 // "You must input a number." or "Please choose from 1 to 5."
                 System.out.println(e.getMessage());
@@ -78,12 +97,15 @@ public class Main {
         }
     }
 
-    // Asks for a whole number until one is typed.
+    // Asks for a whole number until one is typed (the "> 0" rule is the service's).
     private static int inputInt(Scanner sc, String prompt) {
+        String line = "";
+
         // keep asking until the line is a whole number
         while (true) {
             System.out.print(prompt);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // letters print "You must input a number." and loop again
             try {
                 return Validation.getInt(line);
@@ -94,12 +116,15 @@ public class Main {
         }
     }
 
-    // Like inputInt, but a blank line is accepted and means "keep".
+    // Like inputInt, but a blank line is accepted and means "keep" (null).
     private static Integer inputOptionalInt(Scanner sc, String prompt) {
+        String line = "";
+
         // keep asking until the line is blank or a whole number
         while (true) {
             System.out.print(prompt);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // letters print "You must input a number." and loop again
             try {
                 return Validation.getOptionalInt(line);
@@ -110,16 +135,19 @@ public class Main {
         }
     }
 
-    // Asks "Do you want to continue (Y/N)?" until Y or N is typed.
+    // Asks "Do you want to continue (Y/N)?" until Y or N is typed; true means Y.
     private static boolean inputContinue(Scanner sc) {
+        String line = "";
+
         // keep asking until Y or N is typed
         while (true) {
             System.out.print(Message.ASK_CONTINUE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // another answer prints "Please enter Y or N." and loops again
             try {
-                return Validation.getOption(line, Constants.YES,
-                        Constants.NO).equals(Constants.YES);
+                return Constants.YES.equals(Validation.getOption(line, Constants.YES,
+                        Constants.NO));
             } catch (Exception e) {
                 // show which letters are allowed
                 System.out.println(e.getMessage());
@@ -128,15 +156,17 @@ public class Main {
     }
 
     // Asks "Do you want to update (U) or delete (D) student?" until U or D is typed.
-    private static boolean inputDelete(Scanner sc) {
+    private static String inputOption(Scanner sc) {
+        String line = "";
+
         // keep asking until U or D is typed
         while (true) {
             System.out.print(Message.ASK_UPDATE_DELETE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // another answer prints "Please enter U or D." and loops again
             try {
-                return Validation.getOption(line, Constants.UPDATE,
-                        Constants.DELETE).equals(Constants.DELETE);
+                return Validation.getOption(line, Constants.UPDATE, Constants.DELETE);
             } catch (Exception e) {
                 // show which letters are allowed
                 System.out.println(e.getMessage());
@@ -144,72 +174,115 @@ public class Main {
         }
     }
 
-    // Reads the four fields of one new student into a request DTO.
-    private static StudentRequestDTO inputStudent(Scanner sc) {
-        StudentRequestDTO dto = new StudentRequestDTO();
+    // Reads the four fields of one new student into the request (the rules of the brief
+    // are checked by the service after the four answers).
+    private static void inputStudent(Scanner sc, StudentRequestDTO requestDTO) {
+        // the four questions of a new student, in order
         System.out.print(Message.INPUT_ID);
-        dto.setId(Validation.getText(sc.nextLine()));
+        requestDTO.setId(Validation.getText(sc.nextLine()));
         System.out.print(Message.INPUT_NAME);
-        dto.setStudentName(Validation.getText(sc.nextLine()));
-        dto.setSemester(inputInt(sc, Message.INPUT_SEMESTER));
+        requestDTO.setStudentName(Validation.getText(sc.nextLine()));
+        requestDTO.setSemester(inputInt(sc, Message.INPUT_SEMESTER));
         System.out.print(Message.INPUT_COURSE);
-        dto.setCourseName(Validation.getText(sc.nextLine()));
-        return dto;
+        requestDTO.setCourseName(Validation.getText(sc.nextLine()));
     }
 
-    // Option 1: creates students until there are at least 10 AND the user answers N to
-    // "Do you want to continue (Y/N)?".
-    private static void createStudents(Scanner sc, StudentController controller) {
-        System.out.println(Message.TITLE_CREATE);
+    // Option 1: the title, then new students until the list holds at least 10 (the
+    // students already stored count too) and the user answers N to the brief's question.
+    // Each student is checked before it is kept, so the request holds only good students.
+    private static StudentRequestDTO inputStudentList(Scanner sc,
+            StudentController controller) {
+        StudentRequestDTO requestDTO = new StudentRequestDTO();
         boolean creating = true;
-        // one student per turn, until the user stops
+        int storedCount = 0;
+        int count = 0;
+
+        // the title of the Create screen
+        System.out.println(Message.TITLE_CREATE);
+
+        // read only (no render, nothing changed): the brief's "number of students" is the
+        // whole list, so the students already stored count too
+        storedCount = controller.countStudents();
+
+        // one student per turn, until the user may stop and does
         while (creating) {
-            // a refused student is reported and simply not counted
+            // a student that breaks a rule is reported and not kept
             try {
-                controller.createStudent(inputStudent(sc));
+                inputStudent(sc, requestDTO);
+                keepStudent(controller, requestDTO);
             } catch (Exception e) {
-                // blank id, duplicate id, semester <= 0, wrong course...
+                // blank id, id already used, blank name, semester <= 0, wrong course
                 System.out.println(e.getMessage());
             }
-            // below the brief's minimum: no question, ask another student
-            if (!controller.checkEnoughStudents()) {
-                continue;
+
+            // the brief's count: students already stored + students kept in this Create
+            count = storedCount + requestDTO.getStudentList().size();
+
+            // fewer than 10: say how far off, then another student
+            if (count < Constants.MIN_STUDENTS) {
+                System.out.println(String.format(Message.NEED_MORE, Constants.MIN_STUDENTS,
+                        count));
+            } else {
+                // at least 10: the brief's question decides (Y = one more student)
+                creating = inputContinue(sc);
             }
-            creating = inputContinue(sc);
         }
+
+        return requestDTO;
     }
 
-    // Option 2: reads a name (or part of it) and asks the controller to find and sort.
-    private static void findAndSort(Scanner sc, StudentController controller)
-            throws Exception {
+    // Option 1: the student main has just read joins the request only when it keeps every
+    // rule of the brief - a check-only call first, then a copy of its four fields is kept.
+    private static void keepStudent(StudentController controller,
+            StudentRequestDTO requestDTO) throws Exception {
+        // check only (no render, nothing stored): the brief counts the students, so a
+        // wrong one must be refused now, not after the tenth
+        controller.checkStudent(requestDTO);
+
+        // it keeps every rule: keep a copy of its four fields
+        requestDTO.getStudentList().add(new StudentRequestDTO(requestDTO.getId(),
+                requestDTO.getStudentName(), requestDTO.getSemester(),
+                requestDTO.getCourseName()));
+    }
+
+    // Option 2: the title, then the name (or a part of it) to look for, into a new request.
+    private static StudentRequestDTO inputSearch(Scanner sc) {
+        StudentRequestDTO requestDTO = new StudentRequestDTO();
+
+        // the title of the Find and Sort screen, then its one question
         System.out.println(Message.TITLE_FIND_SORT);
-        StudentRequestDTO dto = new StudentRequestDTO();
         System.out.print(Message.INPUT_SEARCH);
-        dto.setSearchText(Validation.getText(sc.nextLine()));
-        controller.findAndSort(dto);
+        requestDTO.setSearchText(Validation.getText(sc.nextLine()));
+        return requestDTO;
     }
 
-    // Option 3: finds a student by id, shows it, then asks U or D.
-    private static void updateOrDelete(Scanner sc, StudentController controller)
-            throws Exception {
+    // Option 3: the title and the id, then the brief's question U or D, then - for U - the
+    // new values. The brief finds the student BEFORE its question, so the id goes through
+    // a check-only call to the controller first.
+    private static StudentRequestDTO inputUpdateDelete(Scanner sc,
+            StudentController controller) throws Exception {
+        StudentRequestDTO requestDTO = new StudentRequestDTO();
+
+        // the title of the Update/Delete screen, then the id
         System.out.println(Message.TITLE_UPDATE_DELETE);
-        StudentRequestDTO dto = new StudentRequestDTO();
         System.out.print(Message.INPUT_STUDENT_ID);
-        dto.setId(Validation.getText(sc.nextLine()));
-        // stop here with the reason when the id is wrong
-        StudentResponseDTO found = controller.findStudent(dto);
-        dto.setId(found.getId());
-        // D: delete and stop
-        if (inputDelete(sc)) {
-            controller.deleteStudent(dto);
-            return;
+        requestDTO.setId(Validation.getText(sc.nextLine()));
+
+        // check only (no render, nothing changed): "ID [..] does not exist." stops here
+        controller.checkExistStudent(requestDTO);
+
+        // the brief's question: U or D
+        requestDTO.setOption(inputOption(sc));
+
+        // U: the new values; a blank answer keeps the old one
+        if (Constants.UPDATE.equals(requestDTO.getOption())) {
+            System.out.print(Message.INPUT_NEW_NAME);
+            requestDTO.setStudentName(Validation.getText(sc.nextLine()));
+            requestDTO.setSemester(inputOptionalInt(sc, Message.INPUT_NEW_SEMESTER));
+            System.out.print(Message.INPUT_NEW_COURSE);
+            requestDTO.setCourseName(Validation.getText(sc.nextLine()));
         }
-        System.out.print(String.format(Message.INPUT_NEW_NAME, found.getStudentName()));
-        dto.setStudentName(Validation.getText(sc.nextLine()));
-        dto.setSemester(inputOptionalInt(sc, String.format(Message.INPUT_NEW_SEMESTER,
-                found.getSemester())));
-        System.out.print(String.format(Message.INPUT_NEW_COURSE, found.getCourseName()));
-        dto.setCourseName(Validation.getText(sc.nextLine()));
-        controller.updateStudent(dto);
+
+        return requestDTO;
     }
 }

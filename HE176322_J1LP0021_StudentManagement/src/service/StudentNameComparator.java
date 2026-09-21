@@ -21,10 +21,12 @@ public class StudentNameComparator implements Comparator<Student> {
     @Override
     public int compare(Student first, Student second) {
         int byName = first.getStudentName().compareToIgnoreCase(second.getStudentName());
+
         // different names decide the order
         if (byName != 0) {
             return byName;
         }
+
         return first.getId().compareToIgnoreCase(second.getId());
     }
 }

@@ -56,26 +56,26 @@ WELCOME TO STUDENT MANAGEMENT
 5. Exit
 (Please choose 1 to Create, 2 to Find and Sort, 3 to Update/Delete, 4 to Report and 5 to Exit program).
 Enter your choice: ---------- Create Student ----------
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S001] has been added.
-At least 10 students are required - 1 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S002] has been added.
-At least 10 students are required - 2 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S003] has been added.
-At least 10 students are required - 3 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S004] has been added.
-At least 10 students are required - 4 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S005] has been added.
-At least 10 students are required - 5 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S006] has been added.
-At least 10 students are required - 6 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S007] has been added.
-At least 10 students are required - 7 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S008] has been added.
-At least 10 students are required - 8 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S009] has been added.
-At least 10 students are required - 9 so far.
-Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Student [S010] has been added.
-Do you want to continue (Y/N)? WELCOME TO STUDENT MANAGEMENT
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 1 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 2 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 3 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 4 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 5 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 6 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 7 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 8 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): At least 10 students are required - 9 so far.
+Enter id: Enter student name: Enter semester: Enter course name (Java, .Net, C/C++): Do you want to continue (Y/N)? Student [S001] has been added.
+Student [S002] has been added.
+Student [S003] has been added.
+Student [S004] has been added.
+Student [S005] has been added.
+Student [S006] has been added.
+Student [S007] has been added.
+Student [S008] has been added.
+Student [S009] has been added.
+Student [S010] has been added.
+WELCOME TO STUDENT MANAGEMENT
 1. Create
 2. Find and Sort
 3. Update/Delete

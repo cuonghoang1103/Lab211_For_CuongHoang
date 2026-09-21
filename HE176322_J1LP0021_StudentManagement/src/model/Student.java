@@ -1,5 +1,6 @@
 package model;
 
+import constants.Constants;
 import constants.Course;
 
 /**
@@ -12,10 +13,13 @@ public class Student {
 
     // Unique id.
     private String id;
+
     // Full name.
     private String studentName;
+
     // Semester number, greater than 0.
     private int semester;
+
     // One of the three courses.
     private Course courseName;
 
@@ -71,16 +75,16 @@ public class Student {
         this.courseName = courseName;
     }
 
-    // Tells whether this student's name contains the text, ignoring case - the brief's "a
-    // part of student name".
+    // Tells whether this student's name contains the text (already in lower case),
+    // ignoring case - the brief's "a part of student name".
     public boolean isNameContains(String text) {
         return studentName.toLowerCase().contains(text);
     }
 
-    // Polymorphism: overrides Object.toString(); returns the text, the view prints it
-    // (the model may not print).
+    // Polymorphism: overrides Object.toString() with the row of the Find and Sort table -
+    // name, semester, course; the model returns the text, the view prints it.
     @Override
     public String toString() {
-        return id + " " + studentName + " " + semester + " " + courseName;
+        return String.format(Constants.SEARCH_ROW_FORMAT, studentName, semester, courseName);
     }
 }

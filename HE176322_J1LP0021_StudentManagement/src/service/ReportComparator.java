@@ -19,10 +19,12 @@ public class ReportComparator implements Comparator<ReportItem> {
     @Override
     public int compare(ReportItem first, ReportItem second) {
         int byName = first.getStudentName().compareToIgnoreCase(second.getStudentName());
+
         // different names decide the order
         if (byName != 0) {
             return byName;
         }
+
         return first.getCourse().getLabel().compareToIgnoreCase(
                 second.getCourse().getLabel());
     }

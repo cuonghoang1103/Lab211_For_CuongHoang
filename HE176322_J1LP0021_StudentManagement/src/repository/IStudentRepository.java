@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import model.Student;
 
 /**
- * The CRUD contract of the student store (Dependency Inversion).
+ * The CRUD contract of the student store (Dependency Inversion): the service depends on
+ * this interface, not on the ArrayList behind it.
  *
  * @author HE176322
  */
@@ -13,7 +14,7 @@ public interface IStudentRepository {
     // Counts the stored students.
     int countStudents();
 
-    // Finds a student by id, ignoring case.
+    // Finds a student by id, ignoring case; null when nobody has it.
     Student findById(String id);
 
     // Stores a new student.

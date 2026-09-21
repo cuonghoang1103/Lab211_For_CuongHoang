@@ -1,80 +1,68 @@
 package dto;
 
-import constants.Constants;
+import java.util.ArrayList;
 
 /**
- * DTO carrying one student FROM the controller OUT TO the view - a JavaBean.
+ * DTO carrying the answer of one menu option FROM the controller OUT TO the view - a
+ * JavaBean. The view prints only the fields the option filled; the others stay null.
  *
  * @author HE176322
  */
 public class StudentResponseDTO {
 
-    // Id shown in the first column.
-    private String id;
-    // Name shown on screen.
-    private String studentName;
-    // Semester shown on screen.
-    private int semester;
-    // Course label shown on screen.
-    private String courseName;
+    // One-line result: "Student [S01] has been updated.", "No student found."...
+    private String message;
 
-    // JavaBean constructor: an empty row, filled through the setters.
+    // Create: one "Student [id] has been added." per stored student.
+    private ArrayList<String> messageList;
+
+    // Find and Sort: one row per matching student (Student.toString()), sorted by name.
+    private ArrayList<String> searchRowList;
+
+    // Report: one "name | course | total" line per group (ReportItem.toString()).
+    private ArrayList<String> reportRowList;
+
+    // JavaBean constructor: an empty answer, filled through the setters.
     public StudentResponseDTO() {
     }
 
-    // Creates the row with every column filled in.
-    public StudentResponseDTO(String id, String studentName, int semester,
-            String courseName) {
-        this.id = id;
-        this.studentName = studentName;
-        this.semester = semester;
-        this.courseName = courseName;
+    // Returns the one-line result.
+    public String getMessage() {
+        return message;
     }
 
-    // Returns the id.
-    public String getId() {
-        return id;
+    // Sets the one-line result.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Sets the id.
-    public void setId(String id) {
-        this.id = id;
+    // Returns the lines of Create.
+    public ArrayList<String> getMessageList() {
+        return messageList;
     }
 
-    // Returns the name.
-    public String getStudentName() {
-        return studentName;
+    // Sets the lines of Create.
+    public void setMessageList(ArrayList<String> messageList) {
+        this.messageList = messageList;
     }
 
-    // Sets the name.
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
+    // Returns the rows of Find and Sort.
+    public ArrayList<String> getSearchRowList() {
+        return searchRowList;
     }
 
-    // Returns the semester.
-    public int getSemester() {
-        return semester;
+    // Sets the rows of Find and Sort.
+    public void setSearchRowList(ArrayList<String> searchRowList) {
+        this.searchRowList = searchRowList;
     }
 
-    // Sets the semester.
-    public void setSemester(int semester) {
-        this.semester = semester;
+    // Returns the lines of the report.
+    public ArrayList<String> getReportRowList() {
+        return reportRowList;
     }
 
-    // Returns the course label.
-    public String getCourseName() {
-        return courseName;
-    }
-
-    // Sets the course label.
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
-    // The full row shown by Update/Delete, already padded into columns.
-    @Override
-    public String toString() {
-        return String.format(Constants.STUDENT_ROW_FORMAT, id, studentName,
-                semester, courseName);
+    // Sets the lines of the report.
+    public void setReportRowList(ArrayList<String> reportRowList) {
+        this.reportRowList = reportRowList;
     }
 }

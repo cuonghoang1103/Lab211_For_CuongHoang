@@ -1,5 +1,6 @@
 package model;
 
+import constants.Constants;
 import constants.Course;
 
 /**
@@ -12,8 +13,10 @@ public class ReportItem {
 
     // Student name as it was first met in the list.
     private String studentName;
+
     // The course of this line.
     private Course course;
+
     // How many times this name took this course.
     private int total;
 
@@ -64,9 +67,10 @@ public class ReportItem {
         total++;
     }
 
-    // Polymorphism: overrides Object.toString().
+    // Polymorphism: overrides Object.toString() with the brief's report line
+    // "Nguyen Van A | Java | 2"; the model returns the text, the view prints it.
     @Override
     public String toString() {
-        return studentName + " " + course + " " + total;
+        return String.format(Constants.REPORT_FORMAT, studentName, course, total);
     }
 }
