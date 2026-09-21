@@ -10,6 +10,7 @@ public class FibonacciResponseDTO {
 
     // How many Fibonacci numbers the sequence holds (45).
     private int count;
+
     // The sequence as text.
     private String sequence;
 

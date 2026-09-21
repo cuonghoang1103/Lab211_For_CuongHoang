@@ -1,34 +1,36 @@
 package controller;
 
-import constants.Constants;
+import dto.FibonacciRequestDTO;
 import dto.FibonacciResponseDTO;
 import service.FibonacciService;
 import view.FibonacciView;
 
 /**
- * Controller: asks the service for the sequence and hands it to the view (no Scanner, no
- * printing, no static).
+ * CONTROLLER (Facade): takes the request from main, lets the service compute the
+ * sequence, and hands the result to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class FibonacciController {
 
-    // computes the sequence
+    // Computes the sequence and keeps it (Controller -> Service -> Repository -> Model).
     private FibonacciService fibonacciService;
-    // prints the sequence
+
+    // Prints the sequence.
     private FibonacciView fibonacciView;
 
-    // creates the controller with its service and view
+    // Creates the controller together with its service and its view.
     public FibonacciController() {
         fibonacciService = new FibonacciService();
         fibonacciView = new FibonacciView();
     }
 
-    // the only workflow: compute the 45 numbers, then display them
-    public void displaySequence() {
-        FibonacciResponseDTO response
-                = fibonacciService.generateSequence(Constants.SEQUENCE_LENGTH);
-        fibonacciView.setResponse(response);
+    // The only workflow: the service computes the numbers, the view shows them ONCE.
+    public void displaySequence(FibonacciRequestDTO requestDTO) {
+        FibonacciResponseDTO responseDTO = fibonacciService.generateSequence(requestDTO);
+
+        // hand the result to the view, then render it - once for the whole flow
+        fibonacciView.setResponseDTO(responseDTO);
         fibonacciView.display();
     }
 }
