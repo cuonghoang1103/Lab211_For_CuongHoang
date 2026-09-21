@@ -2,7 +2,7 @@
 
 > **54 project** NetBeans, viết theo đúng kiến trúc `Guide.xlsx` của thầy + lời thầy dặn trên lớp. Mỗi project: code đã **biên dịch ở chế độ Java 8**, **chạy thật** với kịch bản gõ phím (đủ happy case + mọi thông báo lỗi), so màn hình **từng ký tự** dưới 2 locale, và qua bộ kiểm luật thầy.
 
-> ⛔ **Đang sửa cả 54 bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **13/54**. Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); ⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.
+> ⛔ **Đang sửa cả 54 bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **16/54**. Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); ⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.
 
 ## Đọc theo thứ tự này
 
@@ -59,18 +59,18 @@ Mọi project đều là **MVC** và controller đóng vai **Facade**. Cột *Pa
 | 26 | `J1.S.P0062` | [Create a program to analyze file path](HE176322_J1SP0062_AnalyzeFilePath/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · service · utils · view | 10 | — | ⏳ | ✅ |
 | 30 | `J1.S.P0064` | [Check data format](HE176322_J1SP0064_CheckDataFormat/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · service · utils · view | 10 | — | ⏳ | ✅ |
 | 33 | `J1.S.P0069` | [Input, sort and display student information](HE176322_J1SP0069_WriteReadFile/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · utils · view | 11 | — | ⏳ | ✅ |
-| 37 | `J1.S.P0068` | [Input, sort and display student information](HE176322_J1SP0068_StudentCollectionSort/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · service · utils · view | 11 | Strategy | ⏳ | ✅ |
+| 37 | `J1.S.P0068` | [Input, sort and display student information](HE176322_J1SP0068_StudentCollectionSort/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · service · utils · view | 13 | Strategy | ✅ | ✅ |
 | 39 | `J1.S.P0067` | [Analyze the user input string](HE176322_J1SP0067_AnalyzeString/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · service · utils · view | 10 | — | ⏳ | ✅ |
 | 40 | `J1.S.P0001` | [Bubble sort algorithm](HE176322_J1SP0001_BubbleSort/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · service · utils · view | 11 | — | ✅ | ✅ |
 | 40 | `J1.S.P0002` | [Selection sort algorithm](HE176322_J1SP0002_SelectionSort/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · service · utils · view | 11 | — | ✅ | ✅ |
 | 40 | `J1.S.P0003` | [Insertion sort algorithm](HE176322_J1SP0003_InsertionSort/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · service · utils · view | 11 | — | ✅ | ✅ |
 | 40 | `J1.S.P0083` | [Stacks](HE176322_J1SP0083_MyStack/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · utils · view | 10 | — | ✅ | ✅ |
 | 42 | `J1.S.P0053` | [Sort one-dimensional array with bubble sort algorithm](HE176322_J1SP0053_BubbleSortMenu/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · service · utils · view | 11 | — | ⏳ | ✅ |
-| 42 | `J1.S.P0061` | [Create a program to calculate perimeter and area](HE176322_J1SP0061_ShapeCalculator/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · service · utils · view | 13 | — | ⏳ | ✅ |
+| 42 | `J1.S.P0061` | [Create a program to calculate perimeter and area](HE176322_J1SP0061_ShapeCalculator/HUONG-DAN.md) | Dễ | constants · controller · dto · main · model · repository · service · utils · view | 14 | — | ⏳ | ✅ |
 | 48 | `J1.S.P0058` | [Write program dictionary](HE176322_J1SP0058_Dictionary/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · utils · view | 11 | — | ⏳ | ✅ |
 | 50 | `J1.S.P0008` | [Letter and character count](HE176322_J1SP0008_LetterCharacterCount/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · service · utils · view | 10 | — | ⏳ | ✅ |
-| 50 | `J1.S.P0009` | [Fibonacci](HE176322_J1SP0009_Fibonacci/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · view | 10 | — | ⏳ | ✅ |
-| 50 | `J1.S.P0010` | [Linear search](HE176322_J1SP0010_LinearSearch/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · utils · view | 11 | — | ⏳ | ✅ |
+| 50 | `J1.S.P0009` | [Fibonacci](HE176322_J1SP0009_Fibonacci/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · view | 10 | — | ✅ | ✅ |
+| 50 | `J1.S.P0010` | [Linear search](HE176322_J1SP0010_LinearSearch/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · utils · view | 11 | — | ✅ | ✅ |
 | 56 | `J1.S.P0057` | [User management system](HE176322_J1SP0057_UserManagement/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · utils · view | 11 | — | ⏳ | ✅ |
 | 60 | `J1.S.P0082` | [Playing cards](HE176322_J1SP0082_PlayingCards/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · view | 12 | — | ✅ | ✅ |
 | 60 | `J1.S.P0084` | [Large number](HE176322_J1SP0084_LargeNumber/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · utils · view | 11 | — | ✅ | ✅ |
@@ -82,7 +82,7 @@ Mọi project đều là **MVC** và controller đóng vai **Facade**. Cột *Pa
 | 70 | `J1.S.P0005` | [Merge sort algorithm](HE176322_J1SP0005_MergeSort/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · service · utils · view | 12 | Strategy | ⏳ | ✅ |
 | 70 | `J1.S.P0006` | [Binary search algorithm](HE176322_J1SP0006_BinarySearch/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · service · utils · view | 12 | Strategy | ⏳ | ✅ |
 | 70 | `J1.S.P0007` | [Undirected graphs representation](HE176322_J1SP0007_UndirectedGraph/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · utils · view | 12 | — | ✅ | ✅ |
-| 70 | `J1.S.P0056` | [Program to manage worker information](HE176322_J1SP0056_WorkerManagement/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · utils · view | 18 | Strategy | ⏳ | ✅ |
+| 70 | `J1.S.P0056` | [Program to manage worker information](HE176322_J1SP0056_WorkerManagement/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · service · utils · view | 17 | Strategy | ⏳ | ✅ |
 | 70 | `J1.S.P0065` | [Check data format](HE176322_J1SP0065_StudentMarkStatistics/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · service · utils · view | 14 | Strategy, Builder | ⏳ | ✅ |
 | 72 | `J1.S.P0050` | [Solving the equation, find the square numbers, even numbers,](HE176322_J1SP0050_EquationSolver/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · service · utils · view | 13 | Template Method | ⏳ | ✅ |
 | 73 | `J1.S.P0055` | [Doctor management program](HE176322_J1SP0055_DoctorManagement/HUONG-DAN.md) | Trung bình | constants · controller · dto · main · model · repository · utils · view | 10 | — | ⏳ | ✅ |
