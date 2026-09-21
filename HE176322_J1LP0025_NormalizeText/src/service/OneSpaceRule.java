@@ -9,7 +9,7 @@ import utils.TextUtils;
  *
  * @author HE176322
  */
-public class OneSpaceRule implements NormalizeRule {
+public class OneSpaceRule implements INormalizeRule {
 
     // Creates the rule.
     public OneSpaceRule() {
@@ -18,23 +18,28 @@ public class OneSpaceRule implements NormalizeRule {
     // Collapses spaces.
     @Override
     public String apply(String text) {
-        StringBuilder out = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         boolean pendingSpace = false;
+
         // decide each character once
         for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
+            char character = text.charAt(i);
+
             // a space: remember it, but not at the very beginning
-            if (TextUtils.isSpace(c)) {
-                pendingSpace = out.length() > 0;
+            if (TextUtils.isSpace(character)) {
+                pendingSpace = (builder.length() > 0);
             } else {
                 // a real character: write the remembered space first
                 if (pendingSpace) {
-                    out.append(Constants.SPACE);
+                    builder.append(Constants.SPACE);
                     pendingSpace = false;
                 }
-                out.append(c);
+
+                // then the character itself
+                builder.append(character);
             }
         }
-        return out.toString();
+
+        return builder.toString();
     }
 }

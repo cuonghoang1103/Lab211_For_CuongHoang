@@ -10,7 +10,7 @@ import utils.TextUtils;
  *
  * @author HE176322
  */
-public class RemoveBlankLineRule implements NormalizeRule {
+public class RemoveBlankLineRule implements INormalizeRule {
 
     // Creates the rule.
     public RemoveBlankLineRule() {
@@ -19,19 +19,24 @@ public class RemoveBlankLineRule implements NormalizeRule {
     // Drops blank lines, joins the others with one space.
     @Override
     public String apply(String text) {
-        StringBuilder out = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
+
         // look at every line of the text
         for (String line : text.split(Constants.LINE_BREAK)) {
             // an empty line, or only spaces and tabs: contributes nothing
             if (TextUtils.isBlank(line)) {
                 continue;
             }
+
             // not the first kept line: glue it to the previous one
-            if (out.length() > 0) {
-                out.append(Constants.SPACE);
+            if (builder.length() > 0) {
+                builder.append(Constants.SPACE);
             }
-            out.append(line);
+
+            // then the line itself
+            builder.append(line);
         }
-        return out.toString();
+
+        return builder.toString();
     }
 }

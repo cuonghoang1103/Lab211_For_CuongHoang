@@ -15,8 +15,8 @@ public final class TextUtils {
 
     // Tells whether a character counts as a space: anything Java calls whitespace (space,
     // tab, line break) plus the non-breaking space, which Java does not.
-    public static boolean isSpace(char c) {
-        return Character.isWhitespace(c) || c == Constants.NBSP;
+    public static boolean isSpace(char character) {
+        return Character.isWhitespace(character) || (character == Constants.NBSP);
     }
 
     // Tells whether a line has no visible character.
@@ -28,29 +28,33 @@ public final class TextUtils {
                 return false;
             }
         }
+
         return true;
     }
 
-    // Tells whether a character is one of the brief's ", .
-    public static boolean isPunctuation(char c) {
-        return Constants.PUNCTUATION.indexOf(c) >= 0;
+    // Tells whether a character is one of the brief's comma, dot and colon.
+    public static boolean isPunctuation(char character) {
+        return (Constants.PUNCTUATION.indexOf(character) >= 0);
     }
 
     // Removes the spaces at the end of what has been built so far.
-    public static void dropTrailingSpaces(StringBuilder out) {
+    public static void removeTrailingSpaces(StringBuilder builder) {
         // cut the last character while it is a space
-        while (out.length() > 0 && out.charAt(out.length() - 1) == Constants.SPACE) {
-            out.setLength(out.length() - 1);
+        while ((builder.length() > 0) &&
+                (builder.charAt(builder.length() - 1) == Constants.SPACE)) {
+            builder.setLength(builder.length() - 1);
         }
     }
 
     // Finds the first position at or after from that is not a space.
-    public static int skipSpaces(String text, int from) {
-        int i = from;
+    public static int findNonSpace(String text, int from) {
+        int index = from;
+
         // move right while the character is a space
-        while (i < text.length() && text.charAt(i) == Constants.SPACE) {
-            i++;
+        while ((index < text.length()) && (text.charAt(index) == Constants.SPACE)) {
+            index++;
         }
-        return i;
+
+        return index;
     }
 }

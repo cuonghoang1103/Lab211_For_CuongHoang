@@ -7,7 +7,7 @@ package service;
  *
  * @author HE176322
  */
-public class FirstLetterUpperRule implements NormalizeRule {
+public class FirstLetterUpperRule implements INormalizeRule {
 
     // Creates the rule.
     public FirstLetterUpperRule() {
@@ -16,15 +16,17 @@ public class FirstLetterUpperRule implements NormalizeRule {
     // Raises the first letter of the text.
     @Override
     public String apply(String text) {
-        StringBuilder out = new StringBuilder(text);
+        StringBuilder builder = new StringBuilder(text);
+
         // find the first letter
-        for (int i = 0; i < out.length(); i++) {
+        for (int i = 0; i < builder.length(); i++) {
             // the first letter: raise it and stop
-            if (Character.isLetter(out.charAt(i))) {
-                out.setCharAt(i, Character.toUpperCase(out.charAt(i)));
+            if (Character.isLetter(builder.charAt(i))) {
+                builder.setCharAt(i, Character.toUpperCase(builder.charAt(i)));
                 break;
             }
         }
-        return out.toString();
+
+        return builder.toString();
     }
 }

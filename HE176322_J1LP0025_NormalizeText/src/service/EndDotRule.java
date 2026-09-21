@@ -7,7 +7,7 @@ import constants.Constants;
  *
  * @author HE176322
  */
-public class EndDotRule implements NormalizeRule {
+public class EndDotRule implements INormalizeRule {
 
     // Creates the rule.
     public EndDotRule() {
@@ -16,19 +16,29 @@ public class EndDotRule implements NormalizeRule {
     // Makes the text end with a dot.
     @Override
     public String apply(String text) {
+        StringBuilder builder = new StringBuilder(text);
+        char last = Constants.SPACE;
+
         // nothing to end
         if (text.isEmpty()) {
             return text;
         }
-        char last = text.charAt(text.length() - 1);
+
+        // the last character decides
+        last = text.charAt(text.length() - 1);
+
         // already ends a sentence
         if (Constants.TERMINATORS.indexOf(last) >= 0) {
             return text;
         }
-        // a comma or colon at the end becomes the dot
-        if (last == Constants.COMMA || last == Constants.COLON) {
-            return text.substring(0, text.length() - 1) + Constants.DOT;
+
+        // a comma or colon at the end is replaced by the dot
+        if ((last == Constants.COMMA) || (last == Constants.COLON)) {
+            builder.setLength(builder.length() - 1);
         }
-        return text + Constants.DOT;
+
+        // the dot the brief wants at the end of the text
+        builder.append(Constants.DOT);
+        return builder.toString();
     }
 }

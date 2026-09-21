@@ -33,10 +33,10 @@
 
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
-| Đọc file bằng `BufferedReader`, dùng `StringBuffer…` | slot 1 | `utils/FileUtils.readLines` (BufferedReader), `StringBuilder` trong mọi luật |
+| Đọc file bằng `BufferedReader`, dùng `StringBuffer…` | slot 1 | `utils/FileUtils.readLines` (BufferedReader, **Main gọi**), `StringBuilder` trong mọi luật |
 | Dùng **Exception** khi đọc/ghi (file not found, cannot read/write) | Function details | `FileUtils` ném `Exception(Message.X)`; `Main` bắt, in `e.getMessage()` |
 | Tên file `input.txt`, `output.txt` | Function details | `Constants.INPUT_FILE`, `Constants.OUTPUT_FILE` |
-| Ghi kết quả ra file | slot 4 | `DocumentRepository.saveDocument` → `FileUtils.writeLines` |
+| Ghi kết quả ra file | slot 4 | `DocumentRepository.saveOutputFile` → `FileUtils.writeLines` |
 
 Đề **không có màn hình**; bài giữ nguyên menu của bản tham chiếu (6 mục) để thầy xem được từng luật:
 `1` tạo file mẫu · `2` chuẩn hoá input → output · `3` đọc lại output từ đĩa · `4` chuẩn hoá một dòng gõ tay ·
@@ -71,7 +71,7 @@
 | 8 chạy **trước** 4–5 | `efficient.a` chưa có cách → vẫn đúng, nhưng `buffers . the` thì dấu chấm còn đứng một mình, dễ sai khi sửa |
 | 6 chạy **trước** 4 | `“hello ,” ` → chấm câu chưa kéo vào, còn khoảng trắng trước dấu đóng ngoặc |
 
-Thứ tự nằm ở **một chỗ duy nhất**: `NormalizeController.createRules()`.
+Thứ tự nằm ở **một chỗ duy nhất**: `NormalizeController.createRuleList()`.
 
 ### 2.3 Mấy ca khó (menu 5 in ra hết)
 
@@ -79,7 +79,7 @@ Thứ tự nằm ở **một chỗ duy nhất**: `NormalizeController.createRule
 |---|---|---|
 | `a \t  b\t\tc` | `A b c.` | tab là khoảng trắng (`TextUtils.isSpace`) |
 | `word␣(nbsp)word` | `Word word …` | `Character.isWhitespace` trả **false** với NBSP → liệt kê tay |
-| `the price is 3.14 dollars` | `The price is 3.14 dollars.` | dấu chấm **thập phân** không thêm cách, không viết hoa |
+| `the price is 3.14 dollars` | `The price is 3.14 dollars.` | dấu chấm **thập phân** không thêm cách, không viết hoa (`isSpaceNeeded`, `isDecimalPoint`) |
 | `this ends with a comma ,` | `This ends with a comma.` | dấu phẩy cuối được **thay** bằng chấm |
 | `he said "  hello there  " loudly` | `He said "hello there" loudly.` | ngoặc thẳng: đếm chẵn/lẻ để biết mở hay đóng |
 | (chuỗi rỗng / toàn cách) | (rỗng) | không tự sinh ra `.` |
@@ -101,34 +101,46 @@ Thứ tự nằm ở **một chỗ duy nhất**: `NormalizeController.createRule
 
 ```
 HE176322_J1LP0025_NormalizeText/src/
-├── constants/  Message.java             câu chữ + 16 ca mẫu (menu 5)
-│               Constants.java           tên file, ký tự đặc biệt, số menu, file mẫu
-├── model/      TextDocument             dòng gốc + văn bản đã chuẩn hoá; getFullText()
-├── dto/        NormalizeRequestDTO      dòng gõ tay (main ──► controller)
-│               DocumentResponseDTO      dòng gốc + kết quả  ──► view
-│               CaseResponseDTO          trước/sau của 1 ca  ──► view
-├── repository/ IDocumentRepository      «interface» load/save (DIP)
-│               DocumentRepository       input.txt ⇄ TextDocument ⇄ output.txt (qua FileUtils)
-├── service/    NormalizeRule            «interface» Strategy: String apply(String)
+├── constants/  Message.java             câu chữ + 16 ca mẫu SAMPLE_CASE_ARRAY (menu 5)
+│               Constants.java           tên file, ký tự đặc biệt, số menu, file mẫu SAMPLE_LINE_ARRAY
+├── model/      TextDocument             lineList (dòng gốc) + normalizedText; getFullText()
+├── dto/        NormalizeRequestDTO      main ──► controller: text (dòng gõ) hoặc lineList (file main đã đọc)
+│               NormalizeResponseDTO     controller ──► view: sampleLineList, inputLineList, outputLineList,
+│                                        typedText, normalizedText, caseList
+│               CaseResponseDTO          trước/sau của 1 ca mẫu (phần tử của caseList)
+├── repository/ IDocumentRepository      «interface» (DIP)
+│               DocumentRepository       giữ TextDocument document; saveDocument/getDocument;
+│                                        saveSampleFile (input.txt), saveOutputFile (output.txt) qua FileUtils
+├── service/    INormalizeRule           «interface» Strategy: String apply(String)
 │               9 lớp *Rule              mỗi luật của đề một lớp
-│               NormalizeService         Context: chạy text qua danh sách luật; điều phối đọc-sửa-ghi
-├── controller/ NormalizeController      Facade: CHỌN luật + thứ tự (createRules), service ──► view
-├── view/       NormalizeView            in các khung BEFORE/AFTER/ON DISK/ca mẫu; hiện \t, <nbsp>
-├── utils/      FileUtils                đọc/ghi file, ném Exception (static)
-│               TextUtils                isSpace, isBlank, isPunctuation, dropTrailingSpaces, skipSpaces
+│               NormalizeService         Context: lấy document từ repository, chạy 9 luật, cất kết quả lại
+├── controller/ NormalizeController      Facade: CHỌN luật + thứ tự (createRuleList); service ──► view 1 lần/luồng
+├── view/       NormalizeView            responseDTO · setResponseDTO · display() (hiện \t, <nbsp>)
+├── utils/      FileUtils                readLines (Main gọi), writeLines (repository gọi); ném Exception
+│               TextUtils                isSpace, isBlank, isPunctuation, removeTrailingSpaces, findNonSpace
 │               Validation               getChoice, getRawText (static)
-└── main/       Main                     menu + Scanner + bắt mọi lỗi file
+└── main/       Main                     final + ctor private; menu + Scanner + ĐỌC FILE + bắt mọi lỗi file
 ```
+
+| Lớp | Làm gì | Không được làm |
+|---|---|---|
+| `Main` | menu, đọc bàn phím, **đọc `input.txt`/`output.txt` qua `FileUtils.readLines`**, gói DTO, bắt lỗi in `e.getMessage()`; **mỗi `case` gọi controller 1 lần** | gọi model/view/service/repository |
+| `NormalizeController` | nhận DTO → service → gói `NormalizeResponseDTO` → `view.setResponseDTO` + `view.display()` **1 lần** | Scanner, `System.out`, import model |
+| `NormalizeService` | lấy document từ repository, chạy 9 luật, cất kết quả; chạy 16 ca mẫu | in ra, đọc file |
+| `DocumentRepository` | giữ `TextDocument` (dữ liệu), ghi `input.txt` mẫu / `output.txt` qua `FileUtils` | luật, in ra, **đọc** file |
+| `NormalizeView` | in những gì controller đã đặt vào `responseDTO` | tính toán, nhận tham số |
 
 **Luồng menu 2** (Controller ↔ Service ↔ Repository ↔ Model):
 
 ```
-Main ──► controller.normalizeFile()
-            └─► service.normalizeFile()
-                   ├─ repository.loadDocument()  → FileUtils.readLines("input.txt") → TextDocument
-                   ├─ normalize(document.getFullText())   ← 9 luật chạy lần lượt
-                   └─ repository.saveDocument(document) → FileUtils.writeLines("output.txt")
-            └─► view.setDocument(dto); view.displayNormalized()
+Main: requestDTO.setLineList(FileUtils.readLines("input.txt"))      ← Main đọc file (tờ checklist 1.1)
+   └─► controller.normalizeFile(requestDTO)                           ← 1 lần duy nhất của case 2
+          └─► service.normalizeFile(requestDTO)
+                 ├─ repository.saveDocument(lineList)      → TextDocument
+                 ├─ normalizeDocument(): 9 luật chạy lần lượt trên document.getFullText(),
+                 │                       kết quả cất vào document.setNormalizedText(...)
+                 └─ repository.saveOutputFile()            → FileUtils.writeLines("output.txt")
+          └─► responseDTO.setInputLineList(...) + setNormalizedText(...) → view.setResponseDTO → view.display()
 Main: catch (Exception e) → in "Error: File not found: input.txt" …
 ```
 
@@ -138,17 +150,17 @@ Main: catch (Exception e) → in "Error: File not found: input.txt" …
 |---|---|
 | **Name** | Strategy (Behavioral), dùng thành **danh sách chạy nối tiếp** (kiểu *Pipes and Filters*) |
 | **Problem** | Đề có 7 luật, thầy hay bảo *"thêm luật: không quá 2 câu hỏi liên tiếp"* hoặc *"bỏ luật chữ thường đi"*. Viết cả 7 luật trong một hàm dài thì sửa một luật dễ làm vỡ luật khác, và không test riêng được. |
-| **Solution** | `NormalizeRule` = **Strategy** (`String apply(String)`). 9 lớp `*Rule` = **ConcreteStrategy**. `NormalizeService` = **Context**: giữ `ArrayList<NormalizeRule> rules` nhận qua **constructor**, `for (rule : rules) result = rule.apply(result);`. `NormalizeController.createRules()` là nơi **chọn** luật và thứ tự. |
-| **Consequences** | ✅ Thêm luật = **thêm 1 lớp + 1 dòng** `rules.add(...)`; bỏ luật = xoá 1 dòng; mỗi luật đọc được riêng (**S**, **O**, **D**). ❌ Nhiều lớp nhỏ; **thứ tự** giữa các luật trở thành một ràng buộc phải hiểu (mục 2.2). |
+| **Solution** | `INormalizeRule` = **Strategy** (`String apply(String)`). 9 lớp `*Rule` = **ConcreteStrategy**. `NormalizeService` = **Context**: giữ `ArrayList<INormalizeRule> ruleList` nhận qua **constructor**, `for (rule : ruleList) result = rule.apply(result);`. `NormalizeController.createRuleList()` là nơi **chọn** luật và thứ tự. |
+| **Consequences** | ✅ Thêm luật = **thêm 1 lớp + 1 dòng** `ruleList.add(...)`; bỏ luật = xoá 1 dòng; mỗi luật đọc được riêng (**S**, **O**, **D**). ❌ Nhiều lớp nhỏ; **thứ tự** giữa các luật trở thành một ràng buộc phải hiểu (mục 2.2). |
 
 > Giống **Chain of Responsibility** ở chỗ nối thành chuỗi, nhưng khác: trong CoR chỉ **một** mắt xích xử
 > lý rồi dừng; ở đây **mọi** luật đều chạy — nên gọi đúng là Strategy + dây chuyền.
 
-**Thầy bảo "thêm luật: bỏ dấu cách trước dấu `!` và `?`"**: tạo `service/NoSpaceBeforeMarkRule implements NormalizeRule`,
-thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRule` trong `createRules()`. Không sửa lớp nào khác.
+**Thầy bảo "thêm luật: bỏ dấu cách trước dấu `!` và `?`"**: tạo `service/NoSpaceBeforeMarkRule implements INormalizeRule`,
+thêm `ruleList.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRule` trong `createRuleList()`. Không sửa lớp nào khác.
 
 **Pattern khác**: **MVC** (thầy bắt — controller ~ Servlet, view ~ JSP, model ~ JavaBean) · **Facade** = `NormalizeController`
-(Main chỉ gọi `normalizeFile()`, không biết có repository, 9 luật, FileUtils) · **Repository** (mẫu kiến trúc) =
+(Main chỉ gọi `normalizeFile(requestDTO)`, không biết có repository, 9 luật) · **Repository** (mẫu kiến trúc) =
 `IDocumentRepository`/`DocumentRepository` · **Decorator** của Java IO: `BufferedReader` bọc `InputStreamReader` bọc
 `FileInputStream`, mỗi lớp thêm một khả năng (bộ đệm, giải mã UTF-8).
 
@@ -156,11 +168,11 @@ thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRul
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | mỗi `*Rule` một luật; `FileUtils` chỉ file; `DocumentRepository` chỉ load/save; `NormalizeView` chỉ in |
+| **S** | mỗi `*Rule` một luật; `FileUtils` chỉ file; `DocumentRepository` chỉ giữ tài liệu + ghi file; `NormalizeView` chỉ in |
 | **O** | thêm luật không sửa `NormalizeService` |
-| **L** | mọi `*Rule` thay được chỗ `NormalizeRule`: nhận chuỗi, trả chuỗi, không ném lỗi |
-| **I** | `NormalizeRule` đúng **1** hàm |
-| **D** | `NormalizeService` phụ thuộc `NormalizeRule` + `IDocumentRepository` (trừu tượng), nhận qua constructor |
+| **L** | mọi `*Rule` thay được chỗ `INormalizeRule`: nhận chuỗi, trả chuỗi, không ném lỗi |
+| **I** | `INormalizeRule` đúng **1** hàm |
+| **D** | `NormalizeService` phụ thuộc `INormalizeRule` + `IDocumentRepository` (trừu tượng), nhận qua constructor |
 
 ---
 
@@ -170,18 +182,18 @@ thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRul
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/TextDocument.java` | `lines`, `normalizedText` + ctor rỗng/đủ + get/set + `getLineCount` + `getFullText` |
-| 2 | `dto/*` | 3 DTO JavaBean |
+| 1 | `model/TextDocument.java` | `lineList`, `normalizedText` + ctor rỗng/đủ + get/set + `getLineCount` + `getFullText` |
+| 2 | `dto/*` | `NormalizeRequestDTO`, `NormalizeResponseDTO`, `CaseResponseDTO` — JavaBean |
 | 3 | `utils/FileUtils.java` | `readLines`, `writeLines` + 4 thông báo lỗi |
-| 4 | `repository/IDocumentRepository` → `DocumentRepository` | `createSample/loadDocument/saveDocument/readOutput` |
-| 5 | `service/NormalizeRule` | interface 1 hàm |
+| 4 | `repository/IDocumentRepository` → `DocumentRepository` | `saveDocument/getDocument/saveSampleFile/saveOutputFile` |
+| 5 | `service/INormalizeRule` | interface 1 hàm |
 | 6 | `utils/TextUtils` | 5 hàm ký tự dùng chung |
 | 7 | `service/*Rule` ×9 | **mỗi luật của đề** — gõ theo bảng mục 1 |
-| 8 | `service/NormalizeService` | `normalize` (private) + 5 hàm cho 5 mục menu |
-| 9 | `view/NormalizeView` | 3 setter + 5 `display…` + `visible`, `countLines` (private) |
-| 10 | `controller/NormalizeController` | `createRules()` + 5 hàm |
+| 8 | `service/NormalizeService` | `normalize`, `normalizeDocument` (private) + 4 hàm cho menu 1, 2, 4, 5 |
+| 9 | `view/NormalizeView` | field `responseDTO` + `setResponseDTO` + `display()`; `private` `displayNormalized/displayOutputFile/displayCases/formatLineCount/makeVisible` |
+| 10 | `controller/NormalizeController` | `createRuleList()` + 5 hàm, mỗi hàm render 1 lần |
 | 11 | `constants/Message`, `Constants` | gõ dần |
-| 12 | `utils/Validation`, `main/Main` | menu + `normalizeTypedLine` |
+| 12 | `utils/Validation`, `main/Main` | `final` + `private Main()`; menu + `readFile` + `inputLine` |
 
 **Bẫy hay gặp**
 
@@ -189,6 +201,7 @@ thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRul
 2. `trim()` dòng gõ tay trước khi chuẩn hoá → không còn gì để chứng minh luật 2. `Validation.getRawText` **không** trim.
 3. `new FileReader(f)` dùng bảng mã mặc định của máy → `“ ”` thành rác trên Windows. Luôn ghi rõ `UTF_8`.
 4. NetBeans chạy với thư mục làm việc = **thư mục project** → `input.txt` phải đặt cạnh `build.xml`, không phải trong `src/`.
+5. Đọc file trong repository/service → trái tờ checklist 1.1 (*"đọc từ file … thực hiện ở Main"*). Main đọc bằng `FileUtils.readLines`, đưa các dòng vào `requestDTO`.
 
 ---
 
@@ -221,7 +234,7 @@ thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRul
 | Chạy | **Ctrl+F5**, chọn `1` rồi `2` |
 | Quan sát | tab **Variables**: `rule` (xem nó là lớp nào) và `result` — mỗi lần **F8** thấy văn bản sau thêm một luật |
 | Bước vào | **F7** ở dòng đó → nhảy vào đúng lớp `*Rule` đang chạy (đa hình qua interface) |
-| Lỗi file | breakpoint `throw new Exception(String.format(Message.FILE_NOT_FOUND, path));` trong `FileUtils.readLines`, chọn `2` khi chưa có file, **F8** tới `catch` trong `Main` |
+| Lỗi file | breakpoint `throw new Exception(String.format(Message.FILE_NOT_FOUND, path));` trong `FileUtils.readLines`, chọn `2` khi chưa có file, **F8** tới `catch` trong `Main.main` (lỗi đi thẳng từ `Main.readFile`, controller chưa được gọi) |
 
 ---
 
@@ -231,20 +244,31 @@ thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRul
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: field `private` trong `TextDocument`, DTO. **Kế thừa**: 9 lớp `implements NormalizeRule`, `DocumentRepository implements IDocumentRepository`; ghi đè `toString()`. **Đa hình**: `rule.apply(result)` — một dòng code, chạy 9 hàm khác nhau tuỳ đối tượng thật. **Trừu tượng**: `NormalizeRule` chỉ nói "biến chuỗi thành chuỗi", không nói cách. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: field `private` trong `TextDocument`, DTO. **Kế thừa**: 9 lớp `implements INormalizeRule`, `DocumentRepository implements IDocumentRepository`; ghi đè `toString()`. **Đa hình**: `rule.apply(result)` — một dòng code, chạy 9 hàm khác nhau tuỳ đối tượng thật. **Trừu tượng**: `INormalizeRule` chỉ nói "biến chuỗi thành chuỗi", không nói cách. |
 | Interface hay abstract class cho luật? | Các luật **không chung dòng code nào** (phần chung đã tách vào `TextUtils`) → interface. |
 
 ### Access modifier, static, kiểu trả về
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| Hàm nào `public`? | `apply` (service gọi), hàm service (controller gọi), hàm repository (service gọi), hàm view (controller gọi), hàm `FileUtils/TextUtils/Validation` (nhiều lớp gọi), getter/setter. `normalize`, `createRules`, `isSpaceNeeded`, `isDecimalPoint`, `visible`, `countLines` là `private` — chỉ lớp của nó dùng. |
+| Hàm nào `public`? | `apply` (service gọi), hàm service (controller gọi), hàm repository (service gọi), `setResponseDTO`/`display` của view (controller gọi), hàm `FileUtils/TextUtils/Validation` (nhiều lớp gọi), getter/setter. `normalize`, `normalizeDocument`, `createRuleList`, `isSpaceNeeded`, `isSentenceEnd`, `isDecimalPoint`, `displayNormalized`, `displayOutputFile`, `displayCases`, `formatLineCount`, `makeVisible` là `private` — chỉ lớp của nó dùng. |
 | `static` ở đâu, vì sao? | `FileUtils`, `TextUtils`, `Validation` — Guide: utils *"phải dùng static method"*; kết quả chỉ phụ thuộc tham số. Hằng trong `Message/Constants`. Hàm trong `Main`. Không nơi nào khác. |
-| **Bỏ `static` ở `FileUtils`?** | `FileUtils.readLines(...)` báo lỗi biên dịch; phải bỏ `private` constructor, `new FileUtils()` trong `DocumentRepository` rồi gọi qua đối tượng. |
+| **Bỏ `static` ở `FileUtils`?** | `FileUtils.readLines(...)` báo lỗi biên dịch; phải bỏ `private` constructor, `new FileUtils()` trong `Main` và `DocumentRepository` rồi gọi qua đối tượng. |
 | **Sao `ArrayList` mà không `List`?** | `List` là **interface**, `ArrayList` là **lớp cài đặt** bằng mảng động: lấy theo chỉ số O(1) (view in dòng `i + 1`), thêm cuối nhanh; `LinkedList` cài cùng hợp đồng bằng nút liên kết, lấy theo chỉ số O(n). Thứ tự luật và dòng file là **có chỉ số**, nên em khai báo đúng `ArrayList`. |
 | `apply` trả `String`, không `void`? | `String` của Java **bất biến** — không sửa tại chỗ được, luật nào cũng phải trả chuỗi mới cho luật sau. |
 | `readLines` trả `ArrayList<String>`? | Giữ **từng dòng** như trên đĩa để khung BEFORE đánh số được; nối thành 1 chuỗi là việc của `TextDocument.getFullText()`. |
 | Sao `FileUtils` ném `Exception` mà không tự in lỗi? | Đề bắt *"use Exception to handle"*; utils không được in (chỉ view/main). `Main` là nơi bắt duy nhất. |
+
+### Kiến trúc (tờ checklist)
+
+| Câu hỏi | Trả lời mẫu |
+|---|---|
+| **Sao bài có repository?** | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. `DocumentRepository` giữ **dữ liệu** chương trình làm việc — `TextDocument` (các dòng Main đọc được + văn bản đã chuẩn hoá) — với `saveDocument/getDocument`; ghi `input.txt` mẫu và `output.txt` qua `FileUtils`. Luật chuẩn hoá (tính toán) ở `NormalizeService`, lấy document **từ** repository rồi cất kết quả **vào** lại. |
+| **Ai đọc file?** | **Main** (tờ checklist 1.1: *"đọc từ file … thực hiện ở Main"*): `Main.readFile` gọi `FileUtils.readLines`, đặt các dòng vào `requestDTO.lineList`. Ghi file vẫn ở `FileUtils`, do repository gọi (tờ giấy không nêu "ghi"). |
+| **View nhận dữ liệu thế nào?** | Qua **thuộc tính**: `NormalizeView` có `private NormalizeResponseDTO responseDTO` + `setResponseDTO(...)`; `display()` **không tham số**, in phần nào controller đã đặt (khác `null`). Mỗi hàm của controller gọi `setResponseDTO` rồi `display()` **đúng 1 lần**. Bản trước có 3 setter + 5 hàm `display…` — đã gộp. |
+| **Validate ở đâu?** | Ở `Main` qua `utils/Validation` (menu 0–5; dòng gõ tay giữ nguyên, không trim). Lỗi file do `FileUtils` ném, `Main` in. Chuẩn hoá không có "dữ liệu sai" — mọi chuỗi đều chuẩn hoá được. |
+| **Mỗi case gọi controller mấy lần?** | **1 lần**: `createSample`, `normalizeFile`, `showOutput`, `normalizeText`, `showCases` — không có lần gọi thêm nào. |
+| Menu 3 sao không qua service? | Không có gì để tính: Main đọc `output.txt`, controller đưa nguyên các dòng cho view. Đưa qua service chỉ để chuyền tay thì thừa một tầng. |
 
 ### Luật & chỗ khó
 
@@ -255,17 +279,32 @@ thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRul
 | Sao thêm `?` và `!` vào dấu kết câu? | Để không sinh ra `?.` ở cuối và viết hoa đúng sau câu hỏi — ghi ở mục 9. |
 | Độ phức tạp? | Mỗi luật duyệt chuỗi 1 lần: O(n) · 9 luật → O(9n) = **O(n)**. |
 
+### Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/DocumentRepository` giữ `TextDocument`; **Main đọc file** (`Main.readFile` → `FileUtils.readLines`); `NormalizeController` không import `model`; `NormalizeView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần/luồng**; mỗi `case` trong `Main.main` gọi controller **1 lần** |
+| **1.3** interface bắt đầu bằng `I` | `service/INormalizeRule` (bản trước `NormalizeRule`), `repository/IDocumentRepository` |
+| **1.4** method mở đầu bằng động từ | `removeTrailingSpaces`, `findNonSpace` (bản trước `dropTrailingSpaces`, `skipSpaces`), `makeVisible`, `formatLineCount` (bản trước `visible`, `countLines`), `createRuleList`, `saveSampleFile`, `saveOutputFile` |
+| **1.5** tên collection / array | `lineList`, `ruleList`, `caseList`, `inputLineList`, `outputLineList`, `sampleLineList` (bản trước `lines`, `rules`, `cases`); `SAMPLE_LINE_ARRAY`, `SAMPLE_CASE_ARRAY`, `sampleArray`; biến 1 chữ `c` → `character` |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `Main.main`: `requestDTO = null`, `running = true`, `choice = 0`; `FileUtils.readLines`: `lineList`, `String line = ""` ở đầu hàm; `EndDotRule.apply`: `char last = Constants.SPACE` rồi mới gán; `SpaceAfterPunctuationRule`: `int next = 0` ở đầu khối `while`; `Validation.getChoice`: `int choice = 0` |
+| **2.3** ngắt dòng | dòng dài ngắt **sau** `&&`/`\|\|` (`QuoteRule`, `SentenceCapitalRule.isDecimalPoint`, `SpaceAfterPunctuationRule.isSpaceNeeded`, `TextUtils.removeTrailingSpaces`); nối chuỗi mẫu ngắt **trước** `+` (`Constants.SAMPLE_LINE_ARRAY`) |
+| **2.8** dòng trống | giữa các hằng (Constants, Message), sau vùng khai báo biến, trước mọi comment đứng sau dòng code, giữa các `case`, sau `}` trước câu lệnh tiếp (kể cả `return`) |
+| **3.3** ngoặc | `QuoteRule`: `(character == Constants.OPEN_QUOTE) \|\| ((character == Constants.STRAIGHT_QUOTE) && !insideStraight)`; `EndDotRule`: `if ((last == Constants.COMMA) \|\| (last == Constants.COLON))`; `isDecimalPoint`: `(index < (builder.length() - 1))`; `Validation.getChoice`: `if ((choice < min) \|\| (choice > max))` |
+| **3.4** lớp chỉ có static | `Main` (`final` + `private Main()`), `FileUtils`, `TextUtils`, `Validation`, `Constants`, `Message` |
+| **3.8** cộng chuỗi | mọi luật dựng chuỗi bằng `StringBuilder`; `EndDotRule` dùng `builder.append(Constants.DOT)` (bản trước `text + Constants.DOT`) |
+
 ---
 
 ## 8. Thầy đổi yêu cầu tại chỗ
 
 | Thầy bảo | Sửa file | Không đụng |
 |---|---|---|
-| Thêm 1 luật mới | 1 lớp `*Rule` mới + 1 dòng `createRules()` | service, view, main, các luật cũ |
-| Bỏ luật chữ thường | xoá `rules.add(new LowerCaseRule());` | mọi file khác |
-| Giữ nguyên xuống dòng (không gộp 1 dòng) | `RemoveBlankLineRule` nối bằng `LINE_BREAK`, `OneSpaceRule` không coi `\n` là cách, `saveDocument` tách dòng | service, controller |
+| Thêm 1 luật mới | 1 lớp `*Rule implements INormalizeRule` mới + 1 dòng `createRuleList()` | service, view, main, các luật cũ |
+| Bỏ luật chữ thường | xoá `ruleList.add(new LowerCaseRule());` | mọi file khác |
+| Giữ nguyên xuống dòng (không gộp 1 dòng) | `RemoveBlankLineRule` nối bằng `LINE_BREAK`, `OneSpaceRule` không coi `\n` là cách, `saveOutputFile` tách dòng | service, controller |
 | Đổi tên file | `Constants.INPUT_FILE/OUTPUT_FILE` + `Message.MENU` | mọi file khác |
-| Chỉ chạy đúng đề: đọc-sửa-ghi, không menu | `Main.main` gọi `controller.normalizeFile()` một lần | tất cả phần còn lại |
+| Chỉ chạy đúng đề: đọc-sửa-ghi, không menu | `Main.main`: `requestDTO = readFile(Constants.INPUT_FILE);` rồi `controller.normalizeFile(requestDTO)` một lần | tất cả phần còn lại |
 
 ---
 
@@ -275,10 +314,17 @@ thêm `rules.add(new NoSpaceBeforeMarkRule());` sau `NoSpaceBeforePunctuationRul
 |---|---|---|---|
 | Màn hình | đề: không có | giữ **y nguyên** menu + thông báo của bản tham chiếu | quy tắc bộ lời giải (đề im lặng) |
 | Kịch bản test | bản tham chiếu: 5 kịch bản | 4 kịch bản giữ nguyên + 2 mới; `REPLACE_REFERENCE = True` | kịch bản 2 của bản cũ chỉ đúng khi kịch bản trước **để lại** `output.txt`, còn kịch bản 0 lại cần **không** có file — `verify.py` chạy mỗi kịch bản trên thư mục sạch nên không thể qua cả hai; thay bằng `1,2,3,0` |
-| Ví dụ đầu ra của đề | mở đầu bằng `“As` và `buffers, the cost of which` | `As …` và `buffers. The cost of which` | dấu `“` thừa và việc đổi `.` thành `,` không thuộc luật nào của đề — lỗi gõ của đề |
+| Ví dụ đầu ra của đề | mở đầu bằng `“As` và `buffers, the cost of which` | `As …` và `buffers. The cost of which` | dấu `“` thừa và việc đổi `.` thành `,` không thuộc luật nào của đề — lỗi gõ của đề (đã chạy lại đúng ví dụ của đề qua menu 2: mọi chỗ khác khớp từng ký tự) |
 | Dấu kết câu | đề chỉ nói dấu chấm | `.`, `?`, `!` | không sinh `?.`; viết hoa sau câu hỏi |
 | Dấu thập phân, NBSP, ngoặc thẳng `"` | đề không nói | xử lý riêng | ca thật của văn bản; menu 5 minh hoạ |
 | Dấu `,` hoặc `:` cuối văn bản | — | **thay** bằng `.` | tránh `,.` |
 | `input.txt` | đề: chương trình đọc file | **không** gửi kèm; menu 1 tạo file mẫu | để thấy ngay lỗi *file not found* mà đề bắt xử lý |
-| Kiến trúc | bản cũ: `entity/bo/ui`, 1 lớp `TextNormalizer` 6 hàm, controller in ra, Scanner static | 9 lớp luật (Strategy), `FileUtils` ở utils, load/save ở repository, in ở view, Scanner chỉ ở main | luật thầy + Design Pattern |
+| Kiến trúc | bản cũ: `entity/bo/ui`, 1 lớp `TextNormalizer` 6 hàm, controller in ra, Scanner static | 9 lớp luật (Strategy), `FileUtils` ở utils, in ở view, Scanner chỉ ở main | luật thầy + Design Pattern |
 | Tiêu đề BEFORE | bản cũ luôn in `lines` | `1 line` / `N lines` | đúng ngữ pháp (bản cũ chỉ in 7 dòng, không chạm) |
+| Ai đọc file | bản 14/09: `DocumentRepository.loadDocument/readOutput` đọc `input.txt`/`output.txt` | **Main** đọc (`readFile` → `FileUtils.readLines`), đưa dòng qua `requestDTO.lineList`; repository **giữ** `TextDocument` + ghi file | tờ giấy 1.1: *"đọc từ file … thực hiện ở Main"*; repository = dữ liệu + CRUD |
+| View | bản 14/09: `setDocument/setCase/setCases` + 5 hàm `display…` | `setResponseDTO(NormalizeResponseDTO)` + `display()` duy nhất | tờ giấy 1.1: view nhận qua **thuộc tính (ResponseDTO)**, render 1 lần/luồng |
+| DTO | bản 14/09: `DocumentResponseDTO` + `CaseResponseDTO` đi riêng | **một** `NormalizeResponseDTO` (mỗi menu một phần); `CaseResponseDTO` là phần tử của `caseList` | khuôn chung của kho |
+| Tên | `NormalizeRule`, `rules`, `lines`, `cases`, `c`, `SAMPLE_LINES`, `SAMPLE_CASES`, `dropTrailingSpaces`, `skipSpaces`, `visible`, `countLines`, `createRules` | `INormalizeRule`, `ruleList`, `lineList`, `caseList`, `character`, `SAMPLE_LINE_ARRAY`, `SAMPLE_CASE_ARRAY`, `removeTrailingSpaces`, `findNonSpace`, `makeVisible`, `formatLineCount`, `createRuleList` | tờ giấy 1.3, 1.4, 1.5 |
+| `EndDotRule` | `text + Constants.DOT` | `StringBuilder.append` | tờ giấy 3.8 |
+| `Main` | `public class Main` | `public final class Main` + `private Main()` | tờ giấy 3.4 |
+| Màn hình chạy | — | **không đổi một ký tự** (`man-hinh-chay.txt` chạy lại khớp byte) | chỉ đổi cấu trúc code |

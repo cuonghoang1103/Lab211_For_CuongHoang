@@ -4,12 +4,13 @@ import constants.Constants;
 import utils.TextUtils;
 
 /**
- * Rule "Only one space after comma (,), dot (.) and colon (:)": "one,two" becomes "one,
- * two" and "one, two" becomes "one, two".
+ * Rule "Only one space after comma (,), dot (.) and colon (:)": "one,two" and "one,   two"
+ * both become "one, two". No space goes after a decimal point (3.14), nor before another
+ * mark or a closing quote.
  *
  * @author HE176322
  */
-public class SpaceAfterPunctuationRule implements NormalizeRule {
+public class SpaceAfterPunctuationRule implements INormalizeRule {
 
     // Creates the rule.
     public SpaceAfterPunctuationRule() {
@@ -19,35 +20,49 @@ public class SpaceAfterPunctuationRule implements NormalizeRule {
     // and colon.
     @Override
     public String apply(String text) {
-        StringBuilder out = new StringBuilder();
-        int i = 0;
+        StringBuilder builder = new StringBuilder();
+        int index = 0;
+
         // walk the text; after a mark, jump over the spaces that follow it
-        while (i < text.length()) {
-            char c = text.charAt(i);
-            out.append(c);
-            // an ordinary character: just copy it
-            if (!TextUtils.isPunctuation(c)) {
-                i++;
+        while (index < text.length()) {
+            char character = text.charAt(index);
+            int next = 0;
+
+            // copy the character
+            builder.append(character);
+
+            // an ordinary character: just go on
+            if (!TextUtils.isPunctuation(character)) {
+                index++;
                 continue;
             }
-            int next = TextUtils.skipSpaces(text, i + 1);
+
+            // a mark: find the next visible character after it
+            next = TextUtils.findNonSpace(text, index + 1);
+
             // something follows the mark: decide whether one space goes between
-            if (next < text.length() && isSpaceNeeded(out, text.charAt(next))) {
-                out.append(Constants.SPACE);
+            if ((next < text.length()) && isSpaceNeeded(builder, text.charAt(next))) {
+                builder.append(Constants.SPACE);
             }
-            i = next;
+
+            // go on from the next visible character
+            index = next;
         }
-        return out.toString();
+
+        return builder.toString();
     }
 
     // Decides whether a space goes between the mark just written and the next visible
     // character.
-    private boolean isSpaceNeeded(StringBuilder out, char after) {
-        char mark = out.charAt(out.length() - 1);
-        boolean decimalPoint = mark == Constants.DOT && Character.isDigit(after)
-                && out.length() >= 2 && Character.isDigit(out.charAt(out.length() - 2));
-        boolean glued = TextUtils.isPunctuation(after) || after == Constants.CLOSE_QUOTE
-                || after == Constants.STRAIGHT_QUOTE;
+    private boolean isSpaceNeeded(StringBuilder builder, char after) {
+        char mark = builder.charAt(builder.length() - 1);
+        boolean decimalPoint = (mark == Constants.DOT) && Character.isDigit(after) &&
+                (builder.length() >= 2) &&
+                Character.isDigit(builder.charAt(builder.length() - 2));
+        boolean glued = TextUtils.isPunctuation(after) || (after == Constants.CLOSE_QUOTE) ||
+                (after == Constants.STRAIGHT_QUOTE);
+
+        // a decimal point, or a mark glued to the next one, takes no space
         return !decimalPoint && !glued;
     }
 }

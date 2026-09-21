@@ -12,30 +12,31 @@ import java.util.ArrayList;
 public class TextDocument {
 
     // The lines of the file, untouched (spaces, tabs, blank lines).
-    private ArrayList<String> lines;
+    private ArrayList<String> lineList;
+
     // The document after every rule, as one line of text.
     private String normalizedText;
 
     // JavaBean constructor: an empty document.
     public TextDocument() {
-        this.lines = new ArrayList<>();
+        this.lineList = new ArrayList<>();
         this.normalizedText = "";
     }
 
-    // Creates a document from the lines of a file.
-    public TextDocument(ArrayList<String> lines) {
-        this.lines = lines;
+    // Creates a document from the lines of a file (or from one typed line).
+    public TextDocument(ArrayList<String> lineList) {
+        this.lineList = lineList;
         this.normalizedText = "";
     }
 
     // Returns the raw lines.
-    public ArrayList<String> getLines() {
-        return lines;
+    public ArrayList<String> getLineList() {
+        return lineList;
     }
 
     // Replaces the raw lines.
-    public void setLines(ArrayList<String> lines) {
-        this.lines = lines;
+    public void setLineList(ArrayList<String> lineList) {
+        this.lineList = lineList;
     }
 
     // Returns the normalized text.
@@ -50,25 +51,29 @@ public class TextDocument {
 
     // Counts the raw lines.
     public int getLineCount() {
-        return lines.size();
+        return lineList.size();
     }
 
     // The whole document as ONE text, lines separated by a line break - the shape every
     // normalization rule works on.
     public String getFullText() {
-        StringBuilder text = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
+
         // append every line, with a line break between two of them
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 0; i < lineList.size(); i++) {
             // not the first line: separate it from the previous one
             if (i > 0) {
-                text.append(Constants.LINE_BREAK);
+                builder.append(Constants.LINE_BREAK);
             }
-            text.append(lines.get(i));
+
+            // then the line itself
+            builder.append(lineList.get(i));
         }
-        return text.toString();
+
+        return builder.toString();
     }
 
-    // Polymorphism: overrides Object.toString().
+    // Polymorphism: overrides Object.toString() with the normalized text.
     @Override
     public String toString() {
         return normalizedText;

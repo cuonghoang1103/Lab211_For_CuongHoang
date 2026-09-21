@@ -5,12 +5,12 @@ import utils.TextUtils;
 
 /**
  * Rule "There are no spaces before and after sentence or word phrases in quotes": the
- * spaces JUST INSIDE the quotation marks go away - "the " second row " is" becomes "the
- * "second row" is".
+ * spaces JUST INSIDE the quotation marks go away - the “ second row ” is becomes the
+ * “second row” is (straight quotes " too).
  *
  * @author HE176322
  */
-public class QuoteRule implements NormalizeRule {
+public class QuoteRule implements INormalizeRule {
 
     // Creates the rule.
     public QuoteRule() {
@@ -19,31 +19,38 @@ public class QuoteRule implements NormalizeRule {
     // Removes the spaces after an opening mark and before a closing mark.
     @Override
     public String apply(String text) {
-        StringBuilder out = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         boolean insideStraight = false;
-        int i = 0;
+        int index = 0;
+
         // walk the text once
-        while (i < text.length()) {
-            char c = text.charAt(i);
-            boolean opening = c == Constants.OPEN_QUOTE
-                    || (c == Constants.STRAIGHT_QUOTE && !insideStraight);
-            boolean closing = c == Constants.CLOSE_QUOTE
-                    || (c == Constants.STRAIGHT_QUOTE && insideStraight);
+        while (index < text.length()) {
+            char character = text.charAt(index);
+            boolean opening = (character == Constants.OPEN_QUOTE) ||
+                    ((character == Constants.STRAIGHT_QUOTE) && !insideStraight);
+            boolean closing = (character == Constants.CLOSE_QUOTE) ||
+                    ((character == Constants.STRAIGHT_QUOTE) && insideStraight);
+
             // a straight quote switches between "outside" and "inside"
-            if (c == Constants.STRAIGHT_QUOTE) {
+            if (character == Constants.STRAIGHT_QUOTE) {
                 insideStraight = !insideStraight;
             }
+
             // closing mark: no space in front of it
             if (closing) {
-                TextUtils.dropTrailingSpaces(out);
+                TextUtils.removeTrailingSpaces(builder);
             }
-            out.append(c);
-            i++;
+
+            // copy the character and step over it
+            builder.append(character);
+            index++;
+
             // opening mark: no space behind it
             if (opening) {
-                i = TextUtils.skipSpaces(text, i);
+                index = TextUtils.findNonSpace(text, index);
             }
         }
-        return out.toString();
+
+        return builder.toString();
     }
 }

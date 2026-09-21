@@ -8,25 +8,30 @@ import utils.TextUtils;
  *
  * @author HE176322
  */
-public class NoSpaceBeforePunctuationRule implements NormalizeRule {
+public class NoSpaceBeforePunctuationRule implements INormalizeRule {
 
     // Creates the rule.
     public NoSpaceBeforePunctuationRule() {
     }
 
-    // Pulls every ", .
+    // Pulls every comma, dot and colon against the word in front of it.
     @Override
     public String apply(String text) {
-        StringBuilder out = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
+
         // copy the text, removing the spaces written just before a mark
         for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
+            char character = text.charAt(i);
+
             // a comma, dot or colon: the spaces in front of it go away
-            if (TextUtils.isPunctuation(c)) {
-                TextUtils.dropTrailingSpaces(out);
+            if (TextUtils.isPunctuation(character)) {
+                TextUtils.removeTrailingSpaces(builder);
             }
-            out.append(c);
+
+            // then the character itself
+            builder.append(character);
         }
-        return out.toString();
+
+        return builder.toString();
     }
 }

@@ -6,8 +6,8 @@ package service;
  *
  * @author HE176322
  */
-public interface NormalizeRule {
+public interface INormalizeRule {
 
-    // Applies this rule to the text.
+    // Applies this rule to the text and returns the new text.
     String apply(String text);
 }

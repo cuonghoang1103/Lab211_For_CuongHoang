@@ -13,7 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- * Reads and writes text files, line by line.
+ * Reads and writes text files, line by line. readLines is called by main (checklist 1.1:
+ * main reads the files); writeLines is called by the repository.
  *
  * @author HE176322
  */
@@ -26,48 +27,57 @@ public final class FileUtils {
     // Reads every line of a text file, exactly as it is on the disk.
     public static ArrayList<String> readLines(String path) throws Exception {
         File file = new File(path);
+        ArrayList<String> lineList = new ArrayList<>();
+        String line = "";
+
         // the brief's first case: the file is not there
         if (!file.exists()) {
             throw new Exception(String.format(Message.FILE_NOT_FOUND, path));
         }
+
         // a folder with that name is not a text file
         if (file.isDirectory()) {
             throw new Exception(String.format(Message.NOT_A_FILE, path));
         }
+
         // no permission to read
         if (!file.canRead()) {
             throw new Exception(String.format(Message.CANNOT_READ, path));
         }
-        ArrayList<String> lines = new ArrayList<>();
+
         // try-with-resources closes the reader even when reading fails
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new FileInputStream(file), StandardCharsets.UTF_8))) {
-            String line = reader.readLine();
+            line = reader.readLine();
+
             // read until readLine() returns null = end of file
             while (line != null) {
-                lines.add(line);
+                lineList.add(line);
                 line = reader.readLine();
             }
         } catch (IOException e) {
             // the disk failed while reading
             throw new Exception(String.format(Message.CANNOT_READ, path));
         }
-        return lines;
+
+        return lineList;
     }
 
     // Replaces the whole content of a text file with the given lines.
-    public static void writeLines(String path, ArrayList<String> lines)
+    public static void writeLines(String path, ArrayList<String> lineList)
             throws Exception {
         File file = new File(path);
+
         // a read-only file would otherwise fail with a Java message
         if (file.exists() && !file.canWrite()) {
             throw new Exception(String.format(Message.CANNOT_WRITE, path));
         }
+
         // try-with-resources flushes and closes the writer even on failure
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(file), StandardCharsets.UTF_8))) {
             // one element of the list = one line of the file
-            for (String line : lines) {
+            for (String line : lineList) {
                 writer.write(line);
                 writer.newLine();
             }

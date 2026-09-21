@@ -7,7 +7,7 @@ package service;
  *
  * @author HE176322
  */
-public class LowerCaseRule implements NormalizeRule {
+public class LowerCaseRule implements INormalizeRule {
 
     // Creates the rule.
     public LowerCaseRule() {
@@ -16,11 +16,13 @@ public class LowerCaseRule implements NormalizeRule {
     // Lowers every character.
     @Override
     public String apply(String text) {
-        StringBuilder out = new StringBuilder(text.length());
+        StringBuilder builder = new StringBuilder(text.length());
+
         // lower each character on its own
         for (int i = 0; i < text.length(); i++) {
-            out.append(Character.toLowerCase(text.charAt(i)));
+            builder.append(Character.toLowerCase(text.charAt(i)));
         }
-        return out.toString();
+
+        return builder.toString();
     }
 }

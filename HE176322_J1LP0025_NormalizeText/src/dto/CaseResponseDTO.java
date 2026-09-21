@@ -1,17 +1,19 @@
 package dto;
 
 /**
- * DTO carrying one text before and after normalizing, FROM the controller OUT TO the view
- * (options 4 and 5).
+ * DTO carrying one sample case before and after normalizing, FROM the controller OUT TO
+ * the view inside NormalizeResponseDTO (option 5).
  *
  * @author HE176322
  */
 public class CaseResponseDTO {
 
-    // Name of the case (option 5); empty for a typed line.
+    // Name of the case.
     private String title;
+
     // The text before normalizing.
     private String input;
+
     // The text after normalizing.
     private String output;
 
