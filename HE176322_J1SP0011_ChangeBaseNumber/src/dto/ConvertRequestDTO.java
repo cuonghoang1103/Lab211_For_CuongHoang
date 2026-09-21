@@ -12,8 +12,10 @@ public class ConvertRequestDTO {
 
     // The base the value is written in.
     private Base inputBase;
+
     // The base to convert to.
     private Base outputBase;
+
     // The value as typed (trimmed, not empty).
     private String value;
 

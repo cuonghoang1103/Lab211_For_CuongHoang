@@ -10,6 +10,7 @@ public class ConvertResponseDTO {
 
     // The input.
     private String input;
+
     // The output.
     private String output;
 

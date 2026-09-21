@@ -13,6 +13,7 @@ public class BaseNumber {
 
     // The digits as written.
     private String value;
+
     // The base the digits are written in.
     private Base base;
 

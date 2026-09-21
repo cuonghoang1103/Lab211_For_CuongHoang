@@ -9,11 +9,11 @@ import model.BaseNumber;
  *
  * @author HE176322
  */
-public interface BaseStrategy {
+public interface IBaseStrategy {
 
     // Reads a written number: text in its base -> the value.
-    long toDecimal(BaseNumber number) throws Exception;
+    long convertToDecimal(BaseNumber number) throws Exception;
 
     // Writes a value in a base.
-    BaseNumber fromDecimal(long value, Base base);
+    BaseNumber convertFromDecimal(long value, Base base);
 }

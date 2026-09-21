@@ -8,14 +8,16 @@ import view.ConvertView;
 
 /**
  * CONTROLLER: takes the request from main, asks the service to convert, and hands the
- * result to the view.
+ * result to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class ConvertController {
 
-    // Converts; configured with the hand-written positional strategy.
+    // Converts; configured with the hand-written positional strategy (Controller ->
+    // Service -> Repository -> Model).
     private ConvertService convertService;
+
     // Prints the result.
     private ConvertView convertView;
 
@@ -25,10 +27,13 @@ public class ConvertController {
         convertView = new ConvertView();
     }
 
-    // One conversion: service computes, view displays.
+    // One conversion (the only workflow): the service converts, the view shows the result
+    // ONCE. A value too big for the program comes back to main as an exception.
     public void convert(ConvertRequestDTO requestDTO) throws Exception {
-        ConvertResponseDTO response = convertService.convert(requestDTO);
-        convertView.setResponse(response);
+        ConvertResponseDTO responseDTO = convertService.convert(requestDTO);
+
+        // hand the result to the view, then render it - once for the whole flow
+        convertView.setResponseDTO(responseDTO);
         convertView.display();
     }
 }
