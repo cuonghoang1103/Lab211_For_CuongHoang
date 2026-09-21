@@ -7,15 +7,17 @@ import service.SearchService;
 import view.SearchView;
 
 /**
- * CONTROLLER: takes the request from main, asks the service for the result, and hands
- * that result to the view.
+ * CONTROLLER (Facade): takes the request from main, lets the service do the work, and hands
+ * the result to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class SearchController {
 
-    // Generates, sorts and searches; configured with binary search.
+    // Generates, keeps, sorts and searches the array with binary search (Controller ->
+    // Service -> Repository -> Model).
     private SearchService searchService;
+
     // Prints the result.
     private SearchView searchView;
 
@@ -25,10 +27,13 @@ public class SearchController {
         searchView = new SearchView();
     }
 
-    // The only workflow of the program: service computes, view displays.
+    // The only workflow (the brief's Function 2): the service searches, the view shows the
+    // result ONCE.
     public void searchArray(SearchRequestDTO requestDTO) {
-        SearchResponseDTO response = searchService.searchRandomArray(requestDTO);
-        searchView.setResponse(response);
+        SearchResponseDTO responseDTO = searchService.searchRandomArray(requestDTO);
+
+        // hand the result to the view, then render it - once for the whole flow
+        searchView.setResponseDTO(responseDTO);
         searchView.display();
     }
 }

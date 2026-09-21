@@ -10,6 +10,7 @@ public class SearchRequestDTO {
 
     // How many random numbers to generate.
     private int size;
+
     // The number to look for in the sorted array.
     private int searchValue;
 

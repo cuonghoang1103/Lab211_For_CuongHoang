@@ -4,7 +4,8 @@ import constants.Constants;
 import constants.Message;
 
 /**
- * Shared checks for what the user typed.
+ * Shared checks of what the user typed. A utility: no object, no field, no keyboard, no
+ * print - it only answers "is this line valid?".
  *
  * @author HE176322
  */
@@ -30,11 +31,13 @@ public final class Validation {
     // Constants.MAX_SIZE.
     public static int getSize(String input) throws Exception {
         int size = getInt(input);
+
         // zero, negative or too big: a number, but not a legal size
-        if (size < Constants.MIN_SIZE || size > Constants.MAX_SIZE) {
+        if ((size < Constants.MIN_SIZE) || (size > Constants.MAX_SIZE)) {
             throw new Exception(String.format(Message.INVALID_RANGE,
                     Constants.MIN_SIZE, Constants.MAX_SIZE));
         }
+
         return size;
     }
 }

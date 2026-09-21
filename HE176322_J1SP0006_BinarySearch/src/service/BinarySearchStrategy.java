@@ -9,22 +9,27 @@ import model.NumberArray;
  *
  * @author HE176322
  */
-public class BinarySearchStrategy implements SearchStrategy {
+public class BinarySearchStrategy implements ISearchStrategy {
 
-    // Searches a sorted array by halving the part that can still hold the value.
+    // Searches a sorted array by halving the part that can still hold the value; returns
+    // the index where the value was found, or Constants.NOT_FOUND.
     @Override
-    public int search(NumberArray array, int value) {
+    public int search(NumberArray numberArray, int searchValue) {
         int low = 0;
-        int high = array.getSize() - 1;
+        int high = numberArray.getSize() - 1;
+        int middle = 0;
+        int middleValue = 0;
+
         // the part [low, high] still has elements: look at its middle
         while (low <= high) {
-            // low + (high - low) / 2 never overflows, unlike (low + high) / 2
-            int middle = low + (high - low) / 2;
-            int middleValue = array.getValue(middle);
+            // low + ((high - low) / 2) never overflows, unlike (low + high) / 2
+            middle = low + ((high - low) / 2);
+            middleValue = numberArray.getValue(middle);
+
             // the middle element equals the searched value: stop
-            if (middleValue == value) {
+            if (middleValue == searchValue) {
                 return middle;
-            } else if (value < middleValue) {
+            } else if (searchValue < middleValue) {
                 // searched value is smaller: keep the part BEFORE the middle
                 high = middle - 1;
             } else {
@@ -32,6 +37,8 @@ public class BinarySearchStrategy implements SearchStrategy {
                 low = middle + 1;
             }
         }
+
+        // the part has no elements left: the value is absent
         return Constants.NOT_FOUND;
     }
 }

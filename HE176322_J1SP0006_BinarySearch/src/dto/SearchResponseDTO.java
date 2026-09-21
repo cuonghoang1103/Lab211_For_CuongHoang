@@ -8,10 +8,12 @@ package dto;
  */
 public class SearchResponseDTO {
 
-    // The array after sorting.
+    // The array after sorting, as the screen shows it ("[1, 1, 3]").
     private String sortedArray;
+
     // The value the user searched for.
     private int searchValue;
+
     // Index of the value in the sorted array, or Constants.NOT_FOUND.
     private int index;
 
