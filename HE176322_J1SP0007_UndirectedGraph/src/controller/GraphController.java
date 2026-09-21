@@ -6,15 +6,16 @@ import service.GraphService;
 import view.GraphView;
 
 /**
- * CONTROLLER: takes the two points from main, asks the service for the answer, and hands
- * that answer to the view.
+ * CONTROLLER (Facade): takes the two points from main, asks the service for the answer,
+ * and hands that answer to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class GraphController {
 
-    // Holds the graph and answers the edge question.
+    // Builds the graph and answers the edge question.
     private GraphService graphService;
+
     // Prints the answer.
     private GraphView graphView;
 
@@ -24,10 +25,12 @@ public class GraphController {
         graphView = new GraphView();
     }
 
-    // The only workflow of the program: service answers, view displays.
+    // The only workflow of the program: the service answers, the view shows it ONCE.
     public void checkEdge(GraphRequestDTO requestDTO) {
-        GraphResponseDTO response = graphService.checkEdge(requestDTO);
-        graphView.setResponse(response);
+        GraphResponseDTO responseDTO = graphService.checkEdge(requestDTO);
+
+        // hand the answer to the view, then render it - once for the whole flow
+        graphView.setResponseDTO(responseDTO);
         graphView.display();
     }
 }

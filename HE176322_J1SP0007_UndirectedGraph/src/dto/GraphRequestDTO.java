@@ -10,6 +10,7 @@ public class GraphRequestDTO {
 
     // Label of the start point, already checked to be a vertex.
     private int start;
+
     // Label of the end point, already checked to be a vertex.
     private int end;
 
