@@ -13,7 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- * Reads and writes the text file user.dat, line by line.
+ * Reads and writes the text file user.dat, line by line. A utility: static methods only -
+ * main reads through it, the repository writes through it.
  *
  * @author HE176322
  */
@@ -26,6 +27,8 @@ public final class FileUtils {
     // Tells whether a file (not a folder) exists at the path.
     public static boolean isFileExist(String path) {
         File file = new File(path);
+
+        // a folder with that name does not count
         return file.exists() && file.isFile();
     }
 
@@ -42,21 +45,24 @@ public final class FileUtils {
 
     // Reads every line of a text file.
     public static ArrayList<String> readLines(String path) throws Exception {
-        ArrayList<String> lines = new ArrayList<>();
+        ArrayList<String> lineList = new ArrayList<>();
+
         // try-with-resources closes the file even when reading fails
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new FileInputStream(path), StandardCharsets.UTF_8))) {
             String line = reader.readLine();
+
             // read until readLine() returns null = end of file
             while (line != null) {
-                lines.add(line);
+                lineList.add(line);
                 line = reader.readLine();
             }
         } catch (IOException e) {
             // missing, locked or unreadable file
             throw new Exception(Message.CANNOT_READ);
         }
-        return lines;
+
+        return lineList;
     }
 
     // Writes one line AT THE END of a text file, keeping what is already there (the

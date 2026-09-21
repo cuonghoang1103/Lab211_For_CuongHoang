@@ -1,31 +1,27 @@
 package dto;
 
 /**
- * DTO carrying the account that logged in, FROM the controller OUT TO the view.
+ * DTO carrying the answer of one menu option FROM the controller OUT TO the view - a
+ * JavaBean with the one line to print.
  *
  * @author HE176322
  */
 public class AccountResponseDTO {
 
-    // User name of the account that logged in.
-    private String username;
+    // The line to print: "Create account successfully!" or "Login successful!".
+    private String message;
 
-    // Creates an empty response (JavaBean constructor).
+    // JavaBean constructor: an empty answer, filled through the setter.
     public AccountResponseDTO() {
     }
 
-    // Creates the response for one account.
-    public AccountResponseDTO(String username) {
-        this.username = username;
+    // Returns the line to print.
+    public String getMessage() {
+        return message;
     }
 
-    // Returns the user name.
-    public String getUsername() {
-        return username;
-    }
-
-    // Sets the user name.
-    public void setUsername(String username) {
-        this.username = username;
+    // Sets the line to print.
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

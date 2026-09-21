@@ -1,35 +1,26 @@
 package view;
 
-import constants.Message;
 import dto.AccountResponseDTO;
 
 /**
- * VIEW: the only place (with main) allowed to print results.
+ * VIEW: the only place (with main) allowed to print results. It receives the data through
+ * its attribute (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class AccountView {
 
-    // The account that has just logged in, handed over by the controller.
-    private AccountResponseDTO account;
+    // The answer to print, handed over by the controller.
+    private AccountResponseDTO responseDTO;
 
-    // Receives the account the next display() call is about.
-    public void setAccount(AccountResponseDTO account) {
-        this.account = account;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(AccountResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints the result of a login: "Login successful!" (the brief's screen) when an
-    // account was handed over.
+    // Prints the answer: "Create account successfully!" or "Login successful!" (the brief's
+    // screen).
     public void display() {
-        // no account: nothing logged in, nothing to show
-        if (account == null) {
-            return;
-        }
-        System.out.println(Message.LOGIN_SUCCESS);
-    }
-
-    // Prints a one-line result such as "Create account successfully!".
-    public void showMessage(String message) {
-        System.out.println(message);
+        System.out.println(responseDTO.getMessage());
     }
 }

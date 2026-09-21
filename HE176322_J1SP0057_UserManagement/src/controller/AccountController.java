@@ -7,15 +7,17 @@ import repository.AccountRepository;
 import view.AccountView;
 
 /**
- * CONTROLLER: receives a request DTO from main, asks the repository to do the work, and
- * hands the result to the view.
+ * CONTROLLER (Facade): receives a request DTO from main, asks the repository to do the work,
+ * and hands the answer to the view - one render per menu option. No Scanner, no print, no
+ * model, no file.
  *
  * @author HE176322
  */
 public class AccountController {
 
-    // Where the accounts are stored; the controller owns its repository.
+    // Where the accounts are stored (Controller -> Repository -> Model).
     private AccountRepository accountRepository;
+
     // Where the results are printed.
     private AccountView accountView;
 
@@ -25,21 +27,38 @@ public class AccountController {
         accountView = new AccountView();
     }
 
-    // Loads user.dat into the Collection; main calls it once, at start.
-    public void loadData() throws Exception {
-        accountRepository.loadData();
+    // Start of the program: hands the lines main read from user.dat to the repository, which
+    // turns them into the Collection of accounts. Nothing is shown.
+    public void loadData(AccountRequestDTO requestDTO) {
+        accountRepository.loadData(requestDTO);
     }
 
-    // Option 1: creates a new account.
+    // Option 1 (the brief's addAccount): stores the new account in the Collection and at the
+    // end of user.dat, then the view prints "Create account successfully!" - once.
     public void addAccount(AccountRequestDTO requestDTO) throws Exception {
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+
+        // the repository throws when the user name is taken or user.dat cannot be written
         accountRepository.addAccount(requestDTO);
-        accountView.showMessage(Message.CREATE_SUCCESS);
+
+        // stored: hand the answer to the view, then render it - once for the whole flow
+        responseDTO.setMessage(Message.CREATE_SUCCESS);
+        accountView.setResponseDTO(responseDTO);
+        accountView.display();
     }
 
-    // Option 2: logs in - finds the account and lets the view greet it.
+    // Option 2 (the brief's find): logs in, then the view prints "Login successful!" - once.
     public void login(AccountRequestDTO requestDTO) throws Exception {
-        AccountResponseDTO account = accountRepository.find(requestDTO);
-        accountView.setAccount(account);
+        AccountResponseDTO responseDTO = new AccountResponseDTO();
+
+        // no stored account has this user name AND password: the brief's failure message
+        if (!accountRepository.find(requestDTO)) {
+            throw new Exception(Message.LOGIN_FAIL);
+        }
+
+        // found: hand the answer to the view, then render it - once for the whole flow
+        responseDTO.setMessage(Message.LOGIN_SUCCESS);
+        accountView.setResponseDTO(responseDTO);
         accountView.display();
     }
 }

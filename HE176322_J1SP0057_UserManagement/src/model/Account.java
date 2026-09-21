@@ -11,6 +11,7 @@ public class Account {
 
     // User name: at least 5 characters, no space, unique in user.dat.
     private String username;
+
     // Password: at least 6 characters, no space.
     private String password;
 
@@ -47,14 +48,14 @@ public class Account {
     // Tells whether this account has the given user name AND password - the object's own
     // behaviour, used by the repository's find.
     public boolean isMatch(Account other) {
-        return username.equals(other.getUsername())
-                && password.equals(other.getPassword());
+        return username.equals(other.getUsername()) && password.equals(other.getPassword());
     }
 
     // Polymorphism: overrides Object.toString() to give the account as ONE LINE OF
-    // user.dat, "username password".
+    // user.dat, "username password" - joined with String.join (checklist 3.8: no "+" on
+    // strings).
     @Override
     public String toString() {
-        return username + Constants.SEPARATOR + password;
+        return String.join(Constants.SEPARATOR, username, password);
     }
 }

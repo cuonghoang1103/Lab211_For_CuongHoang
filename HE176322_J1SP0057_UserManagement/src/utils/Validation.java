@@ -4,7 +4,8 @@ import constants.Constants;
 import constants.Message;
 
 /**
- * Shared checks for what the user typed.
+ * Shared checks for what the user typed. A utility: no object, no field, no keyboard, no
+ * print - it only answers "is this line valid?".
  *
  * @author HE176322
  */
@@ -17,7 +18,8 @@ public final class Validation {
 
     // Converts a menu choice and checks it lies in [min, max].
     public static int getChoice(String input, int min, int max) throws Exception {
-        int choice;
+        int choice = 0;
+
         // parse first, so a letter gives the "number" message
         try {
             choice = Integer.parseInt(input.trim());
@@ -25,10 +27,12 @@ public final class Validation {
             // letters or an empty line: not a number at all
             throw new Exception(Message.INVALID_NUMBER);
         }
+
         // then check the range, so 9 gives the "range" message
-        if (choice < min || choice > max) {
+        if ((choice < min) || (choice > max)) {
             throw new Exception(String.format(Message.INVALID_RANGE, min, max));
         }
+
         return choice;
     }
 
@@ -45,10 +49,11 @@ public final class Validation {
     // The rule shared by user name and password, written once.
     private static String checkField(String input, int minLength) throws Exception {
         // too short, or holds a space/tab anywhere
-        if (input == null || input.length() < minLength
-                || !input.matches(Constants.NO_SPACE_REGEX)) {
+        if ((input == null) || (input.length() < minLength) ||
+                !input.matches(Constants.NO_SPACE_REGEX)) {
             throw new Exception(String.format(Message.INVALID_FIELD, minLength));
         }
+
         return input;
     }
 }
