@@ -35,20 +35,24 @@ public class FilePath {
     // The brief's getDisk: everything before the FIRST backslash.
     public String getDisk() {
         int firstSlash = fullPath.indexOf(Constants.BACKSLASH);
+
         // no backslash at all: there is no disk part
         if (firstSlash < 0) {
             return "";
         }
+
         return fullPath.substring(0, firstSlash);
     }
 
     // The brief's getPath: everything before the LAST backslash.
     public String getPath() {
         int lastSlash = fullPath.lastIndexOf(Constants.BACKSLASH);
+
         // no backslash at all: the file sits in no folder
         if (lastSlash < 0) {
             return "";
         }
+
         return fullPath.substring(0, lastSlash);
     }
 
@@ -56,10 +60,12 @@ public class FilePath {
     public String getFileName() {
         String name = getNameWithExtension();
         int lastDot = name.lastIndexOf(Constants.DOT);
+
         // "test.txt": cut before the dot; "hosts" or ".gitignore": keep all
         if (lastDot > 0) {
             return name.substring(0, lastDot);
         }
+
         return name;
     }
 
@@ -67,10 +73,12 @@ public class FilePath {
     public String getExtension() {
         String name = getNameWithExtension();
         int lastDot = name.lastIndexOf(Constants.DOT);
+
         // a dot that is not the first character starts the extension
         if (lastDot > 0) {
             return name.substring(lastDot + 1);
         }
+
         return "";
     }
 
@@ -78,10 +86,12 @@ public class FilePath {
     public String[] getFolders() {
         int firstSlash = fullPath.indexOf(Constants.BACKSLASH);
         int lastSlash = fullPath.lastIndexOf(Constants.BACKSLASH);
+
         // "C:\test.txt": one backslash only, so no folder in between
-        if (firstSlash < 0 || firstSlash == lastSlash) {
+        if ((firstSlash < 0) || (firstSlash == lastSlash)) {
             return new String[0];
         }
+
         return fullPath.substring(firstSlash + 1, lastSlash)
                 .split(Constants.BACKSLASH_REGEX);
     }

@@ -5,31 +5,33 @@ import dto.PathResponseDTO;
 import java.util.Arrays;
 
 /**
- * VIEW: prints the five answers under the "Result Analysis" title.
+ * VIEW: prints the five answers under the "Result Analysis" title. It receives the data
+ * through its attribute (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class PathView {
 
     // The result to display, handed over by the controller.
-    private PathResponseDTO response;
+    private PathResponseDTO responseDTO;
 
-    // Creates the view; the result arrives later through setResponse.
+    // Creates the view; the result arrives later through setResponseDTO.
     public PathView() {
     }
 
     // Receives the result the next display() call will print.
-    public void setResponse(PathResponseDTO response) {
-        this.response = response;
+    public void setResponseDTO(PathResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
     // Prints the brief's result screen.
     public void display() {
         System.out.println(Message.TITLE_RESULT);
-        System.out.println(Message.LABEL_DISK + response.getDisk());
-        System.out.println(Message.LABEL_EXTENSION + response.getExtension());
-        System.out.println(Message.LABEL_FILE_NAME + response.getFileName());
-        System.out.println(Message.LABEL_PATH + response.getPath());
-        System.out.println(Message.LABEL_FOLDERS + Arrays.toString(response.getFolders()));
+        System.out.println(String.format(Message.RESULT_DISK, responseDTO.getDisk()));
+        System.out.println(String.format(Message.RESULT_EXTENSION, responseDTO.getExtension()));
+        System.out.println(String.format(Message.RESULT_FILE_NAME, responseDTO.getFileName()));
+        System.out.println(String.format(Message.RESULT_PATH, responseDTO.getPath()));
+        System.out.println(String.format(Message.RESULT_FOLDERS,
+                Arrays.toString(responseDTO.getFolderArray())));
     }
 }

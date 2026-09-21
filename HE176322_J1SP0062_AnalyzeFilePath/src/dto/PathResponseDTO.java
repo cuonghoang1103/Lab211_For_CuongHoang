@@ -9,14 +9,18 @@ public class PathResponseDTO {
 
     // Disk driver.
     private String disk;
+
     // File extension.
     private String extension;
+
     // File name without extension.
     private String fileName;
+
     // Path to the file's folder.
     private String path;
+
     // Folder names between the disk and the file.
-    private String[] folders;
+    private String[] folderArray;
 
     // Creates an empty response; the service fills it through the setters.
     public PathResponseDTO() {
@@ -63,12 +67,12 @@ public class PathResponseDTO {
     }
 
     // Returns the folders.
-    public String[] getFolders() {
-        return folders;
+    public String[] getFolderArray() {
+        return folderArray;
     }
 
     // Sets the folders.
-    public void setFolders(String[] folders) {
-        this.folders = folders;
+    public void setFolderArray(String[] folderArray) {
+        this.folderArray = folderArray;
     }
 }

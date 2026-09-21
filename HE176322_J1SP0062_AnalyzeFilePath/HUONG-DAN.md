@@ -3,6 +3,12 @@
 > Nhập **một đường dẫn tệp Windows**, tách ra **5 phần** bằng đúng các hàm chuỗi đề gợi ý
 > (`indexOf`, `lastIndexOf`, `substring`, `split`). Có **5 hàm đề bắt** — đều **không tham số**, nên
 > chúng là hành vi của **đối tượng đường dẫn** (`model/FilePath`).
+>
+> **Bản 21/09/2026 — sửa theo tờ checklist giấy 25 mục của thầy** (mục 10): thêm
+> `repository/PathRepository` giữ đường dẫn (model `FilePath`) — tờ giấy 1.1 *"Bắt buộc phải có
+> repository"*; View nhận `responseDTO` qua thuộc tính (`setResponseDTO`), `display()` không tham số;
+> field `folders` → `folderArray` (1.5); câu in kết quả thành `String.format(Message.RESULT_…)` (3.8);
+> `Main` thành `final` + constructor `private` (3.4). Đối chiếu lại đề từng ký tự: màn hình **không đổi**.
 
 | | |
 |---|---|
@@ -97,11 +103,12 @@ ký tự Windows cấm. Nhờ vậy 5 hàm luôn có ổ đĩa và tên tệp đ
 HE176322_J1SP0062_AnalyzeFilePath/src/
 ├── model/      FilePath           fullPath (JavaBean) + 5 hàm đề bắt  ← thuật toán ở ĐÂY
 ├── dto/        PathRequestDTO     fullPath                  (main ──► controller)
-│               PathResponseDTO    5 câu trả lời             (controller ──► view)
-├── service/    PathService        tạo FilePath, chép 5 câu trả lời vào DTO
-├── controller/ PathController     service ──► view
-├── view/       PathView           in khối "Result Analysis"
-├── constants/  Message.java       câu chữ màn hình
+│               PathResponseDTO    5 câu trả lời (folderArray là String[])  (controller ──► view)
+├── repository/ PathRepository     giữ FilePath: saveFilePath(fullPath) / getFilePath()
+├── service/    PathService        cất đường dẫn vào repository, lấy FilePath, chép 5 câu trả lời vào DTO
+├── controller/ PathController     service ──► view (setResponseDTO + display 1 lần)
+├── view/       PathView           field responseDTO; display() in khối "Result Analysis"
+├── constants/  Message.java       câu chữ màn hình (RESULT_DISK = "Disk: %s"…)
 │               Constants.java     BACKSLASH, DOT, BACKSLASH_REGEX, PATH_PATTERN
 ├── utils/      Validation         getFilePath(chuỗi) → đường dẫn hoặc ném lỗi
 └── main/       Main               Scanner + gọi controller 1 lần
@@ -110,18 +117,19 @@ HE176322_J1SP0062_AnalyzeFilePath/src/
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
 | Sao 5 hàm nằm ở **model** mà không ở service? | Đề ghi chữ ký **không tham số** (`public String getPath()`) → hàm phải thuộc **đối tượng đã giữ sẵn đường dẫn**. Đó là hành vi của chính đường dẫn (như `Shape.getArea`). Guide cho model chứa *"thuộc tính và function của đối tượng đang mô tả"*. |
-| Vậy service làm gì? | Controller **không được** thấy model (*"chỉ import DTO, View, Service"*) → service tạo `FilePath` và chép kết quả sang `PathResponseDTO`. |
-| Sao không có `repository`? | Không lưu gì, không CRUD. |
+| Vậy service làm gì? | Controller **không được** thấy model (*"chỉ import DTO, View, Service"*) → service cất đường dẫn vào repository, lấy lại `FilePath` rồi chép 5 kết quả sang `PathResponseDTO`. |
+| Sao bài có `repository`? | Tờ checklist 1.1: *"**Bắt buộc phải có repository**"*. Repository = **dữ liệu** + CRUD đơn giản: ở đây là đường dẫn chương trình làm việc trên đó (model `FilePath`), với `saveFilePath` / `getFilePath`. Không tách chuỗi, không in — đúng tầng *Controller ↔ Services ↔ Repository ↔ Model*. |
 | Sao 5 hàm tính lại mỗi lần gọi thay vì tính 1 lần trong constructor như bản cũ? | Mỗi hàm đề bắt **tự làm việc của nó** bằng `indexOf/substring` — thầy bảo debug `getExtension` thì F7 vào là thấy ngay phép tính. Chuỗi ngắn, tính lại không đáng kể. |
 
 **Luồng chạy:**
 
 ```
-Main: đọc đường dẫn (hỏi lại khi sai) ──► PathRequestDTO ──► controller.analyzePath(dto)
-   controller ──► service.analyzePath(dto)
-                     ├─ filePath = new FilePath(fullPath)
-                     └─ response.setDisk(filePath.getDisk()) … setFolders(filePath.getFolders())
-   controller ──► view.setResponse(response) ──► view.display()
+Main: đọc + validate đường dẫn (hỏi lại khi sai) ──► PathRequestDTO ──► controller.analyzePath(requestDTO)   (gọi 1 lần)
+   controller ──► service.analyzePath(requestDTO)
+                     ├─ repository.saveFilePath(fullPath)        → new FilePath(fullPath)
+                     ├─ filePath = repository.getFilePath()      (model)
+                     └─ responseDTO.setDisk(filePath.getDisk()) … setFolderArray(filePath.getFolders())
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display()                                      (render 1 lần)
 ```
 
 ### 3.1 Design Pattern trong bài
@@ -141,7 +149,7 @@ YAGNI). Pattern có thật:
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `FilePath` chỉ biết tách đường dẫn · `PathView` chỉ in · `Validation` chỉ kiểm · `PathService` chỉ chép sang DTO |
+| **S** | `FilePath` chỉ biết tách đường dẫn · `PathRepository` chỉ giữ đường dẫn · `PathView` chỉ in · `Validation` chỉ kiểm · `PathService` chỉ chép sang DTO |
 | **O** | thêm câu trả lời thứ 6 (vd. "tên tệp đầy đủ") = thêm 1 hàm ở `FilePath` + 1 field DTO + 1 dòng in; 5 hàm cũ đứng yên |
 | **L / I / D** | bài không có kế thừa/interface — **không cố gượng**; nói thật với thầy là áp ở bài có họ lớp |
 
@@ -154,13 +162,14 @@ YAGNI). Pattern có thật:
 | Bước | File | Việc |
 |---|---|---|
 | 1 | `model/FilePath.java` | `private String fullPath` + constructor rỗng + constructor đủ + get/set + **5 hàm đề bắt** + `getNameWithExtension` (private) + `toString` |
-| 2 | `dto/PathRequestDTO.java`, `PathResponseDTO.java` | JavaBean: constructor rỗng + get/set |
-| 3 | `service/PathService.java` | `analyzePath(dto)` |
-| 4 | `view/PathView.java` | `setResponse` · `display` |
-| 5 | `controller/PathController.java` | `analyzePath(dto)` |
-| 6 | `constants/Message.java`, `Constants.java` | câu chữ + `BACKSLASH`, `DOT`, `BACKSLASH_REGEX`, `PATH_PATTERN` |
-| 7 | `utils/Validation.java` | `getFilePath` — trống / sai dạng |
-| 8 | `main/Main.java` | `inputPath` (vòng hỏi lại) + gọi controller **1 lần** |
+| 2 | `dto/PathRequestDTO.java`, `PathResponseDTO.java` | JavaBean: constructor rỗng + get/set (`folderArray`) |
+| 3 | `repository/PathRepository.java` | field `filePath` · `saveFilePath(fullPath)` · `getFilePath()` |
+| 4 | `service/PathService.java` | `analyzePath(requestDTO)` |
+| 5 | `view/PathView.java` | field `responseDTO` · `setResponseDTO` · `display()` |
+| 6 | `controller/PathController.java` | `analyzePath(requestDTO)` |
+| 7 | `constants/Message.java`, `Constants.java` | câu chữ (`RESULT_DISK = "Disk: %s"`…) + `BACKSLASH`, `DOT`, `BACKSLASH_REGEX`, `PATH_PATTERN` |
+| 8 | `utils/Validation.java` | `getFilePath` — trống / sai dạng |
+| 9 | `main/Main.java` | `final` + `private Main()`; `inputPath` (vòng hỏi lại) + gọi controller **1 lần** |
 
 **Bẫy hay gặp:**
 
@@ -213,7 +222,7 @@ YAGNI). Pattern có thật:
 |---|---|
 | 5 hàm `getXxx` sao `public`? | Đề ghi `public`; `PathService` (package khác) gọi. |
 | `getNameWithExtension` sao `private`? | Chỉ `getFileName`/`getExtension` trong cùng lớp dùng — không phải "hợp đồng" của lớp. |
-| `analyzePath` (service, controller), `setResponse`, `display` sao `public`? | Được lớp ở **package khác** gọi (controller gọi service/view; main gọi controller). |
+| `analyzePath` (service, controller), `saveFilePath`/`getFilePath`, `setResponseDTO`, `display` sao `public`? | Được lớp ở **package khác** gọi (main gọi controller; controller gọi service/view; service gọi repository). |
 | Hằng `Constants.BACKSLASH` sao `public static final`? | Model, Validation cùng dùng; một bản chung gọi bằng tên lớp; không ai sửa được. |
 | `Validation.getFilePath` sao static? Bỏ thì sao? | Không dùng dữ liệu đối tượng nào; Guide bắt utils static. Bỏ `static` → phải bỏ `private` constructor, `new Validation()` trong `Main` rồi gọi qua đối tượng. |
 | `inputPath` trong `Main` sao `private static`? | `private`: chỉ `main()` gọi; `static`: `main()` static; thầy cho static **hàm** ở main, cấm static **biến** (Scanner là biến cục bộ). |
@@ -221,6 +230,10 @@ YAGNI). Pattern có thật:
 | `getDisk` trả `String`, không `char`? | Ổ đĩa là `C:` — 2 ký tự; đề bắt `String`. |
 | Sao mảng mà không `ArrayList`/`List`? | Đề bắt `String[]`, `split` trả mảng, số thư mục không đổi sau khi tách. `List` là **interface** (hợp đồng), `ArrayList` là **lớp** cài bằng mảng co giãn — khi cần danh sách thêm/bớt thì em khai kiểu cụ thể `ArrayList<String>`. |
 | Hàm nào có quá 2 tham số không? | Không — mọi hàm 0–1 tham số (luật thầy V4). |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: controller gọi `pathView.setResponseDTO(responseDTO)` rồi `pathView.display()` — `display()` **không tham số**, gọi **1 lần** cho cả luồng (tờ checklist 1.1). |
+| Validate ở đâu? | Ở `Main` qua `utils/Validation.getFilePath`: sai thì ném `Exception(Message…)`, `Main` bắt, in `e.getMessage()` rồi hỏi lại. Controller/service chỉ nhận đường dẫn đã hợp lệ trong `PathRequestDTO`. |
+| Sao `Main` là `final` và có `private Main() { }`? | Tờ checklist 3.4: *"Class chỉ có static method thì phải có private contructor, và khai báo class là final"*. |
+| Sao DTO đặt `folderArray` mà hàm đề vẫn là `getFolders()`? | Tờ checklist 1.5: *"tên biến kiểu Array kết thúc bằng Array"* — áp cho **biến/field**. `getFolders()` là **tên hàm đề bắt**, mở đầu bằng động từ `get` → giữ nguyên chữ đề. |
 
 ### Ca biên
 
@@ -253,6 +266,31 @@ YAGNI). Pattern có thật:
 | Nơi tính 5 phần | bản cũ: tính 1 lần trong constructor, lưu 6 field `final` | mỗi hàm tự tính từ `fullPath` | hàm đề bắt tự làm việc của nó; model là JavaBean có setter |
 | `.gitignore` | bản cũ: đuôi `gitignore`, tên rỗng | tên `.gitignore`, đuôi trống | chấm đầu là tệp ẩn |
 | Kiến trúc | `entity/ui/utils`, Scanner trong `Validator` | MVC theo Guide, Scanner **chỉ ở `main`** | luật thầy |
+| Repository | bản trước 21/09: không có (*"không lưu gì"*) | `repository/PathRepository` giữ `FilePath` | tờ checklist 1.1 *"Bắt buộc phải có repository"* |
+| View | bản trước 21/09: `setResponse(response)` | `setResponseDTO(responseDTO)` + `display()` không tham số | tờ checklist 1.1 — nhận qua thuộc tính ResponseDTO |
+| Tên field mảng | `folders` | `folderArray` | tờ checklist 1.5 |
+| Dòng kết quả | `Message.LABEL_DISK + response.getDisk()` | `String.format(Message.RESULT_DISK, …)` | tờ checklist 3.8 — không cộng chuỗi |
 
 Các kịch bản của bản cũ khớp màn hình đề nên **vẫn được chạy** (không `REPLACE_REFERENCE`), cộng thêm 3
 kịch bản mới trong `_tools/tests/J1SP0062.py`.
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỗ trong code |
+|---|---|
+| 1.1 MVC + repository | `repository/PathRepository` giữ model `FilePath`; `PathService` cất/đọc đường dẫn qua repository rồi mới lấy 5 câu trả lời; controller chỉ import DTO/service/view; `PathView` nhận `responseDTO` qua `setResponseDTO`, `display()` gọi **1 lần**; nhập + validate ở `Main` |
+| 1.4 method = động từ | `analyzePath`, `saveFilePath`, `getFilePath`, `inputPath`, 5 hàm `getXxx` của đề |
+| 1.5 tên biến | `folderArray` (`String[]` trong `PathResponseDTO`); `requestDTO`/`responseDTO`; không có `ID` |
+| 2.6 + 3.7 khai báo đầu block, có khởi tạo | `Main.main`: `sc`, `controller`, `requestDTO` ở đầu; `Main.inputPath`: `String line = "";` ở đầu, trong `while` chỉ `line = sc.nextLine();`; `PathService.analyzePath`: `responseDTO`, `filePath = null` ở đầu |
+| 2.8 dòng trống | trước mọi comment (kể cả comment field trong `Constants`, `Message`, DTO), sau vùng khai báo, sau `}` của `if` trước `return` |
+| 3.3 ngoặc | `FilePath.getFolders`: `if ((firstSlash < 0) \|\| (firstSlash == lastSlash))`; `Validation.getFilePath`: `(input == null) ? "" : input.trim()` |
+| 3.4 | `public final class Main` + `private Main() { }`; `Validation`, `Constants`, `Message` cũng `final` + ctor private |
+| 3.8 | không cộng chuỗi: `PathView` in bằng `String.format(Message.RESULT_…, …)` |
+
+Tên đề giữ nguyên (không trái tờ giấy): 5 hàm `getPath`, `getFileName`, `getExtension`, `getDisk`,
+`getFolders` — đều mở đầu bằng động từ `get`, không tham số, đúng chữ ký đề.
+
+Kiểm lại: `python3 _tools/verify.py J1SP0062` · `python3 _tools/lint.py HE176322_J1SP0062_*` · `python3 _tools/soat_checklist.py HE176322_J1SP0062_*` → 0 `VI_PHAM`.
+`RUI_RO` còn lại chỉ là `String[] args` và tham số setter/constructor trùng tên field (`this.path = path`) — kiểu IDE sinh, được chấp nhận.

@@ -4,7 +4,8 @@ import constants.Constants;
 import constants.Message;
 
 /**
- * Shared checks for what the user typed.
+ * Shared checks for what the user typed. A utility: no object, no field, no keyboard, no
+ * print - it only answers "is this line valid?".
  *
  * @author HE176322
  */
@@ -17,15 +18,18 @@ public final class Validation {
     // Checks that the text is a Windows path to a file, such as "C:\Windows\test.txt", so
     // the five analyses always have a disk and a file name to find.
     public static String getFilePath(String input) throws Exception {
-        String path = input == null ? "" : input.trim();
+        String path = (input == null) ? "" : input.trim();
+
         // nothing typed
         if (path.isEmpty()) {
             throw new Exception(Message.PATH_EMPTY);
         }
+
         // no drive letter, no file name, or a forbidden character
         if (!path.matches(Constants.PATH_PATTERN)) {
             throw new Exception(Message.PATH_INVALID);
         }
+
         return path;
     }
 }
