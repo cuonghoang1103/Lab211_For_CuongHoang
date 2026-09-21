@@ -9,6 +9,7 @@ public class BMIRequestDTO {
 
     // Body weight in kg (already checked: a positive number).
     private double weight;
+
     // Height in cm (already checked: a positive number).
     private double height;
 

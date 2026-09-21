@@ -1,22 +1,22 @@
 package controller;
 
 import dto.BMIRequestDTO;
-import dto.BMIResponseDTO;
 import dto.CalculatorRequestDTO;
 import dto.CalculatorResponseDTO;
 import service.CalculatorService;
 import view.CalculatorView;
 
 /**
- * CONTROLLER: receives DTOs from main, asks the service to compute, and hands the results
- * to the view.
+ * CONTROLLER: receives DTOs from main, asks the service to compute, and hands each result
+ * to the view - one render per flow. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class CalculatorController {
 
-    // Does the arithmetic, keeps the memory, computes BMI.
+    // Does the arithmetic and the BMI (Controller -> Service -> Repository -> Model).
     private CalculatorService calculatorService;
+
     // Prints the results.
     private CalculatorView calculatorView;
 
@@ -32,30 +32,37 @@ public class CalculatorController {
         calculatorService.storeMemory(requestDTO);
     }
 
-    // One step "memory operator number", then "Memory:" is printed.
+    // One flow "memory operator number": the view prints "Memory:" - once. Division by
+    // zero throws before anything is printed.
     public void calculate(CalculatorRequestDTO requestDTO) {
-        CalculatorResponseDTO response = new CalculatorResponseDTO();
-        response.setMemory(calculatorService.calculate(requestDTO));
-        calculatorView.setCalculatorResponse(response);
-        calculatorView.displayMemory();
+        CalculatorResponseDTO responseDTO = new CalculatorResponseDTO();
+
+        // the value in memory after this step
+        responseDTO.setMemory(calculatorService.calculate(requestDTO));
+        calculatorView.setResponseDTO(responseDTO);
+        calculatorView.display();
     }
 
-    // "=" was typed: prints "Result:" with the value in memory.
+    // The flow of "=": the view prints "Result:" with the value in memory - once.
     public void showResult() {
-        CalculatorResponseDTO response = new CalculatorResponseDTO();
-        response.setMemory(calculatorService.getMemory());
-        calculatorView.setCalculatorResponse(response);
-        calculatorView.displayResult();
+        CalculatorResponseDTO responseDTO = new CalculatorResponseDTO();
+
+        // the value the last step left in memory
+        responseDTO.setResult(calculatorService.getMemory());
+        calculatorView.setResponseDTO(responseDTO);
+        calculatorView.display();
     }
 
-    // Option 2: computes the BMI number and status, then prints them.
+    // Option 2: computes the BMI number and status, then the view prints them - once.
     public void calculateBMI(BMIRequestDTO requestDTO) {
+        CalculatorResponseDTO responseDTO = new CalculatorResponseDTO();
         double weight = requestDTO.getWeight();
         double height = requestDTO.getHeight();
-        BMIResponseDTO response = new BMIResponseDTO();
-        response.setBmiNumber(calculatorService.calculateBMIIndex(weight, height));
-        response.setStatus(calculatorService.calculateBMI(weight, height).getLabel());
-        calculatorView.setBmiResponse(response);
-        calculatorView.displayBMI();
+
+        // the number, and the brief's calculateBMI for the status band
+        responseDTO.setBmiNumber(calculatorService.calculateBMIIndex(weight, height));
+        responseDTO.setBmiStatus(calculatorService.calculateBMI(weight, height).getLabel());
+        calculatorView.setResponseDTO(responseDTO);
+        calculatorView.display();
     }
 }

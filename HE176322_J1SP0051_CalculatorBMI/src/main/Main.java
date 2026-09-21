@@ -10,34 +10,59 @@ import java.util.Scanner;
 import utils.Validation;
 
 /**
- * MAIN: the work flow - the menu loop, the calculator loop and the keyboard.
+ * MAIN: the work flow - the menu loop, the calculator loop and the keyboard. Every keyboard
+ * read and every validation happen here; the controller only gets checked DTOs.
  *
  * @author HE176322
  */
-public class Main {
+public final class Main {
+
+    // Private constructor: Main only has static methods (checklist 3.4).
+    private Main() {
+    }
 
     // Starts the program: shows the menu until the user chooses Exit.
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         CalculatorController controller = new CalculatorController();
+        CalculatorRequestDTO calculatorRequestDTO = null;
+        BMIRequestDTO bmiRequestDTO = null;
         boolean running = true;
+        boolean calculating = false;
+        int choice = 0;
+
         // show the menu again after every function, until Exit is chosen
         while (running) {
             System.out.println(Message.MENU);
+            choice = inputChoice(sc);
+
             // run the function the user picked
-            switch (inputChoice(sc)) {
-                // option 1: normal calculator
+            switch (choice) {
+                // option 1: the first number goes into the temporary memory, then one flow
+                // per operator (runStep) until "=" is typed
                 case Constants.MENU_NORMAL:
-                    normalCalculator(sc, controller);
+                    calculatorRequestDTO = inputFirstNumber(sc);
+                    controller.startCalculation(calculatorRequestDTO);
+                    calculating = true;
+
+                    // each turn: read the operator (and its number), then run its flow
+                    while (calculating) {
+                        calculatorRequestDTO = inputStep(sc);
+                        calculating = runStep(controller, calculatorRequestDTO);
+                    }
                     break;
-                // option 2: BMI calculator
+
+                // option 2: read weight and height, then show the BMI number and status
                 case Constants.MENU_BMI:
-                    bmiCalculator(sc, controller);
+                    bmiRequestDTO = inputBMI(sc);
+                    controller.calculateBMI(bmiRequestDTO);
                     break;
+
                 // option 3: stop the loop
                 case Constants.MENU_EXIT:
                     running = false;
                     break;
+
                 // unreachable: inputChoice only returns 1..3
                 default:
                     break;
@@ -47,14 +72,16 @@ public class Main {
 
     // Asks for a menu choice until the user types 1, 2 or 3.
     private static int inputChoice(Scanner sc) {
+        String line = "";
+
         // keep asking until Validation accepts the line
         while (true) {
             System.out.print(Message.INPUT_CHOICE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints the reason and loops again
             try {
-                return Validation.getChoice(line, Constants.MENU_NORMAL,
-                        Constants.MENU_EXIT);
+                return Validation.getChoice(line, Constants.MENU_NORMAL, Constants.MENU_EXIT);
             } catch (Exception e) {
                 // "Please input a number from 1 to 3."
                 System.out.println(e.getMessage());
@@ -64,10 +91,13 @@ public class Main {
 
     // Asks for a number until it is numeric data.
     private static double inputNumber(Scanner sc) {
+        String line = "";
+
         // keep asking until checkin finds a number
         while (true) {
             System.out.print(Message.INPUT_NUMBER);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints the reason and loops again
             try {
                 return Validation.getNumber(line);
@@ -80,10 +110,13 @@ public class Main {
 
     // Asks for an operator until it is one of + - * / ^ =.
     private static Operator inputOperator(Scanner sc) {
+        String line = "";
+
         // keep asking until checkOperator finds an operator
         while (true) {
             System.out.print(Message.INPUT_OPERATOR);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints the reason and loops again
             try {
                 return Validation.getOperator(line);
@@ -96,10 +129,13 @@ public class Main {
 
     // Asks for a weight or height until it is a positive number.
     private static double inputBodyValue(Scanner sc, String prompt) {
+        String line = "";
+
         // keep asking until the value is a positive number
         while (true) {
             System.out.print(prompt);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints the reason and loops again
             try {
                 return Validation.getBodyValue(line);
@@ -110,41 +146,70 @@ public class Main {
         }
     }
 
-    // Option 1: the memory calculator.
-    private static void normalCalculator(Scanner sc, CalculatorController controller) {
+    // Option 1, start: the title, then the first number into a new request.
+    private static CalculatorRequestDTO inputFirstNumber(Scanner sc) {
+        CalculatorRequestDTO requestDTO = new CalculatorRequestDTO();
+
+        // the title of the normal calculator, then the number the memory starts with
         System.out.println(Message.TITLE_NORMAL);
-        CalculatorRequestDTO dto = new CalculatorRequestDTO();
-        dto.setNumber(inputNumber(sc));
-        controller.startCalculation(dto);
+        requestDTO.setNumber(inputNumber(sc));
+        return requestDTO;
+    }
+
+    // Option 1, one turn: the operator and, unless it is "=", the number it applies to -
+    // into a new request.
+    private static CalculatorRequestDTO inputStep(Scanner sc) {
+        CalculatorRequestDTO requestDTO = new CalculatorRequestDTO();
+
+        // the operator first: the brief's screen asks it before the number
+        requestDTO.setOperator(inputOperator(sc));
+
+        // + - * / ^ need a second number, "=" does not
+        if (requestDTO.getOperator() != Operator.EQUAL) {
+            requestDTO.setNumber(inputNumber(sc));
+        }
+
+        return requestDTO;
+    }
+
+    // Option 1, one flow chosen by the operator (the brief: "Use case switch to switch
+    // (enum)"): one case, one call to the controller, one line printed. Answers false
+    // after "=", which ends the calculator.
+    private static boolean runStep(CalculatorController controller,
+            CalculatorRequestDTO requestDTO) {
         boolean calculating = true;
-        // one step per operator, until "=" is typed
-        while (calculating) {
-            Operator operator = inputOperator(sc);
-            // "=": show the result and leave the loop
-            if (operator == Operator.EQUAL) {
+
+        // the operator typed decides the flow
+        switch (requestDTO.getOperator()) {
+            // "=": "Result:" with the value in memory, then the calculator ends
+            case EQUAL:
                 controller.showResult();
                 calculating = false;
-            } else {
-                // any other operator needs a second number
-                dto.setOperator(operator);
-                dto.setNumber(inputNumber(sc));
+                break;
+
+            // + - * / ^: "memory operator number", then "Memory:"
+            default:
                 // division by zero must not end the calculation
                 try {
-                    controller.calculate(dto);
+                    controller.calculate(requestDTO);
                 } catch (ArithmeticException e) {
                     // "Can not divide by zero"; the memory keeps its value
                     System.out.println(e.getMessage());
                 }
-            }
+                break;
         }
+
+        return calculating;
     }
 
-    // Option 2: reads weight and height and calls the controller once.
-    private static void bmiCalculator(Scanner sc, CalculatorController controller) {
+    // Option 2: the title, then weight and height into a new request.
+    private static BMIRequestDTO inputBMI(Scanner sc) {
+        BMIRequestDTO requestDTO = new BMIRequestDTO();
+
+        // the title of the BMI calculator, then its two questions
         System.out.println(Message.TITLE_BMI);
-        BMIRequestDTO dto = new BMIRequestDTO();
-        dto.setWeight(inputBodyValue(sc, Message.INPUT_WEIGHT));
-        dto.setHeight(inputBodyValue(sc, Message.INPUT_HEIGHT));
-        controller.calculateBMI(dto);
+        requestDTO.setWeight(inputBodyValue(sc, Message.INPUT_WEIGHT));
+        requestDTO.setHeight(inputBodyValue(sc, Message.INPUT_HEIGHT));
+        return requestDTO;
     }
 }

@@ -13,6 +13,7 @@ public class CalculatorRequestDTO {
 
     // The number typed: the first number, or b of "memory operator b".
     private double number;
+
     // The operator typed before the number; null for the first number.
     private Operator operator;
 

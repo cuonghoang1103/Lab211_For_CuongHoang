@@ -9,14 +9,19 @@ public enum Operator {
 
     // Addition, typed "+".
     ADD("+"),
+
     // Subtraction, typed "-".
     SUBTRACT("-"),
+
     // Multiplication, typed "*" (or "x", see Validation.checkOperator).
     MULTIPLY("*"),
+
     // Division, typed "/".
     DIVIDE("/"),
+
     // Exponent, typed "^" (Math.pow).
     POWER("^"),
+
     // "=": stop and show the result.
     EQUAL("=");
 

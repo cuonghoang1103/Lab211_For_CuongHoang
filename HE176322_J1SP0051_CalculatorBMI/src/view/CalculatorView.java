@@ -1,47 +1,44 @@
 package view;
 
-import constants.Constants;
 import constants.Message;
-import dto.BMIResponseDTO;
 import dto.CalculatorResponseDTO;
 import java.util.Locale;
 
 /**
- * VIEW: prints the "Memory:", "Result:" and BMI lines.
+ * VIEW: prints the "Memory:", "Result:" and BMI lines. It receives the data through its
+ * attribute (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class CalculatorView {
 
-    // The value in memory to display, handed over by the controller.
-    private CalculatorResponseDTO calculatorResponse;
-    // The BMI result to display, handed over by the controller.
-    private BMIResponseDTO bmiResponse;
+    // The answer to print, handed over by the controller.
+    private CalculatorResponseDTO responseDTO;
 
-    // Receives the memory value the next displayMemory/displayResult prints.
-    public void setCalculatorResponse(CalculatorResponseDTO calculatorResponse) {
-        this.calculatorResponse = calculatorResponse;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(CalculatorResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Receives the BMI result the next displayBMI prints.
-    public void setBmiResponse(BMIResponseDTO bmiResponse) {
-        this.bmiResponse = bmiResponse;
-    }
+    // Prints what the controller set: "Memory:8.0" after a step, "Result:24.0" after "=",
+    // or the BMI number and status.
+    public void display() {
+        // one step of the normal calculator
+        if (responseDTO.getMemory() != null) {
+            System.out.println(String.format(Message.LABEL_MEMORY, responseDTO.getMemory()));
+        }
 
-    // Prints "Memory:8.0" after one calculation step.
-    public void displayMemory() {
-        System.out.println(Message.LABEL_MEMORY + calculatorResponse.getMemory());
-    }
+        // "=" was typed
+        if (responseDTO.getResult() != null) {
+            System.out.println(String.format(Message.LABEL_RESULT, responseDTO.getResult()));
+        }
 
-    // Prints "Result:24.0" when "=" is typed.
-    public void displayResult() {
-        System.out.println(Message.LABEL_RESULT + calculatorResponse.getMemory());
-    }
-
-    // Prints the BMI number (2 decimals, always with a dot) and the status.
-    public void displayBMI() {
-        System.out.println(Message.LABEL_BMI_NUMBER + String.format(Locale.US,
-                Constants.BMI_FORMAT, bmiResponse.getBmiNumber()));
-        System.out.println(Message.LABEL_BMI_STATUS + bmiResponse.getStatus());
+        // the BMI number (2 decimals, always with a dot: Locale.US) and the status
+        if (responseDTO.getBmiStatus() != null) {
+            System.out.println(String.format(Locale.US, Message.LABEL_BMI_NUMBER,
+                    responseDTO.getBmiNumber()));
+            System.out.println(String.format(Message.LABEL_BMI_STATUS,
+                    responseDTO.getBmiStatus()));
+        }
     }
 }
