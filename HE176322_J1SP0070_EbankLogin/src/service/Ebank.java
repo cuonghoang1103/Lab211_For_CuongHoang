@@ -3,76 +3,103 @@ package service;
 import constants.Constants;
 import constants.Message;
 import dto.LoginRequestDTO;
+import dto.LoginResponseDTO;
 import java.util.Locale;
-import java.util.ResourceBundle;
-import model.Account;
+import repository.AccountRepository;
+import utils.LanguageUtils;
+import utils.Validation;
 
 /**
- * SERVICE: the Ebank class the brief asks for - the rules of the login and the language
- * of its texts.
+ * SERVICE: the Ebank class the brief asks for - the language of the texts and the rules of
+ * the login. Called only by the controller; no print, no keyboard.
  *
  * @author HE176322
  */
 public class Ebank {
 
-    // The texts of the chosen language.
-    private ResourceBundle bundle;
-    // The account that has logged in; null until the login succeeds.
-    private Account account;
+    // The language every text of Ebank is read in.
+    private Locale locale;
 
-    // Creates the Ebank with the English texts (the brief: English is the interface the
-    // program starts with).
+    // Keeps the accounts that have logged in (Service -> Repository -> Model).
+    private AccountRepository accountRepository;
+
+    // Creates the Ebank in English, the language the program starts in.
     public Ebank() {
-        bundle = ResourceBundle.getBundle(Constants.BUNDLE_NAME,
-                new Locale(Constants.LANGUAGE_EN));
+        locale = new Locale(Constants.LANGUAGE_EN);
+        accountRepository = new AccountRepository();
     }
 
-    // The brief's setLocate: switches every text to another language, by loading
-    // Language_xx.properties of that locale.
+    // The brief's setLocate: every later text is read in this language.
     public void setLocate(Locale locate) {
-        bundle = ResourceBundle.getBundle(Constants.BUNDLE_NAME, locate);
+        locale = locate;
     }
 
-    // Returns the text of a key in the chosen language.
-    public String getText(String key) {
-        return bundle.getString(key);
-    }
-
-    // The brief's checkAccountNumber: a number of exactly 10 digits.
+    // The brief's checkAccountNumber: empty when valid, else the error in the language.
     public String checkAccountNumber(String accountNumber) {
-        // null or not exactly 10 digits
-        if (accountNumber == null || !accountNumber.matches(Constants.ACCOUNT_REGEX)) {
-            return bundle.getString(Message.KEY_ACCOUNT_ERROR);
+        // not exactly 10 digits
+        if (!Validation.isMatch(accountNumber, Constants.ACCOUNT_REGEX)) {
+            return LanguageUtils.getText(locale, Message.KEY_ACCOUNT_ERROR);
         }
+
         return Constants.VALID;
     }
 
-    // The brief's checkPassword: 8 to 31 characters, letters AND digits.
+    // The brief's checkPassword: empty when valid, else the error in the language.
     public String checkPassword(String password) {
-        // null, wrong length, a symbol, or letters/digits missing
-        if (password == null || !password.matches(Constants.PASSWORD_REGEX)) {
-            return bundle.getString(Message.KEY_PASSWORD_ERROR);
+        // wrong length, a symbol, or letters/digits missing
+        if (!Validation.isMatch(password, Constants.PASSWORD_REGEX)) {
+            return LanguageUtils.getText(locale, Message.KEY_PASSWORD_ERROR);
         }
+
         return Constants.VALID;
     }
 
-    // The brief's checkCaptcha: the typed characters must be contained in the generated
-    // captcha ("use the function contains()").
+    // The brief's checkCaptcha: empty when valid, else the error in the language.
     public String checkCaptcha(String captchaInput, String captchaGenerate) {
-        // nothing typed: contains("") would wrongly say yes
-        if (captchaInput == null || captchaInput.isEmpty()) {
-            return bundle.getString(Message.KEY_CAPTCHA_ERROR);
+        // nothing typed, or characters that are not in the captcha
+        if (!Validation.isCaptchaMatch(captchaInput, captchaGenerate)) {
+            return LanguageUtils.getText(locale, Message.KEY_CAPTCHA_ERROR);
         }
-        // the typed characters do not appear in the captcha
-        if (!captchaGenerate.contains(captchaInput)) {
-            return bundle.getString(Message.KEY_CAPTCHA_ERROR);
-        }
+
         return Constants.VALID;
     }
 
-    // The brief's Function 6 "Login", last step: remembers the account once the account
-    // number, the password and the captcha have all passed.
-    public void login(LoginRequestDTO requestDTO) {
-        account = new Account(requestDTO.getAccountNumber(), requestDTO.getPassword());
+    // The brief's Function 6, last step: checks the whole request once more and, when every
+    // check passes, stores the account and answers with the success line.
+    public LoginResponseDTO login(LoginRequestDTO requestDTO) {
+        LoginResponseDTO responseDTO = new LoginResponseDTO();
+        String error = "";
+
+        // answer in the language chosen in the menu, then run the brief's three checks
+        setLocate(requestDTO.getLocale());
+        error = findFirstError(requestDTO);
+
+        // a check failed: the answer is its error, and nothing is stored
+        if (!error.isEmpty()) {
+            responseDTO.setMessage(error);
+            return responseDTO;
+        }
+
+        // every check passed: store the account, answer with the success line
+        accountRepository.addAccount(requestDTO);
+        responseDTO.setMessage(LanguageUtils.getText(locale, Message.KEY_LOGIN_SUCCESS));
+        return responseDTO;
+    }
+
+    // Runs the three checks in the order of the screen; empty when all of them pass.
+    private String findFirstError(LoginRequestDTO requestDTO) {
+        String error = checkAccountNumber(requestDTO.getAccountNumber());
+
+        // the account number passed: check the password
+        if (error.isEmpty()) {
+            error = checkPassword(requestDTO.getPassword());
+        }
+
+        // the password passed too: check the captcha
+        if (error.isEmpty()) {
+            error = checkCaptcha(requestDTO.getCaptchaInput(), requestDTO.getCaptchaGenerate());
+        }
+
+        return error;
     }
 }

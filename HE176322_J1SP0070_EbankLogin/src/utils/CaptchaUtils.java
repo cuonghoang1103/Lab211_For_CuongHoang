@@ -4,7 +4,7 @@ import constants.Constants;
 import java.util.Random;
 
 /**
- * Generates the random captcha of each login.
+ * Generates the random captcha of each login. A utility: no object, no field.
  *
  * @author HE176322
  */
@@ -14,16 +14,18 @@ public final class CaptchaUtils {
     private CaptchaUtils() {
     }
 
-    // The brief's generateCaptcha: "use the Random function to generate a random
-    // sequence, and then convert to characters".
+    // The brief's generateCaptcha: random positions in the alphabet, turned into chars.
     public static String generateCaptcha() {
         Random random = new Random();
         StringBuilder captcha = new StringBuilder();
+        int position = 0;
+
         // one random character per turn, until the captcha is long enough
         for (int i = 0; i < Constants.CAPTCHA_LENGTH; i++) {
-            int position = random.nextInt(Constants.CAPTCHA_ALPHABET.length());
+            position = random.nextInt(Constants.CAPTCHA_ALPHABET.length());
             captcha.append(Constants.CAPTCHA_ALPHABET.charAt(position));
         }
+
         return captcha.toString();
     }
 }

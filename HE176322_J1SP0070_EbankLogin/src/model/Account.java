@@ -1,16 +1,17 @@
 package model;
 
 /**
- * MODEL: the bank account that has logged in - a JavaBean (private fields, public
- * no-argument constructor, getters/setters).
+ * MODEL: a bank account that has logged in - a JavaBean (private fields, public no-argument
+ * constructor, getters/setters). It only describes the account: no print, no input.
  *
  * @author HE176322
  */
 public class Account {
 
-    // The 10-digit account number.
+    // The 10-digit account number (a String keeps the leading 0 of 0123456789).
     private String accountNumber;
-    // The password (8-31 letters and digits).
+
+    // The password: 8 to 31 letters and digits.
     private String password;
 
     // JavaBean constructor: an empty account.
@@ -43,7 +44,7 @@ public class Account {
         this.password = password;
     }
 
-    // Polymorphism: overrides Object.toString().
+    // Polymorphism: overrides Object.toString(); the password is never part of it.
     @Override
     public String toString() {
         return accountNumber;

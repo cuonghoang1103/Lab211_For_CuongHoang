@@ -3,8 +3,8 @@ package dto;
 import java.util.Locale;
 
 /**
- * DTO carrying what main has collected FROM main INTO the controller - a JavaBean
- * (private fields, public no-argument constructor, getters/setters).
+ * DTO carrying one login FROM main INTO the controller: the chosen language and the three
+ * things typed, plus the captcha main generated. One object instead of five parameters.
  *
  * @author HE176322
  */
@@ -12,16 +12,20 @@ public class LoginRequestDTO {
 
     // The language chosen in the menu.
     private Locale locale;
-    // The account number typed by the user.
+
+    // The account number typed.
     private String accountNumber;
-    // The password typed by the user.
+
+    // The password typed.
     private String password;
-    // The captcha generated for this login (by CaptchaUtils in main).
+
+    // The captcha the program generated.
     private String captchaGenerate;
-    // The captcha characters typed by the user.
+
+    // The captcha characters typed.
     private String captchaInput;
 
-    // JavaBean constructor: an empty request, filled through the setters.
+    // Creates an empty request; main fills it through the setters.
     public LoginRequestDTO() {
     }
 
@@ -35,22 +39,22 @@ public class LoginRequestDTO {
         this.locale = locale;
     }
 
-    // Returns the account number.
+    // Returns the account number typed.
     public String getAccountNumber() {
         return accountNumber;
     }
 
-    // Sets the account number.
+    // Sets the account number typed.
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
     }
 
-    // Returns the password.
+    // Returns the password typed.
     public String getPassword() {
         return password;
     }
 
-    // Sets the password.
+    // Sets the password typed.
     public void setPassword(String password) {
         this.password = password;
     }
@@ -65,12 +69,12 @@ public class LoginRequestDTO {
         this.captchaGenerate = captchaGenerate;
     }
 
-    // Returns the typed captcha characters.
+    // Returns the captcha characters typed.
     public String getCaptchaInput() {
         return captchaInput;
     }
 
-    // Sets the typed captcha characters.
+    // Sets the captcha characters typed.
     public void setCaptchaInput(String captchaInput) {
         this.captchaInput = captchaInput;
     }

@@ -1,53 +1,46 @@
-Phím đã gõ (mỗi dòng một lần Enter):
-1
-1
-a
-aaaaaaaaaa
-123456789
-0123456789
-1
-12345678
-aaaaaaaa
-11111111111111111111111111111111
-123456ab
-
-A
-B
-C
-D
-E
-F
-G
-H
-I
-J
-K
-L
-M
-N
-O
-P
-Q
-R
-S
-T
-U
-V
-W
-X
-Y
-Z
-0
-1
-2
-3
-4
-5
-6
-7
-8
-9
+Màn hình chạy thật (javac --release 8, chạy từ lớp main.Main). Phím gõ hiện ngay sau câu hỏi.
+Captcha sinh ngẫu nhiên nên mỗi lần chạy một khác.
 
 ======================================================================
-Màn hình:
+Lần 1 — chọn 1 (tiếng Việt), thử đủ các lỗi rồi đăng nhập
+======================================================================
+-------Login Program-------
+1. Vietnamese
+2. English
+3. Exit
+Please choice one option: 1
+So tai khoan:  abc
+So tai khoan phai la 1 so va phai co 10 chu so
+So tai khoan:  123456789
+So tai khoan phai la 1 so va phai co 10 chu so
+So tai khoan:  0123456789
+Mat khau: 12345678
+Mat khau phai trong khoang 8-31 ky tu va phai chua ky tu va so
+Mat khau: aaaaaaaa
+Mat khau phai trong khoang 8-31 ky tu va phai chua ky tu va so
+Mat khau: 123456ab
+Captcha: NJAIU
+Nhap 1 ky tu captcha: 
+Captcha sai
+Nhap 1 ky tu captcha: n
+Captcha sai
+Nhap 1 ky tu captcha: !
+Captcha sai
+Nhap 1 ky tu captcha: J
+Dang nhap thanh cong
+
+
+======================================================================
+Lần 2 — chọn 2 (tiếng Anh), đường đúng
+======================================================================
+-------Login Program-------
+1. Vietnamese
+2. English
+3. Exit
+Please choice one option: 2
+Account number:  0123456789
+Password: abc12345
+Captcha incorrect: JH5WW
+Enter a Captcha incorrect characters: 5W
+Login successfully
 

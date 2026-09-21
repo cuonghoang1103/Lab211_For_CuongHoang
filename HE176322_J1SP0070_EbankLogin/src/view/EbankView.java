@@ -1,19 +1,25 @@
 package view;
 
+import dto.LoginResponseDTO;
+
 /**
- * VIEW: prints the texts of the login screen, already translated.
+ * VIEW: prints the answer of the login. It receives the data through its attribute (the
+ * ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class EbankView {
 
-    // Prints a prompt and stays on the same line, so the user types after it.
-    public void showPrompt(String prompt) {
-        System.out.print(prompt);
+    // The answer to print, handed over by the controller.
+    private LoginResponseDTO responseDTO;
+
+    // Receives the answer the next display() will print.
+    public void setResponseDTO(LoginResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints a whole line, such as the captcha or "Login successfully".
-    public void showMessage(String message) {
-        System.out.println(message);
+    // Prints the answer: the success line, or the error of a check that failed.
+    public void display() {
+        System.out.println(responseDTO.getMessage());
     }
 }
