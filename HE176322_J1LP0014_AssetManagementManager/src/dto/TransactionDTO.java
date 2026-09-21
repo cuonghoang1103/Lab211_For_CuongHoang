@@ -1,30 +1,36 @@
 package dto;
 
 /**
- * DTO controller -> view: one row of the request or borrow table, with the names looked
- * up (an id alone like E140449 tells the manager nothing).
+ * DTO service -> controller -> view: one row of the request or borrow table, with the
+ * names looked up (an id alone like E140449 tells the manager nothing).
  *
  * @author HE176322
  */
-public class TransactionResponseDTO {
+public class TransactionDTO {
 
     // Request or borrow id.
     private String id;
+
     // Asset id.
-    private String assetID;
+    private String assetId;
+
     // Asset name.
     private String assetName;
+
     // Employee id.
-    private String employeeID;
+    private String employeeId;
+
     // Employee name.
     private String employeeName;
+
     // Units.
     private int quantity;
+
     // Date and time.
     private String dateTime;
 
     // JavaBean constructor.
-    public TransactionResponseDTO() {
+    public TransactionDTO() {
     }
 
     // Returns the id.
@@ -38,13 +44,13 @@ public class TransactionResponseDTO {
     }
 
     // Returns the asset id.
-    public String getAssetID() {
-        return assetID;
+    public String getAssetId() {
+        return assetId;
     }
 
     // Changes the asset id.
-    public void setAssetID(String assetID) {
-        this.assetID = assetID;
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
     }
 
     // Returns the asset name.
@@ -58,13 +64,13 @@ public class TransactionResponseDTO {
     }
 
     // Returns the employee id.
-    public String getEmployeeID() {
-        return employeeID;
+    public String getEmployeeId() {
+        return employeeId;
     }
 
     // Changes the employee id.
-    public void setEmployeeID(String employeeID) {
-        this.employeeID = employeeID;
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
     }
 
     // Returns the employee name.

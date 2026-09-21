@@ -8,6 +8,12 @@ An approval stamps the borrow with the current date and time, so a transcript ca
 compared letter for letter. check() replaces every date-time that is not one of the
 brief's sample stamps by <NOW>, checks each one is a real dd-MM-yyyy HH:mm:ss, then
 compares the rest exactly.
+
+21/09/2026 (the lecturer's paper checklist: ONE render per switch-case): Function 4 no
+longer prints the asset before the new values (the brief only asks for the result of the
+updating), and Function 5 prints nothing after a good approval (its one render is the
+request list the brief shows before the choice; "After approve, the program returns to
+the main screen"). Run C covers "Create another asset? Y", which runs Function 3 again.
 """
 import re
 from datetime import datetime
@@ -38,7 +44,7 @@ def check(expected):
 
 
 RUNS = [
-    # A: guards, login (wrong / employee / manager), search, every create and update constraint, approve: unknown id, not enough stock, success; borrow list
+    # A: guards, login (wrong / employee / manager), search, every create and update constraint, approve: unknown id, not enough stock, success (no line: back to the menu); borrow list
     (keys('3', '1', 'E160052', '000000', '1', 'E160001', '123456', '3', '1', 'e160052', '123456', '2', 'pro', '2', 'zzz', '2', '', 'mac', '3', 'A001', 'A3', 'a003', '', 'Dell projector', 'Bl,ack', 'Black', 'abc', '0', 'NaN', '750', '-1', '4.5', '-2', '2.5', '2', 'x', 'N', '4', 'A999', '4', 'a003', '', 'White', '-5', '', '', '6', '5', 'R999', '4', 'A001', '', '', '', '', '0', '5', 'r001', '4', 'A001', '', '', '', '', '10', '5', 'R001', '6', '9', '7'),
      check(r'''
 ========== BMLT ASSET - MANAGER ==========
@@ -196,11 +202,7 @@ Enter asset id: Asset does not exist
 7. Quit
 ==========================================
 Your choice: --- Update asset information ---
-Enter asset id: Id     Name                  Color        Price   Weight   Qty
-----------------------------------------------------------------------------
-A003   Dell projector        Black       750.00     4.50     2
-----------------------------------------------------------------------------
-Leave a field blank to keep the current value.
+Enter asset id: Leave a field blank to keep the current value.
 New name: New color: New price: Price must be a number greater than 0.
 New price: New weight: New quantity: Asset A003 has been updated.
 Id     Name                  Color        Price   Weight   Qty
@@ -237,11 +239,7 @@ Enter request id to approve: Request R999 does not exist.
 7. Quit
 ==========================================
 Your choice: --- Update asset information ---
-Enter asset id: Id     Name                  Color        Price   Weight   Qty
-----------------------------------------------------------------------------
-A001   Samsung projector     White       500.00     3.20    10
-----------------------------------------------------------------------------
-Leave a field blank to keep the current value.
+Enter asset id: Leave a field blank to keep the current value.
 New name: New color: New price: New weight: New quantity: Asset A001 has been updated.
 Id     Name                  Color        Price   Weight   Qty
 ----------------------------------------------------------------------------
@@ -277,11 +275,7 @@ Enter request id to approve: Not enough stock: A001 has 0 left but request R001 
 7. Quit
 ==========================================
 Your choice: --- Update asset information ---
-Enter asset id: Id     Name                  Color        Price   Weight   Qty
-----------------------------------------------------------------------------
-A001   Samsung projector     White       500.00     3.20     0
-----------------------------------------------------------------------------
-Leave a field blank to keep the current value.
+Enter asset id: Leave a field blank to keep the current value.
 New name: New color: New price: New weight: New quantity: Asset A001 has been updated.
 Id     Name                  Color        Price   Weight   Qty
 ----------------------------------------------------------------------------
@@ -305,8 +299,7 @@ R002   A002   Macbook pro 2016    E160001  Nguyen Hong Hiep       1  24-12-2021 
 R003   A001   Samsung projector   E160798  Truong Le Minh         1  23-12-2021 11:19:56
 R007   A002   Macbook pro 2016    E160240  Tran Dinh Khanh        1  24-12-2021 10:10:56
 ----------------------------------------------------------------------------
-Enter request id to approve: Request R001 has been approved as borrow B008.
-
+Enter request id to approve: 
 ========== BMLT ASSET - MANAGER ==========
 1. Login
 2. Search asset by name
@@ -407,8 +400,7 @@ R002   A002   Macbook pro 2016    E160001  Nguyen Hong Hiep       1  24-12-2021 
 R003   A001   Samsung projector   E160798  Truong Le Minh         1  23-12-2021 11:19:56
 R007   A002   Macbook pro 2016    E160240  Tran Dinh Khanh        1  24-12-2021 10:10:56
 ----------------------------------------------------------------------------
-Enter request id to approve: Request R002 has been approved as borrow B008.
-
+Enter request id to approve: 
 ========== BMLT ASSET - MANAGER ==========
 1. Login
 2. Search asset by name
@@ -425,8 +417,7 @@ R001   A001   Samsung projector   E140449  Le Buu Nhan            1  23-12-2021 
 R003   A001   Samsung projector   E160798  Truong Le Minh         1  23-12-2021 11:19:56
 R007   A002   Macbook pro 2016    E160240  Tran Dinh Khanh        1  24-12-2021 10:10:56
 ----------------------------------------------------------------------------
-Enter request id to approve: Request R003 has been approved as borrow B009.
-
+Enter request id to approve: 
 ========== BMLT ASSET - MANAGER ==========
 1. Login
 2. Search asset by name
@@ -442,8 +433,7 @@ Id     Asset  Asset name          Employee Employee name        Qty  Requested a
 R001   A001   Samsung projector   E140449  Le Buu Nhan            1  23-12-2021 13:17:56
 R007   A002   Macbook pro 2016    E160240  Tran Dinh Khanh        1  24-12-2021 10:10:56
 ----------------------------------------------------------------------------
-Enter request id to approve: Request R007 has been approved as borrow B010.
-
+Enter request id to approve: 
 ========== BMLT ASSET - MANAGER ==========
 1. Login
 2. Search asset by name
@@ -458,8 +448,7 @@ Id     Asset  Asset name          Employee Employee name        Qty  Requested a
 ----------------------------------------------------------------------------
 R001   A001   Samsung projector   E140449  Le Buu Nhan            1  23-12-2021 13:17:56
 ----------------------------------------------------------------------------
-Enter request id to approve: Request R001 has been approved as borrow B011.
-
+Enter request id to approve: 
 ========== BMLT ASSET - MANAGER ==========
 1. Login
 2. Search asset by name
@@ -517,6 +506,73 @@ Employee ID: Password: Incorrect id or password
 ==========================================
 Your choice: --- List of borrowed assets ---
 You must login first.
+
+========== BMLT ASSET - MANAGER ==========
+1. Login
+2. Search asset by name
+3. Create new asset
+4. Update asset's information
+5. Approve the request of employee
+6. Show list of borrow asset
+7. Quit
+==========================================
+Your choice: Goodbye.''')),
+    # C: Y to 'Create another asset?' runs Function 3 again (title, manager check, a taken id asked again)
+    (keys('1', 'E160052', '123456', '3', 'A003', 'Dell projector', 'Black', '750', '4.5', '2', 'Y', 'a003', 'A004', 'HP laptop', 'Silver', '1200', '1.8', '3', 'N', '2', 'p', '7'),
+     check(r'''
+========== BMLT ASSET - MANAGER ==========
+1. Login
+2. Search asset by name
+3. Create new asset
+4. Update asset's information
+5. Approve the request of employee
+6. Show list of borrow asset
+7. Quit
+==========================================
+Your choice: --- Login ---
+Employee ID: Password: Successfully
+Welcome, Hoa Doan (Manager).
+
+========== BMLT ASSET - MANAGER ==========
+1. Login
+2. Search asset by name
+3. Create new asset
+4. Update asset's information
+5. Approve the request of employee
+6. Show list of borrow asset
+7. Quit
+==========================================
+Your choice: --- Create new asset ---
+Enter asset id: Enter name: Enter color: Enter price: Enter weight: Enter quantity: Asset A003 has been created.
+Id     Name                  Color        Price   Weight   Qty
+----------------------------------------------------------------------------
+A003   Dell projector        Black       750.00     4.50     2
+----------------------------------------------------------------------------
+Create another asset? (Y/N): --- Create new asset ---
+Enter asset id: Asset A003 already exists.
+Enter asset id: Enter name: Enter color: Enter price: Enter weight: Enter quantity: Asset A004 has been created.
+Id     Name                  Color        Price   Weight   Qty
+----------------------------------------------------------------------------
+A004   HP laptop             Silver     1200.00     1.80     3
+----------------------------------------------------------------------------
+Create another asset? (Y/N): 
+========== BMLT ASSET - MANAGER ==========
+1. Login
+2. Search asset by name
+3. Create new asset
+4. Update asset's information
+5. Approve the request of employee
+6. Show list of borrow asset
+7. Quit
+==========================================
+Your choice: --- Search asset by name ---
+Enter a part of the asset name: Id     Name                  Color        Price   Weight   Qty
+----------------------------------------------------------------------------
+A001   Samsung projector     White       500.00     3.20    10
+A002   Macbook pro 2016      Sliver     1000.00     2.20     5
+A004   HP laptop             Silver     1200.00     1.80     3
+A003   Dell projector        Black       750.00     4.50     2
+----------------------------------------------------------------------------
 
 ========== BMLT ASSET - MANAGER ==========
 1. Login

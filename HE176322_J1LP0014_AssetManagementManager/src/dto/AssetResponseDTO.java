@@ -1,86 +1,68 @@
 package dto;
 
+import java.util.ArrayList;
+
 /**
- * DTO controller -> view: one row of the asset table.
+ * DTO controller -> view: everything ONE function shows, rendered by one display() call.
+ * The controller fills only what its function shows; the view prints what is not null.
  *
  * @author HE176322
  */
 public class AssetResponseDTO {
 
-    // Asset id.
-    private String assetID;
-    // Name.
-    private String name;
-    // Color.
-    private String color;
-    // Price.
-    private double price;
-    // Weight.
-    private double weight;
-    // Units in stock.
-    private int quantity;
+    // The line(s) of a result, e.g. "Successfully"; null when there is none.
+    private String message;
 
-    // JavaBean constructor.
+    // Rows of the asset table; null when no asset table is shown.
+    private ArrayList<AssetDTO> assetList;
+
+    // Rows of the request table; null when no request table is shown.
+    private ArrayList<TransactionDTO> requestList;
+
+    // Rows of the borrow table; null when no borrow table is shown.
+    private ArrayList<TransactionDTO> borrowList;
+
+    // JavaBean constructor: an empty answer, filled through the setters.
     public AssetResponseDTO() {
     }
 
-    // Returns the asset id.
-    public String getAssetID() {
-        return assetID;
+    // Returns the result line(s).
+    public String getMessage() {
+        return message;
     }
 
-    // Changes the asset id.
-    public void setAssetID(String assetID) {
-        this.assetID = assetID;
+    // Changes the result line(s).
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Returns the name.
-    public String getName() {
-        return name;
+    // Returns the asset rows.
+    public ArrayList<AssetDTO> getAssetList() {
+        return assetList;
     }
 
-    // Changes the name.
-    public void setName(String name) {
-        this.name = name;
+    // Changes the asset rows.
+    public void setAssetList(ArrayList<AssetDTO> assetList) {
+        this.assetList = assetList;
     }
 
-    // Returns the color.
-    public String getColor() {
-        return color;
+    // Returns the request rows.
+    public ArrayList<TransactionDTO> getRequestList() {
+        return requestList;
     }
 
-    // Changes the color.
-    public void setColor(String color) {
-        this.color = color;
+    // Changes the request rows.
+    public void setRequestList(ArrayList<TransactionDTO> requestList) {
+        this.requestList = requestList;
     }
 
-    // Returns the price.
-    public double getPrice() {
-        return price;
+    // Returns the borrow rows.
+    public ArrayList<TransactionDTO> getBorrowList() {
+        return borrowList;
     }
 
-    // Changes the price.
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    // Returns the weight.
-    public double getWeight() {
-        return weight;
-    }
-
-    // Changes the weight.
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    // Returns the units in stock.
-    public int getQuantity() {
-        return quantity;
-    }
-
-    // Changes the units in stock.
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    // Changes the borrow rows.
+    public void setBorrowList(ArrayList<TransactionDTO> borrowList) {
+        this.borrowList = borrowList;
     }
 }

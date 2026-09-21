@@ -11,9 +11,9 @@ public class Borrow extends Transaction {
     public Borrow() {
     }
 
-    // Creates a borrow with every field filled in.
-    public Borrow(String bID, String assetID, String employeeID, int quantity,
+    // brief: bID, borrowDateTime - creates a borrow with every field filled in.
+    public Borrow(String borrowId, String assetId, String employeeId, int quantity,
             String borrowDateTime) {
-        super(bID, assetID, employeeID, quantity, borrowDateTime);
+        super(borrowId, assetId, employeeId, quantity, borrowDateTime);
     }
 }

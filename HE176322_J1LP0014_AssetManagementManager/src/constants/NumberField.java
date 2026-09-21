@@ -11,23 +11,30 @@ public enum NumberField {
     // Price: greater than 0.
     PRICE(Message.INPUT_PRICE, Message.INPUT_NEW_PRICE, Constants.MIN_POSITIVE,
             Constants.MAX_PRICE, false, Message.INVALID_PRICE),
+
     // Weight: greater than 0.
     WEIGHT(Message.INPUT_WEIGHT, Message.INPUT_NEW_WEIGHT, Constants.MIN_POSITIVE,
             Constants.MAX_WEIGHT, false, Message.INVALID_WEIGHT),
+
     // Quantity in stock: a whole number, 0 allowed (every unit may be on loan).
     QUANTITY(Message.INPUT_QUANTITY, Message.INPUT_NEW_QUANTITY, Constants.MIN_QUANTITY,
             Constants.MAX_QUANTITY, true, Message.INVALID_QUANTITY);
 
     // Prompt when the field is typed the first time.
     private final String prompt;
+
     // Prompt in update (blank keeps the old value).
     private final String newPrompt;
+
     // Smallest legal value.
     private final double min;
+
     // Largest legal value.
     private final double max;
+
     // True when decimals are refused.
     private final boolean wholeNumber;
+
     // Message shown for any wrong value.
     private final String error;
 

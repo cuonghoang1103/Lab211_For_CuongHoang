@@ -13,7 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- * Reading and writing a text file line by line (UTF-8).
+ * Reading and writing a text file line by line (UTF-8). A utility: static methods only -
+ * main reads the four .dat files through it, the repositories write through it.
  *
  * @author HE176322
  */
@@ -23,37 +24,41 @@ public final class FileUtils {
     private FileUtils() {
     }
 
-    // Tells whether the file is there.
-    public static boolean exists(String fileName) {
-        return new File(fileName).exists();
-    }
-
-    // Returns every line of the file.
+    // Returns every line of the file; a file not created yet (first run) has no line.
     public static ArrayList<String> readLines(String fileName) throws Exception {
-        ArrayList<String> lines = new ArrayList<>();
+        ArrayList<String> lineList = new ArrayList<>();
+
+        // first run: nothing was stored yet
+        if (!new File(fileName).exists()) {
+            return lineList;
+        }
+
         // try-with-resources closes the reader even when a read fails
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new FileInputStream(fileName), StandardCharsets.UTF_8))) {
             String line = reader.readLine();
+
             // until the end of the file
             while (line != null) {
-                lines.add(line);
+                lineList.add(line);
                 line = reader.readLine();
             }
         } catch (IOException e) {
-            // missing, locked, no permission...
+            // locked, no permission...
             throw new Exception(String.format(Message.FILE_ERROR, fileName));
         }
-        return lines;
+
+        return lineList;
     }
 
     // Replaces the file with these lines (FileOutputStream truncates, never appends).
-    public static void writeLines(String fileName, ArrayList<String> lines) throws Exception {
+    public static void writeLines(String fileName, ArrayList<String> lineList)
+            throws Exception {
         // try-with-resources closes (and flushes) the writer even when a write fails
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(fileName), StandardCharsets.UTF_8))) {
             // one line per record
-            for (String line : lines) {
+            for (String line : lineList) {
                 writer.write(line);
                 writer.newLine();
             }

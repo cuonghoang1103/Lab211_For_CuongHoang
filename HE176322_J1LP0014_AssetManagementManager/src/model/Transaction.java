@@ -7,16 +7,20 @@ package model;
  *
  * @author HE176322
  */
-public abstract class Transaction implements Identifiable {
+public abstract class Transaction implements IRecord {
 
-    // R001 or B001.
+    // brief: rID / bID - R001 or B001.
     private String id;
-    // Asset asked for or borrowed.
-    private String assetID;
-    // Employee who asked or borrowed.
-    private String employeeID;
+
+    // brief: assetID - the asset asked for or borrowed.
+    private String assetId;
+
+    // brief: employeeID - the employee who asked or borrowed.
+    private String employeeId;
+
     // Units.
     private int quantity;
+
     // Date and time as the file holds it: 23-12-2021 13:17:56.
     private String dateTime;
 
@@ -25,11 +29,11 @@ public abstract class Transaction implements Identifiable {
     }
 
     // Creates a row with every field filled in.
-    protected Transaction(String id, String assetID, String employeeID, int quantity,
+    protected Transaction(String id, String assetId, String employeeId, int quantity,
             String dateTime) {
         this.id = id;
-        this.assetID = assetID;
-        this.employeeID = employeeID;
+        this.assetId = assetId;
+        this.employeeId = employeeId;
         this.quantity = quantity;
         this.dateTime = dateTime;
     }
@@ -41,13 +45,13 @@ public abstract class Transaction implements Identifiable {
     }
 
     // Returns the asset id.
-    public String getAssetID() {
-        return assetID;
+    public String getAssetId() {
+        return assetId;
     }
 
     // Returns the employee id.
-    public String getEmployeeID() {
-        return employeeID;
+    public String getEmployeeId() {
+        return employeeId;
     }
 
     // Returns the units.

@@ -1,19 +1,21 @@
 package dto;
 
 /**
- * DTO controller -> view: who has just logged in.
+ * DTO service -> controller: who has just logged in (a copy of a Person, so the
+ * controller never touches the model).
  *
  * @author HE176322
  */
-public class LoginResponseDTO {
+public class PersonDTO {
 
     // Full name.
     private String name;
+
     // Employee or Manager.
     private String title;
 
     // JavaBean constructor.
-    public LoginResponseDTO() {
+    public PersonDTO() {
     }
 
     // Returns the name.
