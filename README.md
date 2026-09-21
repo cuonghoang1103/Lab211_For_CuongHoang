@@ -2,7 +2,7 @@
 
 > **54 project** NetBeans, viết theo đúng kiến trúc `Guide.xlsx` của thầy + lời thầy dặn trên lớp. Mỗi project: code đã **biên dịch ở chế độ Java 8**, **chạy thật** với kịch bản gõ phím (đủ happy case + mọi thông báo lỗi), so màn hình **từng ký tự** dưới 2 locale, và qua bộ kiểm luật thầy.
 
-> ⛔ **Đang sửa cả 54 bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **54/54**. Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); ⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.
+> ✅ **Cả 54 bài đã sửa theo tờ checklist giấy thầy phát 21/09/2026** — mỗi bài biên dịch Java 8, chạy đúng đề dưới 2 locale, lint sạch và **0 vi phạm 25 mục** (`_tools/soat_checklist.py`). Chỗ đề và tờ giấy đá nhau: xem mục "Chỗ khác với đề" + câu nên hỏi thầy trong HUONG-DAN của bài.
 
 ## Đọc theo thứ tự này
 

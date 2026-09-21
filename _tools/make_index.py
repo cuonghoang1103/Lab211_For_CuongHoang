@@ -73,10 +73,17 @@ def main():
     if os.path.exists(listed):
         with open(listed, encoding="utf-8") as fh:
             done = {ln.strip() for ln in fh if ln.strip() and not ln.startswith("#")}
-    out.append("> ⛔ **Đang sửa cả %d bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **%d/%d**. "
-               "Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); "
-               "⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.\n"
-               % (len(rows), len(done & {r[2] for r in rows}), len(rows)))
+    so_dat = len(done & {r[2] for r in rows})
+    if so_dat == len(rows):
+        out.append("> ✅ **Cả %d bài đã sửa theo tờ checklist giấy thầy phát 21/09/2026** — mỗi bài biên dịch "
+                   "Java 8, chạy đúng đề dưới 2 locale, lint sạch và **0 vi phạm 25 mục** (`_tools/soat_checklist.py`). "
+                   "Chỗ đề và tờ giấy đá nhau: xem mục \"Chỗ khác với đề\" + câu nên hỏi thầy trong HUONG-DAN của bài.\n"
+                   % len(rows))
+    else:
+        out.append("> ⛔ **Đang sửa cả %d bài theo tờ checklist giấy thầy phát 21/09/2026** — đã đạt **%d/%d**. "
+                   "Cột *Tờ 25 mục*: ✅ = đã sửa và kiểm (Java 8 + chạy đúng đề + 0 vi phạm 25 mục); "
+                   "⏳ = còn kiến trúc cũ (thiếu repository, View nhận tham số…) — **đừng gõ theo bài ⏳**.\n"
+                   % (len(rows), so_dat, len(rows)))
     out.append("## Đọc theo thứ tự này\n")
     out.append("| # | File | Để làm gì |")
     out.append("|---|---|---|")
