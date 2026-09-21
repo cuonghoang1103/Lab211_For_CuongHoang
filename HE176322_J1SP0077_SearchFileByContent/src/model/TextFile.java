@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 /**
  * MODEL: one text file that was read - its name and its lines - a JavaBean (private
- * fields, public no-argument constructor, getters/setters).
+ * fields, public no-argument constructor, getters/setters). The name is the path typed
+ * (option 1) or the file's name inside the folder (option 2).
  *
  * @author HE176322
  */
@@ -12,18 +13,19 @@ public class TextFile {
 
     // The file name.
     private String name;
+
     // The lines of the file, in file order.
-    private ArrayList<String> lines;
+    private ArrayList<String> lineList;
 
     // JavaBean constructor: an empty text.
     public TextFile() {
-        this.lines = new ArrayList<>();
+        this.lineList = new ArrayList<>();
     }
 
     // Creates a text file with its lines.
-    public TextFile(String name, ArrayList<String> lines) {
+    public TextFile(String name, ArrayList<String> lineList) {
         this.name = name;
-        this.lines = lines;
+        this.lineList = lineList;
     }
 
     // Returns the name.
@@ -37,12 +39,12 @@ public class TextFile {
     }
 
     // Returns the lines.
-    public ArrayList<String> getLines() {
-        return lines;
+    public ArrayList<String> getLineList() {
+        return lineList;
     }
 
     // Sets the lines.
-    public void setLines(ArrayList<String> lines) {
-        this.lines = lines;
+    public void setLineList(ArrayList<String> lineList) {
+        this.lineList = lineList;
     }
 }

@@ -9,10 +9,13 @@ public final class Constants {
 
     // Smallest option of the main menu.
     public static final int MENU_MIN = 1;
+
     // Menu option 1: count a word in a file.
     public static final int MENU_COUNT_WORD = 1;
+
     // Menu option 2: find the files that contain a word.
     public static final int MENU_FIND_FILE = 2;
+
     // Menu option 3: exit; also the largest option.
     public static final int MENU_EXIT = 3;
 

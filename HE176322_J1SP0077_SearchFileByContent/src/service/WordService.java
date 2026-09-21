@@ -1,48 +1,57 @@
 package service;
 
 import constants.Message;
-import java.io.File;
+import dto.WordRequestDTO;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import model.TextFile;
-import utils.FileUtils;
+import repository.TextFileRepository;
 
 /**
  * SERVICE and Strategy CONTEXT: the two methods the brief names, countWordInFile and
- * getFileNameContainsWordInDirectory.
+ * getFileNameContainsWordInDirectory. It counts on the files the repository keeps; no
+ * print, no keyboard, no reading of files.
  *
  * @author HE176322
  */
 public class WordService {
 
     // The rule of "a match", chosen by whoever creates this service.
-    private WordMatcher wordMatcher;
+    private IWordMatcher wordMatcher;
 
-    // Creates the service with the matching rule it must use.
-    public WordService(WordMatcher wordMatcher) {
+    // Keeps the files main read (Service -> Repository -> Model).
+    private TextFileRepository textFileRepository;
+
+    // Creates the service with the matching rule it must use and an empty repository.
+    public WordService(IWordMatcher wordMatcher) {
         this.wordMatcher = wordMatcher;
+        textFileRepository = new TextFileRepository();
     }
 
-    // Function 1: number of occurrences of a word in a file.
+    // Keeps the text file main read (option 1).
+    public void addTextFile(WordRequestDTO requestDTO) {
+        textFileRepository.addTextFile(requestDTO);
+    }
+
+    // Keeps the files main read from the folder (option 2).
+    public void addFolder(WordRequestDTO requestDTO) {
+        textFileRepository.addFolder(requestDTO);
+    }
+
+    // Function 1: number of occurrences of a word in the file kept at this path.
     public int countWordInFile(String fileSource, String word) throws Exception {
+        TextFile textFile = textFileRepository.getTextFile(fileSource);
+
+        // nothing to look for
         checkWord(word);
-        // nothing at this path
-        if (!FileUtils.isExist(fileSource)) {
+
+        // no file was read at this path
+        if (textFile == null) {
             throw new Exception(String.format(Message.FILE_NOT_FOUND, fileSource));
         }
-        // a folder has no lines to count
-        if (!FileUtils.isFile(fileSource)) {
-            throw new Exception(String.format(Message.NOT_A_FILE, fileSource));
-        }
-        TextFile textFile = new TextFile(new File(fileSource).getName(),
-                FileUtils.readLines(fileSource));
-        int count = 0;
-        // add the matches of every line
-        for (String line : textFile.getLines()) {
-            count += wordMatcher.countMatches(line, word);
-        }
-        return count;
+
+        return countWord(textFile, word);
     }
 
     // Function 2: names of the files directly inside a folder whose content contains the
@@ -50,31 +59,46 @@ public class WordService {
     // brief: the return type List<String> is the brief's own signature
     public List<String> getFileNameContainsWordInDirectory(String source, String word)
             throws Exception {
+        ArrayList<String> fileNameList = new ArrayList<>();
+        ArrayList<TextFile> textFileList = textFileRepository.getTextFileList(source);
+
+        // nothing to look for
         checkWord(word);
-        // nothing at this path
-        if (!FileUtils.isExist(source)) {
+
+        // no folder was read at this path
+        if (textFileList == null) {
             throw new Exception(String.format(Message.FOLDER_NOT_FOUND, source));
         }
-        // a file is not a folder to search in
-        if (FileUtils.isFile(source)) {
-            throw new Exception(String.format(Message.NOT_A_FOLDER, source));
-        }
-        ArrayList<String> names = new ArrayList<>();
-        // look inside every entry of the folder
-        for (File file : FileUtils.listFiles(source)) {
-            // only files, and only those with at least one match
-            if (file.isFile() && countWordInFile(file.getPath(), word) > 0) {
-                names.add(file.getName());
+
+        // keep the files with at least one match - the same count as option 1
+        for (TextFile textFile : textFileList) {
+            // a file with no match is left out
+            if (countWord(textFile, word) > 0) {
+                fileNameList.add(textFile.getName());
             }
         }
-        Collections.sort(names);
-        return names;
+
+        // the folder order differs between machines; sorted A-Z is always the same
+        Collections.sort(fileNameList);
+        return fileNameList;
+    }
+
+    // Adds the matches of every line of the file (the strategy decides what a match is).
+    private int countWord(TextFile textFile, String word) {
+        int count = 0;
+
+        // add the matches of every line
+        for (String line : textFile.getLineList()) {
+            count += wordMatcher.countMatches(line, word);
+        }
+
+        return count;
     }
 
     // Refuses a blank word: every line would "contain" it.
     private void checkWord(String word) throws Exception {
         // nothing to look for
-        if (word == null || word.isEmpty()) {
+        if ((word == null) || word.isEmpty()) {
             throw new Exception(Message.WORD_BLANK);
         }
     }

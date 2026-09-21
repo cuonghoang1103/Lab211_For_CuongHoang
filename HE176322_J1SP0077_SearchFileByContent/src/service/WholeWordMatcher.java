@@ -7,7 +7,7 @@ import constants.Constants;
  *
  * @author HE176322
  */
-public class WholeWordMatcher implements WordMatcher {
+public class WholeWordMatcher implements IWordMatcher {
 
     // Creates the matcher; it needs no data.
     public WholeWordMatcher() {
@@ -17,6 +17,7 @@ public class WholeWordMatcher implements WordMatcher {
     @Override
     public int countMatches(String line, String word) {
         int count = 0;
+
         // every word of the line
         for (String token : line.split(Constants.WORD_SPLIT)) {
             // exact, case-sensitive comparison
@@ -24,6 +25,7 @@ public class WholeWordMatcher implements WordMatcher {
                 count++;
             }
         }
+
         return count;
     }
 }

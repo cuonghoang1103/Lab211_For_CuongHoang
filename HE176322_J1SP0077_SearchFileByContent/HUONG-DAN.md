@@ -51,10 +51,11 @@
 ### 2.2 Mục 2 dựng trên mục 1
 
 ```java
-if (file.isFile() && countWordInFile(file.getPath(), word) > 0) → thêm tên
+if (countWord(textFile, word) > 0) → thêm tên      // countWord: cùng hàm mục 1 dùng để đếm
 ```
-→ hai mục **không bao giờ mâu thuẫn** về cùng một file. Chỉ tìm trong thư mục đó (không vào thư mục con),
-kết quả **sắp xếp A–Z** (thứ tự `listFiles()` khác nhau giữa các máy).
+→ hai mục **không bao giờ mâu thuẫn** về cùng một file. Chỉ tìm trong thư mục đó (`FileUtils.readFolder`
+chỉ đọc các mục là **file**, không vào thư mục con), kết quả **sắp xếp A–Z** (thứ tự `listFiles()` khác
+nhau giữa các máy).
 
 ---
 
@@ -62,42 +63,52 @@ kết quả **sắp xếp A–Z** (thứ tự `listFiles()` khác nhau giữa c�
 
 ```
 src/
-├── model/      TextFile              tên file + các dòng (JavaBean)
-├── dto/        WordRequestDTO        path, word                     (main ──► controller)
-│               WordResponseDTO       count / ArrayList tên file      (controller ──► view)
-├── service/    WordMatcher           «interface» Strategy: countMatches(line, word)
+├── model/      TextFile              name + ArrayList<String> lineList (JavaBean)
+├── dto/        WordRequestDTO        path, word, lineList (mục 1), fileLineMap (mục 2)   (main ──► controller)
+│               WordResponseDTO       message "Bout: n" / fileNameList                     (controller ──► view)
+├── repository/ TextFileRepository    textFileMap (mục 1) · folderMap (mục 2): addTextFile · getTextFile · addFolder · getTextFileList
+├── service/    IWordMatcher          «interface» Strategy: countMatches(line, word)
 │               WholeWordMatcher      nguyên từ, phân biệt hoa thường
-│               WordService           2 hàm của đề (Context)
+│               WordService           2 hàm của đề (Context) + addTextFile · addFolder · countWord
 ├── controller/ WordController        cắm WholeWordMatcher vào service; countWord · findFile
-├── view/       WordView              displayCount · displayFileNames
+├── view/       WordView              field responseDTO · setResponseDTO · display() (không tham số)
 ├── constants/  Message, Constants
-├── utils/      FileUtils (isExist · isFile · listFiles · readLines) · Validation
-└── main/       Main
+├── utils/      FileUtils (readTextFile · readFolder; isExist · isFile · readLines là private) · Validation
+└── main/       Main                  menu + Scanner + validate + ĐỌC FILE/THƯ MỤC
 ```
+
+Luồng chung: `Main` (nhập, kiểm từ, đọc file) ─► `WordRequestDTO` ─► `WordController` ─► `WordService`
+─► `TextFileRepository` ─► `TextFile`; kết quả ─► `WordResponseDTO` ─► `view.setResponseDTO(r)` +
+`view.display()` **đúng 1 lần** mỗi mục menu.
 
 | Câu hỏi | Trả lời |
 |---|---|
-| Sao không có repository? | Không giữ dữ liệu nào trong bộ nhớ, không CRUD — đọc thẳng ổ đĩa mỗi lần. |
-| Sao từ trống không bị chặn ở `Main`? | Đề giao việc báo lỗi cho chính `countWordInFile` (*"List of exception"*) → service ném `Word must not be blank.` |
+| Sao bài có `repository`? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. Dữ liệu của bài là **các file text `Main` đã đọc**: `textFileMap` (đường dẫn file → `TextFile`, mục 1) và `folderMap` (đường dẫn thư mục → các `TextFile` bên trong, mục 2). Chỉ CRUD đơn giản: `addTextFile`, `getTextFile`, `addFolder`, `getTextFileList` — không đếm, không in, không đọc file. |
+| Ai **đọc file**? | `Main` (tờ giấy 1.1: *"đọc từ file thực hiện ở Main"*): mục 1 `FileUtils.readTextFile(path)` → `lineList`; mục 2 `FileUtils.readFolder(path)` → `fileLineMap` (tên file → các dòng). Hai hàm của đề đếm/tìm trên file **repository đang giữ** ở đường dẫn đó. |
+| Validate ở đâu? | Ở `Main` qua `utils/Validation`: số menu, từ không trống (`Validation.checkWord` — kiểm **trước** khi đụng file, như bản cũ). Lỗi đường dẫn (`File not found`, `Not a file`, `Folder not found`, `Not a folder`) do `FileUtils` ném khi `Main` đọc. |
+| Service còn `checkWord` riêng? | Còn — `private`, là *"List of exception"* của chính hàm đề: ai gọi thẳng `countWordInFile(path, "")` vẫn bị từ chối. Qua `Main` thì từ trống đã bị chặn trước. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: controller gọi `wordView.setResponseDTO(r)` rồi `wordView.display()` (không tham số) **1 lần** mỗi luồng. `display()` in `message` (mục 1) hoặc tiêu đề + `fileNameList` (mục 2). |
 
 **Luồng mục 2:**
 
 ```
-Main: in tiêu đề ─► inputRequest (path, word) ─► controller.findFile(dto)   (1 lần)
-   service.getFileNameContainsWordInDirectory(path, word)
-       kiểm word · kiểm thư mục · FileUtils.listFiles · countWordInFile(từng file) > 0 ?
-   ─► WordResponseDTO ─► view.displayFileNames()
+Main: in tiêu đề ─► inputRequest (path, word; kiểm từ) ─► FileUtils.readFolder(path) ─► fileLineMap
+   ─► controller.findFile(requestDTO)   (1 lần)
+        service.addFolder(requestDTO) ─► repository.addFolder ─► mỗi file thành 1 TextFile(name, lineList)
+        service.getFileNameContainsWordInDirectory(path, word)
+            repository.getTextFileList(path) · countWord(từng TextFile) > 0 ? · sắp xếp tên
+        ─► WordResponseDTO(fileNameList) ─► view.setResponseDTO(r) ─► view.display()
 ```
 
 ### 3.1 Design Pattern
 
 | Pattern | Name · Problem · Solution · Consequences |
 |---|---|
-| **Strategy** | **Problem**: "khớp" có thể là nguyên từ, không phân biệt hoa thường, chuỗi con… — thầy rất dễ bảo đổi. **Solution**: `WordMatcher` = Strategy; `WholeWordMatcher` = ConcreteStrategy; `WordService` = Context nhận strategy **qua constructor**; `WordController` chọn: `new WordService(new WholeWordMatcher())`. **Consequences**: ✅ đổi luật = thêm 1 lớp + sửa 1 dòng, cả 2 mục đổi theo; ❌ thêm 2 file. |
+| **Strategy** | **Problem**: "khớp" có thể là nguyên từ, không phân biệt hoa thường, chuỗi con… — thầy rất dễ bảo đổi. **Solution**: `IWordMatcher` = Strategy; `WholeWordMatcher` = ConcreteStrategy; `WordService` = Context nhận strategy **qua constructor**; `WordController` chọn: `new WordService(new WholeWordMatcher())`. **Consequences**: ✅ đổi luật = thêm 1 lớp + sửa 1 dòng, cả 2 mục đổi theo; ❌ thêm 2 file. |
 | **Facade** | `WordController`. |
 | **MVC** (thầy: "MVC JSP") | `TextFile`, DTO là JavaBean. |
 
-**Thầy bảo "không phân biệt hoa thường"**: tạo `IgnoreCaseWordMatcher implements WordMatcher`
+**Thầy bảo "không phân biệt hoa thường"**: tạo `IgnoreCaseWordMatcher implements IWordMatcher`
 (dùng `token.equalsIgnoreCase(word)`), sửa **1 dòng** trong constructor `WordController`.
 
 ---
@@ -108,14 +119,15 @@ Main: in tiêu đề ─► inputRequest (path, word) ─► controller.findFile
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/TextFile.java` | `name`, `ArrayList<String> lines`, constructor, get/set |
-| 2 | `dto/WordRequestDTO`, `WordResponseDTO` | JavaBean |
-| 3 | `utils/FileUtils.java` | `isExist`, `isFile`, `listFiles`, `readLines` |
-| 4 | `service/WordMatcher`, `WholeWordMatcher` | Strategy |
-| 5 | `service/WordService.java` | **2 hàm của đề** + `checkWord` |
-| 6 | `view/WordView`, `controller/WordController` | |
-| 7 | `constants/*`, `utils/Validation` | |
-| 8 | `main/Main.java` | menu + `inputRequest` |
+| 1 | `model/TextFile.java` | `name`, `ArrayList<String> lineList`, constructor, get/set |
+| 2 | `dto/WordRequestDTO`, `WordResponseDTO` | JavaBean (`lineList`, `fileLineMap`; `message`, `fileNameList`) |
+| 3 | `repository/TextFileRepository.java` | `textFileMap`, `folderMap`, `addTextFile`, `getTextFile`, `addFolder`, `getTextFileList` |
+| 4 | `utils/FileUtils.java` | `readTextFile`, `readFolder` (+ `isExist`, `isFile`, `readLines` private) |
+| 5 | `service/IWordMatcher`, `WholeWordMatcher` | Strategy |
+| 6 | `service/WordService.java` | **2 hàm của đề** + `addTextFile`, `addFolder`, `countWord`, `checkWord` |
+| 7 | `view/WordView`, `controller/WordController` | `setResponseDTO` + `display()`; mỗi hàm controller 1 lần `display()` |
+| 8 | `constants/*`, `utils/Validation` | `getText`, `getChoice`, `checkWord` |
+| 9 | `main/Main.java` | `final` + constructor `private`; menu + `inputRequest`, `inputCountWord`, `inputFindFile` |
 
 **Bẫy hay gặp:**
 
@@ -150,7 +162,7 @@ Main: in tiêu đề ─► inputRequest (path, word) ─► controller.findFile
 | Breakpoint | dòng `if (token.equals(word))` trong `WholeWordMatcher.countMatches` |
 | Chạy | **Ctrl+F5**, `1` · `data/notes.txt` · `test` |
 | Quan sát | `token` lần lượt `The`, `test`, …; `count` tăng; đến `latest` thì **không** tăng |
-| Bước | ở `WordService.countWordInFile` bấm **F7** vào `wordMatcher.countMatches` → nhảy vào `WholeWordMatcher` (đa hình qua interface) |
+| Bước | ở `WordService.countWord` bấm **F7** vào `wordMatcher.countMatches` → nhảy vào `WholeWordMatcher` (đa hình qua interface) |
 
 ---
 
@@ -158,15 +170,17 @@ Main: in tiêu đề ─► inputRequest (path, word) ─► controller.findFile
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP? | **Đóng gói**: field `private` trong `TextFile`, `WordService.wordMatcher`. **Kế thừa**: `WholeWordMatcher implements WordMatcher`. **Đa hình**: service gọi `wordMatcher.countMatches` qua kiểu interface. **Trừu tượng**: interface chỉ nói "đếm được", không nói cách. |
-| `checkWord` sao `private`? | Chỉ `WordService` dùng. |
+| 4 tính chất OOP? | **Đóng gói**: field `private` trong `TextFile`, `WordService.wordMatcher`. **Kế thừa**: `WholeWordMatcher implements IWordMatcher`. **Đa hình**: service gọi `wordMatcher.countMatches` qua kiểu interface. **Trừu tượng**: interface chỉ nói "đếm được", không nói cách. |
+| `checkWord` sao `private`? | Chỉ `WordService` dùng (`Validation.checkWord` là bản `public static` cho `Main`). |
+| Interface sao tên `IWordMatcher`? | Tờ checklist 1.3: *"Tên của interface bắt đầu bằng I"*. |
+| `Main` sao `final` + constructor `private`? | Tờ checklist 3.4: lớp chỉ có hàm `static` phải `final` và có constructor `private`. |
 | 2 hàm của đề sao `public`? | Đề ghi `public`; controller gọi. |
 | `countWordInFile` trả `int`? | Số lần là số đếm nguyên. |
 | **`List` hay `ArrayList`?** | `List` là interface, `ArrayList` là lớp cài đặt bằng mảng động. Kiểu trả về `List<String>` là **đề bắt** (comment `// brief:`); bên trong em tạo `ArrayList`, và DTO khai báo `ArrayList`. |
-| `FileUtils` static? Bỏ thì sao? | Guide: utils static, final, constructor private. Bỏ `static` → `FileUtils.readLines(...)` lỗi biên dịch; phải `new FileUtils()` trong service. |
+| `FileUtils` static? Bỏ thì sao? | Guide: utils static, final, constructor private. Bỏ `static` → `FileUtils.readTextFile(...)` trong `Main` lỗi biên dịch; phải `new FileUtils()` trong `Main`. |
 | Sao `WordService` nhận matcher qua constructor? | **Dependency Inversion**: service không biết lớp cụ thể; controller là nơi chọn. |
 | `Bout:` là gì? | Chữ **của đề** (có lẽ gõ nhầm "Count") — giữ nguyên để khớp màn hình đề. |
-| SOLID? | **S**: `FileUtils` đọc đĩa, matcher so từ, service điều phối, view in. **O**: luật khớp mới = lớp mới. **L**: mọi `WordMatcher` thay nhau được. **I**: interface 1 hàm. **D**: service phụ thuộc `WordMatcher`. |
+| SOLID? | **S**: `FileUtils` đọc đĩa, repository giữ file, matcher so từ, service điều phối, view in. **O**: luật khớp mới = lớp mới. **L**: mọi `IWordMatcher` thay nhau được. **I**: interface 1 hàm. **D**: service phụ thuộc `IWordMatcher`. |
 
 ---
 
@@ -176,7 +190,7 @@ Main: in tiêu đề ─► inputRequest (path, word) ─► controller.findFile
 |---|---|---|
 | Không phân biệt hoa thường | `IgnoreCaseWordMatcher` + 1 dòng ở `WordController` | `WordService`, `Main`, `View` |
 | Đếm cả chuỗi con (`latest` có `test`) | `SubstringWordMatcher` (dùng `indexOf` có bước nhảy) | như trên |
-| Tìm cả thư mục con | `WordService.getFileNameContainsWordInDirectory` gọi đệ quy, in đường dẫn | matcher |
+| Tìm cả thư mục con | `FileUtils.readFolder` duyệt đệ quy, khoá map là đường dẫn tương đối | matcher, service |
 | In kèm số lần ở mục 2 | `WordResponseDTO` thêm field, `WordView` in | `Main` |
 
 ---
@@ -191,3 +205,23 @@ Main: in tiêu đề ─► inputRequest (path, word) ─► controller.findFile
 | Dữ liệu mẫu | bản cũ tự tạo `data/` + in `Sample folder created: data` | `data/` **có sẵn ở gốc project** | theo cách các bài file khác của bộ |
 | Luật khớp | đề không nói | nguyên từ, phân biệt hoa thường | như bản cũ; đổi được bằng Strategy |
 | Kiến trúc | `bo/ui`, Scanner trong `Validator` | MVC Guide + Strategy | luật thầy |
+| Repository | bản trước: không có | `TextFileRepository` | tờ checklist 1.1 *"Bắt buộc phải có repository"* |
+| Đọc file | bản trước: `WordService` tự đọc file/thư mục | `Main` đọc (`FileUtils.readTextFile/readFolder`), 2 hàm đề làm trên file repository giữ | tờ checklist 1.1: đọc file ở `Main` |
+| Từ trống | bản trước: chỉ service chặn | `Main` chặn trước (`Validation.checkWord`), service vẫn giữ lỗi của đề | tờ checklist 1.1: validate ở `Main`; thứ tự lỗi như cũ |
+| View | bản trước: `displayCount()`, `displayFileNames()` | 1 field `responseDTO` + `display()` không tham số | tờ checklist 1.1: render 1 lần/luồng |
+| Tên interface | bản trước: `WordMatcher` | `IWordMatcher` | tờ checklist 1.3 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỗ trong code |
+|---|---|
+| 1.1 MVC + repository | `repository/TextFileRepository` (`textFileMap`, `folderMap`); `Main` đọc file/thư mục bằng `FileUtils`; mỗi hàm của `WordController` gọi `wordView.display()` đúng 1 lần; controller không import `model` |
+| 1.1 View | `WordView` chỉ có `setResponseDTO` + `display()` không tham số |
+| 1.3 / 1.5 Tên | `IWordMatcher`; `lineList`, `fileLineMap`, `fileNameList`, `textFileList`, `textFileMap`, `folderMap`, `fileArray` |
+| 2.6 / 3.7 | biến khai báo đầu block và khởi tạo luôn: `String line = "";` (`Main.inputChoice`, `FileUtils.readLines`), `int choice = 0;`, `File[] fileArray = new File[0];` (`FileUtils.readFolder`) |
+| 2.8 | dòng trống sau vùng khai báo, trước mọi comment, giữa các khối `if`/`for` (vd `WordService.getFileNameContainsWordInDirectory`) |
+| 3.3 | `if ((choice < min) \|\| (choice > max))`, `if ((word == null) \|\| word.isEmpty())` |
+| 3.4 | `public final class Main` + `private Main() { }`; `FileUtils`, `Validation`, `Constants`, `Message` cũng vậy |
+| Còn lại (rủi ro chấp nhận) | `String[] args` của `main`; tham số setter/constructor trùng tên field (`this.x = x`) |
