@@ -20,7 +20,10 @@ public class JavaFileFilter implements FilenameFilter {
     // case.
     @Override
     public boolean accept(File directory, String name) {
-        return new File(directory, name).isFile()
-                && name.toLowerCase().endsWith(Constants.JAVA_EXTENSION);
+        boolean isFile = new File(directory, name).isFile();
+        boolean isJava = name.toLowerCase().endsWith(Constants.JAVA_EXTENSION);
+
+        // both conditions: a file, and the .java extension
+        return isFile && isJava;
     }
 }

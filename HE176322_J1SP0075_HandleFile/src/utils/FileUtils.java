@@ -14,7 +14,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * Reads, writes and lists files on disk.
+ * Reads, writes and lists files on disk. readLines is called by main (checklist 1.1: main
+ * reads the files); appendLine is called by the repository; the listings by the service.
  *
  * @author HE176322
  */
@@ -36,44 +37,59 @@ public final class FileUtils {
 
     // Lists the names of a directory's entries that the filter keeps.
     public static ArrayList<String> listFileNames(String path, FilenameFilter filter) {
-        ArrayList<String> names = new ArrayList<>();
-        String[] found = new File(path).list(filter);
+        ArrayList<String> fileNameList = new ArrayList<>();
+        String[] fileNameArray = new File(path).list(filter);
+
         // list() gives null (not an empty array) for a file or unreadable folder
-        if (found != null) {
-            names.addAll(Arrays.asList(found));
+        if (fileNameArray != null) {
+            fileNameList.addAll(Arrays.asList(fileNameArray));
+
             // the disk order differs between machines; sorted is always the same
-            Collections.sort(names);
+            Collections.sort(fileNameList);
         }
-        return names;
+
+        return fileNameList;
     }
 
     // Lists the entries of a directory that the filter keeps.
     public static File[] listFiles(String path, FileFilter filter) {
-        File[] found = new File(path).listFiles(filter);
+        File[] fileArray = new File(path).listFiles(filter);
+
         // listFiles() gives null for a file or unreadable folder
-        if (found == null) {
+        if (fileArray == null) {
             return new File[0];
         }
-        Arrays.sort(found);
-        return found;
+
+        // the disk order differs between machines; sorted is always the same
+        Arrays.sort(fileArray);
+        return fileArray;
     }
 
-    // Reads every line of a text file.
+    // Reads every line of a text file; the brief's "Path doesn't exist" comes from here.
     public static ArrayList<String> readLines(String path) throws Exception {
-        ArrayList<String> lines = new ArrayList<>();
+        ArrayList<String> lineList = new ArrayList<>();
+        String line = "";
+
+        // nothing at this path
+        if (!isExist(path)) {
+            throw new Exception(Message.PATH_NOT_EXIST);
+        }
+
         // try-with-resources closes the file even when reading fails
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            String line = reader.readLine();
+            line = reader.readLine();
+
             // read until readLine() returns null = end of file
             while (line != null) {
-                lines.add(line);
+                lineList.add(line);
                 line = reader.readLine();
             }
         } catch (IOException e) {
             // a folder, or no permission to read
             throw new Exception(Message.CANNOT_READ);
         }
-        return lines;
+
+        return lineList;
     }
 
     // Adds one line at the END of a file.

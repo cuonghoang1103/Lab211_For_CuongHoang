@@ -13,18 +13,19 @@ public class TextFile {
 
     // Where the file was read from.
     private String path;
+
     // The lines of the file, in file order.
-    private ArrayList<String> lines;
+    private ArrayList<String> lineList;
 
     // JavaBean constructor: an empty text.
     public TextFile() {
-        this.lines = new ArrayList<>();
+        this.lineList = new ArrayList<>();
     }
 
     // Creates a text file with its lines.
-    public TextFile(String path, ArrayList<String> lines) {
+    public TextFile(String path, ArrayList<String> lineList) {
         this.path = path;
-        this.lines = lines;
+        this.lineList = lineList;
     }
 
     // Returns the path.
@@ -38,26 +39,30 @@ public class TextFile {
     }
 
     // Returns the lines.
-    public ArrayList<String> getLines() {
-        return lines;
+    public ArrayList<String> getLineList() {
+        return lineList;
     }
 
     // Sets the lines.
-    public void setLines(ArrayList<String> lines) {
-        this.lines = lines;
+    public void setLineList(ArrayList<String> lineList) {
+        this.lineList = lineList;
     }
 
     // Counts the words: pieces of text separated by whitespace (the brief).
     public int countWords() {
         int total = 0;
+        String text = "";
+
         // count the words of every line
-        for (String line : lines) {
-            String text = line.trim();
+        for (String line : lineList) {
+            text = line.trim();
+
             // an empty line holds no word
             if (!text.isEmpty()) {
                 total += text.split(Constants.WORD_SEPARATOR).length;
             }
         }
+
         return total;
     }
 }

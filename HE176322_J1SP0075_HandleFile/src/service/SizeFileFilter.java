@@ -24,6 +24,6 @@ public class SizeFileFilter implements FileFilter {
     // Keeps a real file (not a folder) whose size is greater than n KB.
     @Override
     public boolean accept(File file) {
-        return file.isFile() && file.length() > minBytes;
+        return file.isFile() && (file.length() > minBytes);
     }
 }

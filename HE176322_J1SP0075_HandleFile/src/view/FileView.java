@@ -3,31 +3,40 @@ package view;
 import dto.FileResponseDTO;
 
 /**
- * VIEW: prints file lists and one-line results.
+ * VIEW: prints file lists and one-line results. It receives the data through its attribute
+ * (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class FileView {
 
-    // The file names to display, handed over by the controller.
-    private FileResponseDTO response;
+    // The result to display, handed over by the controller.
+    private FileResponseDTO responseDTO;
 
-    // Receives the names the next displayFileNames() call will print.
-    public void setResponse(FileResponseDTO response) {
-        this.response = response;
+    // Receives the result the next display() call will print.
+    public void setResponseDTO(FileResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints one name per line, then the summary line.
-    public void displayFileNames(String summaryFormat) {
-        // one line per file name
-        for (String name : response.getFileNames()) {
-            System.out.println(name);
+    // Prints what the controller set: the file names (options 2 and 3), then the one-line
+    // result.
+    public void display() {
+        // options 2 and 3: the file names come first
+        if (responseDTO.getFileNameList() != null) {
+            displayFileNameList();
         }
-        System.out.println(String.format(summaryFormat, response.getFileNames().size()));
+
+        // "Path to file", "Result 2 file!", "Write done", "Total:3"...
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
+        }
     }
 
-    // Prints a one-line result such as "Write done".
-    public void showMessage(String message) {
-        System.out.println(message);
+    // Prints one file name per line.
+    private void displayFileNameList() {
+        // one line per file name
+        for (String fileName : responseDTO.getFileNameList()) {
+            System.out.println(fileName);
+        }
     }
 }

@@ -70,7 +70,7 @@ Result 2 file!
 5. Read file and count characters
 6. Exit
 Please choice one option:------- Get file name with type java --------
-Enter Path:Path doesn't exist
+Enter Path:Result 0 file!
 ============ File Processing =========
 1. Check Path
 2. Get file name with type java
