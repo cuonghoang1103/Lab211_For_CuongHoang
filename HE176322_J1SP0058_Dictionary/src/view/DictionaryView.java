@@ -4,33 +4,34 @@ import constants.Message;
 import dto.WordResponseDTO;
 
 /**
- * VIEW: the only place (with main) allowed to print results.
+ * VIEW: the only place (with main) allowed to print results. It receives the data through
+ * its attribute (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class DictionaryView {
 
-    // The translation to display, handed over by the controller.
-    private WordResponseDTO word;
+    // The answer to print, handed over by the controller.
+    private WordResponseDTO responseDTO;
 
-    // Receives the translation the next display() call will print.
-    public void setWord(WordResponseDTO word) {
-        this.word = word;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(WordResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // Prints the translation: "Vietnamese: Con Meo" (the brief's screen), or the "empty"
-    // line when the word is not in the dictionary.
+    // Prints what the controller set: a one-line result ("Successful", "The old meaning is
+    // kept.", the "empty" line), or the translation "Vietnamese: Con Meo" (the brief's
+    // screen).
     public void display() {
-        // the brief: "If not found, display empty"
-        if (word == null || !word.isFound()) {
-            System.out.println(Message.TRANSLATE_EMPTY);
-            return;
+        // add, delete, and a translation that found nothing answer with one line
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
         }
-        System.out.println(Message.LABEL_VIETNAMESE + word.getVietnamese());
-    }
 
-    // Prints a one-line result such as "Successful".
-    public void showMessage(String message) {
-        System.out.println(message);
+        // a translation that found the word
+        if (responseDTO.getVietnamese() != null) {
+            System.out.println(String.format(Message.LABEL_VIETNAMESE,
+                    responseDTO.getVietnamese()));
+        }
     }
 }

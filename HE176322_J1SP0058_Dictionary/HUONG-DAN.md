@@ -41,9 +41,9 @@ Successful
 | `public boolean addWord(String eng, String vi)` | *"Must install the function"* | `DictionaryRepository.addWord` — **đúng chữ ký** |
 | `public boolean removeWord(String eng)` | *"Must install the function"* | `DictionaryRepository.removeWord` — **đúng chữ ký** |
 | `public String translate(String eng)` | *"Must install the function"* | `DictionaryRepository.translate` — **đúng chữ ký** |
-| `loadData()` · `updateDatabase()` | Suggestion | `DictionaryRepository` (`updateDatabase` là `private`) |
+| `loadData()` · `updateDatabase()` | Suggestion | `DictionaryRepository.loadData(requestDTO)` — tệp do **Main** đọc (tờ checklist 1.1), repository chỉ tách dòng + nạp Map; `updateDatabase` `private`, ghi qua `FileUtils` |
 | Lưu bằng HashMap | *"use the hash map to store a pair Eng - Vi"* | `LinkedHashMap<String, Word>` (là một `HashMap`) |
-| Chữ trên màn hình | `Successful` · `Vietnamese: ` | `constants/Message` — **chép đúng từng chữ** |
+| Chữ trên màn hình | `Successful` · `Vietnamese: ` | `constants/Message` (`LABEL_VIETNAMESE = "Vietnamese: %s"`) — **chép đúng từng chữ** |
 
 ---
 
@@ -107,37 +107,53 @@ HE176322_J1SP0058_Dictionary/
 ├── dictionary.txt                     dữ liệu (gốc project)
 └── src/
     ├── model/       Word              1 cặp Anh–Việt (JavaBean) + toString() = 1 dòng file
-    ├── dto/         WordRequestDTO    english, vietnamese, overwrite  (main ──► controller)
-    │                WordResponseDTO   english, vietnamese             (controller ──► view)
-    ├── repository/  DictionaryRepository  LinkedHashMap + loadData/addWord/removeWord/translate
-    ├── controller/  DictionaryController  điều hướng repository ↔ view (Facade)
-    ├── view/        DictionaryView    in nghĩa / "Successful"
+    ├── dto/         WordRequestDTO    lineList (dòng file), english, vietnamese, overwrite  (main ──► controller)
+    │                WordResponseDTO   message ("Successful"…) + vietnamese (nghĩa tìm được) (controller ──► view)
+    ├── repository/  DictionaryRepository  LinkedHashMap<String, Word> wordMap + loadData/addWord/removeWord/translate
+    ├── controller/  DictionaryController  điều hướng repository ↔ view (Facade); mỗi luồng render view 1 lần
+    ├── view/        DictionaryView    field responseDTO + setResponseDTO() + display() KHÔNG tham số
     ├── utils/       FileUtils         isFileExist · readLines · writeLines (static)
     │                Validation        getChoice · getNonBlank · getEnglish · getYesNo (static)
     ├── constants/   Message · Constants
-    └── main/        Main              menu + Scanner
+    └── main/        Main              final + private Main(); ĐỌC FILE + menu + Scanner + mọi validate
 ```
 
 | Lớp | Làm gì | Không được làm |
 |---|---|---|
-| `Main` | vòng menu, **đọc bàn phím**, hỏi Y/N, gói vào DTO | gọi model/view/file, biến static |
-| `DictionaryController` | nhận DTO → gọi repository → đưa kết quả cho view | Scanner, `System.out`, static |
-| `DictionaryRepository` | giữ Map, CRUD, giữ file **bằng** Map | in ra, đọc bàn phím |
+| `Main` | **đọc file** lúc khởi động (qua `FileUtils`), vòng menu, **đọc bàn phím + validate**, hỏi Y/N, gói vào DTO | gọi model/view, biến static |
+| `DictionaryController` | nhận DTO → gọi repository → gói `WordResponseDTO` → view (1 lần) | Scanner, `System.out`, static, import `model` |
+| `DictionaryRepository` | giữ Map, tách dòng file thành cặp từ, CRUD, ghi lại file (qua `FileUtils`) **bằng** Map | in ra, đọc bàn phím, đọc file |
 | `FileUtils` | chuyển **dòng chữ** giữa file ↔ `ArrayList` | biết "từ" là gì |
 | `Word` | mô tả 1 cặp từ | Scanner, printf, static |
-| `DictionaryView` | in kết quả | tính toán |
+| `DictionaryView` | in kết quả — nhận qua **thuộc tính** `responseDTO` | tính toán, nhận dữ liệu qua tham số |
+
+| Câu hỏi thiết kế | Trả lời |
+|---|---|
+| Sao bài **có repository**? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. `DictionaryRepository` giữ `LinkedHashMap<String, Word> wordMap` + CRUD (`addWord`, `removeWord`, `translate`, `isExistWord`) và giữ file khớp Map (`updateDatabase` → `FileUtils.writeLines`); **không** in, **không** đọc bàn phím, **không** đọc file. Bài không có tính toán ngoài CRUD → Controller → Repository → Model. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**, không qua tham số (tờ checklist 1.1): `DictionaryView` có field `responseDTO`; controller gọi `setResponseDTO(responseDTO)` rồi `display()` — **1 lần cho 1 luồng**. Add/Delete set `message`; Translate set `vietnamese` (thấy) hoặc `message` = câu *Empty* (không thấy). |
+| Validate ở đâu? Đọc file ở đâu? | Ở **Main** (tờ checklist 1.1: *"Toàn bộ việc nhập dữ liệu/Validate/đọc từ file … thực hiện ở Main"*): `Validation.getChoice/getEnglish/getNonBlank/getYesNo`; lúc khởi động `Main.readDataFile()` gọi `FileUtils.isFileExist` + `readLines` → `requestDTO.setLineList(...)` → `controller.loadData(requestDTO)` → repository tách dòng + nạp Map. **Ghi** file thì repository gọi `FileUtils.writeLines` (tờ giấy chỉ nói đọc). |
+| Add gọi controller 2 lần? | Đề (Suggestion) bắt: từ **đã có** thì hỏi *update its meaning (Y/N)?* — `Main` phải biết có hay chưa **trước khi** hỏi. Nên `Main.inputAdd` gọi `controller.checkExistWord(requestDTO)` — lần gọi **chỉ để kiểm** (trả `boolean`, **không** render); case 1 vẫn gọi `addWord` **đúng 1 lần**. Các case khác gọi controller đúng 1 lần. |
 
 **Luồng Add** (từ đã có):
 
 ```
-Main: đọc English, Vietnamese ──► WordRequestDTO
-Main: controller.checkExistWord(dto) == true ──► hỏi "(Y/N)?" ──► dto.setOverwrite(...)
-Main: controller.addWord(dto)
-        ├─ đã có + trả lời N  ──► view.showMessage("The old meaning is kept.")
+Main.inputAdd: đọc English, Vietnamese ──► WordRequestDTO
+Main.inputAdd: controller.checkExistWord(requestDTO) == true ──► hỏi "(Y/N)?" ──► setOverwrite(...)   (chỉ để kiểm)
+Main: controller.addWord(requestDTO)                                                              (1 lần gọi)
+        ├─ đã có + trả lời N  ──► responseDTO.setMessage("The old meaning is kept.")
         └─ repository.addWord(eng, vi)
                ├─ wordMap.put(...)
                ├─ updateDatabase() ──► FileUtils.writeLines(...)   ← ghi ĐÈ cả file
-               └─ true ──► controller ──► view.showMessage("Successful")
+               └─ true ──► controller ──► responseDTO.setMessage("Successful")
+        controller ──► view.setResponseDTO(responseDTO) + view.display()                          (1 lần)
+```
+
+**Luồng nạp file** (khởi động):
+
+```
+Main.readDataFile: FileUtils.isFileExist(DATA_FILE)? ──► FileUtils.readLines(DATA_FILE)  (chưa có file → danh sách rỗng)
+Main: requestDTO.setLineList(...) ──► controller.loadData(requestDTO) ──► repository.loadData(requestDTO)
+        └─ mỗi dòng "english=vietnamese" ──► split("=", 2) ──► new Word(...) ──► wordMap.put(...)
 ```
 
 ### 3.1 Design Pattern trong bài
@@ -145,7 +161,7 @@ Main: controller.addWord(dto)
 | Pattern | Name · Problem · Solution · Consequences |
 |---|---|
 | **MVC** (kiến trúc — "MVC JSP") | **Problem**: nhập, xử lý, in, ghi file trộn một chỗ. **Solution**: `DictionaryController` ~ Servlet, `DictionaryView` ~ trang JSP, `Word` ~ JavaBean; dữ liệu đi qua DTO. **Consequences**: đổi cách in chỉ sửa View; nhiều lớp hơn. |
-| **Facade** (Structural) | **Problem**: không có nó, `Main` phải biết repository, file, view và thứ tự gọi. **Solution**: `DictionaryController` là **một cửa**: `addWord(dto)` tự gọi repository (repository tự ghi file) rồi view. **Consequences**: ✅ `Main` không import repository/utils file, đổi cách lưu không đụng `Main`. ❌ controller phải giữ đúng vai điều hướng, không ôm nghiệp vụ. |
+| **Facade** (Structural) | **Problem**: không có nó, `Main` phải biết repository, file, view và thứ tự gọi. **Solution**: `DictionaryController` là **một cửa**: `addWord(requestDTO)` tự gọi repository (repository tự ghi file) rồi view. **Consequences**: ✅ `Main` không import repository/utils file, đổi cách lưu không đụng `Main`. ❌ controller phải giữ đúng vai điều hướng, không ôm nghiệp vụ. |
 | **Repository** (mẫu dữ liệu, không thuộc 23 GoF) | **Problem**: Map và file phải luôn khớp nhau. **Solution**: chỉ `DictionaryRepository` được đụng vào cả hai; mọi thay đổi Map đều đi kèm `updateDatabase()`. **Consequences**: đổi định dạng file (`=` → `;`) chỉ sửa `Constants.SEPARATOR`. |
 
 > Bài không có "họ thuật toán" hay "họ đối tượng" nên **không nhét** Strategy/Factory — slide SOLID
@@ -156,8 +172,8 @@ Main: controller.addWord(dto)
 | Nguyên lý | Ở đâu |
 |---|---|
 | **S** | `Word` giữ 1 cặp · `FileUtils` chỉ đọc/ghi dòng · `DictionaryRepository` giữ dữ liệu · `DictionaryView` in · `Validation` kiểm |
-| **O** | đổi nơi lưu (file → khác) chỉ sửa `DictionaryRepository`; `Main`, controller đứng yên |
-| **D** (một phần) | `Main` chỉ biết `DictionaryController` + DTO, không biết repository hay file |
+| **O** | đổi cách ghi (file → khác) chỉ sửa `DictionaryRepository.updateDatabase`; controller đứng yên |
+| **D** (một phần) | `Main` chỉ biết `DictionaryController` + DTO + utils, không biết repository hay `Word` |
 
 ---
 
@@ -168,14 +184,14 @@ Main: controller.addWord(dto)
 | Bước | File | Việc | Lưu ý |
 |---|---|---|---|
 | 1 | `model/Word.java` | `english`, `vietnamese` private + ctor rỗng + ctor đủ + get/set + `toString()` = `english=vietnamese` | JavaBean · **Alt+Insert** |
-| 2 | `dto/WordRequestDTO.java`, `WordResponseDTO.java` | JavaBean; Response thêm `isFound()` | ctor rỗng `public` |
+| 2 | `dto/WordRequestDTO.java`, `WordResponseDTO.java` | JavaBean; Request: `lineList`, `english`, `vietnamese`, `overwrite`; Response: `message`, `vietnamese` | ctor rỗng `public` |
 | 3 | `utils/FileUtils.java` | `isFileExist` · `readLines` · `writeLines` | `final` + ctor `private` + static; try-with-resources |
-| 4 | `repository/DictionaryRepository.java` | `LinkedHashMap` + `loadData` · `isExistWord` · **`addWord` · `removeWord` · `translate`** · `updateDatabase` (private) · `toKey` (private) | **không** `System.out` |
+| 4 | `repository/DictionaryRepository.java` | `LinkedHashMap` + `loadData(requestDTO)` (tách dòng) · `isExistWord` · **`addWord` · `removeWord` · `translate`** · `updateDatabase` (private) · `toKey` (private) | **không** `System.out` |
 | 5 | `constants/Message.java`, `Constants.java` | gõ dần khi bước trên cần: câu chữ đề, `DATA_FILE`, `SEPARATOR`, số menu | không viết chữ/số thẳng |
-| 6 | `view/DictionaryView.java` | `setWord` · `display` · `showMessage` | |
-| 7 | `controller/DictionaryController.java` | `loadData` · `checkExistWord` · `addWord` · `removeWord` · `translate` | **không** Scanner |
+| 6 | `view/DictionaryView.java` | field `responseDTO` · `setResponseDTO` · `display()` không tham số | nơi duy nhất in kết quả |
+| 7 | `controller/DictionaryController.java` | `loadData` · `checkExistWord` · `addWord` · `removeWord` · `translate` — mỗi luồng `setResponseDTO` + `display()` **1 lần** | **không** Scanner, không import `model` |
 | 8 | `utils/Validation.java` | `getChoice` · `getNonBlank` · `getEnglish` · `getYesNo` | |
-| 9 | `main/Main.java` | `loadData` 1 lần đầu chương trình + menu + các hàm nhập có vòng hỏi lại | Scanner **chỉ ở đây** |
+| 9 | `main/Main.java` | `final` + `private Main()`; `readDataFile` + `loadData` 1 lần đầu chương trình; menu; `inputAdd/inputDelete/inputTranslate` trả `WordRequestDTO` | Scanner **chỉ ở đây**; biến khai đầu hàm + khởi tạo |
 | 10 | — | **Alt+Shift+F** từng file, **F6**, đi hết bảng test mục 5 | |
 
 **Bẫy hay gặp:**
@@ -223,7 +239,7 @@ Main: controller.addWord(dto)
 | Quan sát | tab **Variables**: `key` = `"cat"` (đã hạ chữ thường), mở `wordMap` xem số phần tử tăng |
 | Bước | **F8** tới `updateDatabase();` → **F7** vào trong → **F7** vào `FileUtils.writeLines` → thấy vòng `for` ghi từng dòng |
 | Nhánh "đã có" | thêm `dog`: `oldWord` **khác null** = nghĩa cũ — đó là thứ được trả lại nếu ghi file hỏng |
-| Nạp file | breakpoint ở `String[] parts = line.split(...)` trong `loadData`, **F5** từng vòng, xem `parts` |
+| Nạp file | breakpoint ở `String[] partArray = line.split(...)` trong `DictionaryRepository.loadData`, **F5** từng vòng, xem `partArray` |
 
 ---
 
@@ -233,7 +249,7 @@ Main: controller.addWord(dto)
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: `english`, `vietnamese` `private` trong `Word`; `wordMap` `private` trong repository — chỉ đổi qua `addWord/removeWord`. **Kế thừa**: `LinkedHashMap extends HashMap`; mọi lớp `extends Object` và em ghi đè `toString()`. **Đa hình**: `word.toString()` chạy bản của `Word` (ra `cat=con meo`). **Trừu tượng**: `Main` gọi `controller.addWord(dto)` mà không biết có file hay Map phía sau. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: `english`, `vietnamese` `private` trong `Word`; `wordMap` `private` trong repository — chỉ đổi qua `addWord/removeWord`. **Kế thừa**: `LinkedHashMap extends HashMap`; mọi lớp `extends Object` và em ghi đè `toString()`. **Đa hình**: `word.toString()` chạy bản của `Word` (ra `cat=con meo`). **Trừu tượng**: `Main` gọi `controller.addWord(requestDTO)` mà không biết có Map hay `updateDatabase` phía sau. |
 | `Word.toString()` để làm gì? | Trả **một dòng của file** — model không được ghi file, nó trả chuỗi, repository đưa cho `FileUtils` ghi. |
 | Sao `Word` có constructor rỗng? | Thầy dạy **MVC JSP**: model/DTO là **JavaBean** — field `private`, constructor rỗng `public`, get/set. |
 
@@ -246,12 +262,12 @@ Main: controller.addWord(dto)
 | Sao `addWord/removeWord/translate/loadData/isExistWord` `public`? | Controller (lớp khác) gọi — và 3 hàm đầu **đề bắt `public`**. |
 | Hàm của `DictionaryController` sao `public`? | `Main` gọi. Hàm nhập trong `Main` (`inputEnglish`…) `private` vì chỉ `Main` dùng. |
 | Sao `FileUtils`, `Validation` là `static`? | Không dùng dữ liệu riêng của đối tượng nào: cùng đường dẫn/chuỗi vào → cùng kết quả. Guide: utils *"phải dùng static method"*. |
-| **Bỏ `static` thì sao?** | `FileUtils.readLines(...)` báo lỗi biên dịch. Muốn chạy phải bỏ `private` constructor, tạo `FileUtils fileUtils = new FileUtils();` trong repository rồi gọi `fileUtils.readLines(...)`. |
+| **Bỏ `static` thì sao?** | `FileUtils.readLines(...)` báo lỗi biên dịch. Muốn chạy phải bỏ `private` constructor, tạo `FileUtils fileUtils = new FileUtils();` trong `Main` (và trong repository cho `writeLines`) rồi gọi qua đối tượng. |
 | Hàm trong `Main` sao `static`? | `main` là `static`, gọi thẳng được hàm `static`. Thầy: *"cấm static với biến, có thể dùng với hàm"* → `Scanner sc` là biến **cục bộ**. |
 | `addWord` trả `boolean` vì sao? | Đề: *"Return value: the status add word"* — `false` = ghi file hỏng (Map đã được trả lại như cũ). |
-| `translate` trả `String`, không thấy thì sao? | Trả `null` — giá trị duy nhất **không thể** là một nghĩa thật; `WordResponseDTO.isFound()` kiểm `null`. |
-| `loadData` trả `void`? | Nó **đổ dữ liệu vào `wordMap`** (field) — không có gì để trả; lỗi đi bằng `throw`. |
-| `checkExistWord` trả `boolean` cho `Main` — trái luật "gọi controller 1 lần"? | Là **bước kiểm tra trước** (như `checkExistDoctor` của P0055) để biết có phải hỏi Y/N. Việc thêm vẫn chỉ gọi `addWord` **đúng 1 lần**. |
+| `translate` trả `String`, không thấy thì sao? | Trả `null` — giá trị duy nhất **không thể** là một nghĩa thật; `DictionaryController.translate` kiểm `null` rồi set câu *Empty* vào `message`. |
+| `loadData` trả `void`? | Nó **đổ dữ liệu vào `wordMap`** (field) — không có gì để trả; lỗi đọc file thì `FileUtils.readLines` ném ở `Main`, trước khi gọi controller. |
+| `checkExistWord` trả `boolean` cho `Main` — trái luật "gọi controller 1 lần"? | Là lần gọi **chỉ để kiểm** trong `Main.inputAdd` (như `checkExistDoctor` của P0055), **không** render, để biết có phải hỏi Y/N. Việc thêm vẫn chỉ gọi `addWord` **đúng 1 lần**. |
 
 ### Collection
 
@@ -271,14 +287,27 @@ Main: controller.addWord(dto)
 | Pattern gì? | **MVC** + controller là **Facade** + `DictionaryRepository` theo mẫu **Repository** — mục 3.1. |
 | Độ phức tạp? | `put/get/remove/containsKey` của HashMap ~ **O(1)**; `updateDatabase` ghi cả file **O(n)** với n = số từ. |
 
+### Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/DictionaryRepository` (bắt buộc có repository); `DictionaryController` không import `model`; `DictionaryView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần/luồng**; **đọc file ở `Main`** (`readDataFile` → `FileUtils`) rồi `controller.loadData(requestDTO)`; mỗi case trong `Main.main` gọi controller 1 lần (`inputAdd` thêm `checkExistWord` **chỉ để kiểm**, lý do ở mục 3) |
+| **1.5** tên collection / mảng | `wordMap` (repository), `lineList` (`WordRequestDTO`, `FileUtils.readLines/writeLines`, `updateDatabase`), `partArray` (`loadData`) — bản trước `lines`, `parts` |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `Main.main`: `requestDTO`, `running = true`, `choice = 0`; `Main.inputX`: `String line = ""`, trong vòng lặp chỉ gán; `Validation.getChoice`: `int choice = 0` |
+| **2.8** dòng trống | giữa các field (mọi lớp), sau vùng khai báo biến, trước mọi comment đứng sau dòng code, giữa các `case`, sau `}` trước câu lệnh tiếp |
+| **2.3** ngắt dòng | `DictionaryController.addWord`: dòng dài ngắt **sau** `&&` |
+| **3.3** ngoặc | `Validation`: `if ((choice < min) \|\| (choice > max))`, `if ((input == null) \|\| …)`, `(input == null) ? "" : input.trim()`; `DictionaryRepository.loadData`: `if ((partArray.length == Constants.LINE_PARTS) && …)` |
+| **3.4** lớp chỉ có static | `Main`, `Validation`, `FileUtils`, `Constants`, `Message`: `final` + `private` constructor |
+| **3.8** cộng chuỗi | `Word.toString()` = `String.format(Constants.LINE_FORMAT, …)`; `DictionaryView` in nghĩa bằng `String.format(Message.LABEL_VIETNAMESE, …)` (bản trước nối `+`) |
+
 ---
 
 ## 8. Thầy đổi yêu cầu tại chỗ
 
 | Thầy bảo | Sửa file | Không phải đụng |
 |---|---|---|
-| Thêm menu **"Hiện tất cả từ"** | `Message.MENU`, `Constants` (số menu), `DictionaryRepository.getAll()` trả `ArrayList<WordResponseDTO>`, `DictionaryController.showAll()`, `DictionaryView` (hàm in danh sách), thêm `case` ở `Main` | `Word`, `FileUtils` |
-| Từ đã có thì **báo lỗi**, không hỏi Y/N | bỏ khối `if (controller.checkExistWord(dto))` ở `Main`; `DictionaryController.addWord` đổi nhánh "đã có" thành `throw new Exception(Message.X)` | repository, file |
+| Thêm menu **"Hiện tất cả từ"** | `Message.MENU`, `Constants` (số menu), `DictionaryRepository.getAll()` trả `ArrayList<String>` (các `Word.toString()`), `DictionaryController.showAll()`, field `rowList` trong `WordResponseDTO` + nhánh in trong `DictionaryView.display()`, thêm `case` ở `Main` | `Word`, `FileUtils` |
+| Từ đã có thì **báo lỗi**, không hỏi Y/N | bỏ khối `if (controller.checkExistWord(requestDTO))` ở `Main.inputAdd`; `DictionaryController.addWord` đổi nhánh "đã có" thành `throw new Exception(Message.X)` | repository, file |
 | Phân biệt hoa thường | `toKey` trả `eng.trim()` (bỏ `toLowerCase`) | mọi file khác |
 | Đổi dấu ngăn cách thành `;` | `Constants.SEPARATOR`, `Message.ENGLISH_SEPARATOR` | code |
 | Đổi tên file | `Constants.DATA_FILE` | code |
@@ -300,3 +329,8 @@ Main: controller.addWord(dto)
 | `loadData`, `updateDatabase` | đề chỉ gợi ý tên | ở `DictionaryRepository`; `updateDatabase` `private` | chỉ repository được quyết khi nào file theo Map |
 | Ghi file | đề không nói | **UTF-8**, rollback khi ghi hỏng | giữ dấu tiếng Việt; Map không bao giờ khác file |
 | Kiến trúc | bản cũ: `bo/ui/utils`, Scanner trong `Validator` | MVC theo Guide, Scanner **chỉ ở `main`** | luật thầy |
+| Đọc file (21/09) | bản trước: `DictionaryRepository.loadData()` tự kiểm + đọc file | `Main.readDataFile()` kiểm + đọc qua `FileUtils` → `WordRequestDTO.lineList` → `controller.loadData(requestDTO)` → repository chỉ tách dòng + nạp Map; `loadData` có thêm tham số DTO | tờ checklist 1.1: *"đọc từ file … thực hiện ở Main"*; tên `loadData`/`updateDatabase` chỉ là gợi ý của đề (Suggestion), không phải hàm bắt buộc |
+| View (21/09) | bản trước: `setWord(WordResponseDTO)` + `display()` + `showMessage(String)` | field `responseDTO` + `setResponseDTO` + `display()`; `Successful`/`The old meaning is kept.`/câu *Empty* đi trong `WordResponseDTO.message` | tờ checklist 1.1: view nhận qua **thuộc tính**, render **1 lần/luồng** |
+| `WordResponseDTO` (21/09) | bản trước: `english` + `vietnamese` + `isFound()` | `message` + `vietnamese` | một DTO chở **cả câu trả lời** của 1 luồng; controller quyết câu *Empty* |
+| `Main` (21/09) | bản trước: `addWord/removeWord/translate` trong `Main` vừa đọc vừa gọi controller (add gọi 2 lần trong 1 hàm); biến khai giữa block; không `final` | `inputAdd/inputDelete/inputTranslate` chỉ đọc + validate, trả `WordRequestDTO`; case gọi controller 1 lần; biến khai đầu hàm + khởi tạo; `final` + `private Main()` | tờ checklist 1.1, 2.6, 3.4, 3.7 |
+| Tên (21/09) | bản trước: `lines`, `parts` | `lineList`, `partArray` | tờ checklist 1.5 |

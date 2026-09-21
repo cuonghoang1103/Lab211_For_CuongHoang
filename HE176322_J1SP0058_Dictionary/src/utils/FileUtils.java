@@ -27,37 +27,40 @@ public final class FileUtils {
     // or not yet").
     public static boolean isFileExist(String path) {
         File file = new File(path);
+
         return file.exists() && file.isFile();
     }
 
     // Reads every line of a text file.
     public static ArrayList<String> readLines(String path) throws Exception {
-        ArrayList<String> lines = new ArrayList<>();
+        ArrayList<String> lineList = new ArrayList<>();
+
         // try-with-resources closes the file even when reading fails
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new FileInputStream(path), StandardCharsets.UTF_8))) {
             String line = reader.readLine();
+
             // read until readLine() returns null = end of file
             while (line != null) {
-                lines.add(line);
+                lineList.add(line);
                 line = reader.readLine();
             }
         } catch (IOException e) {
             // missing, locked or unreadable file
             throw new Exception(Message.CANNOT_READ);
         }
-        return lines;
+
+        return lineList;
     }
 
     // Replaces the whole content of a text file with the given lines (the brief's
     // updateDatabase "overwrites the data on file").
-    public static void writeLines(String path, ArrayList<String> lines)
-            throws Exception {
+    public static void writeLines(String path, ArrayList<String> lineList) throws Exception {
         // try-with-resources flushes and closes the file even on failure
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(path), StandardCharsets.UTF_8))) {
             // one element of the list = one line of the file
-            for (String line : lines) {
+            for (String line : lineList) {
                 writer.write(line);
                 writer.newLine();
             }

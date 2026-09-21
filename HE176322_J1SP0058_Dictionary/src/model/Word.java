@@ -12,6 +12,7 @@ public class Word {
 
     // The English word, as the user typed it.
     private String english;
+
     // The Vietnamese meaning.
     private String vietnamese;
 
@@ -49,6 +50,6 @@ public class Word {
     // FILE, "english=vietnamese".
     @Override
     public String toString() {
-        return english + Constants.SEPARATOR + vietnamese;
+        return String.format(Constants.LINE_FORMAT, english, vietnamese);
     }
 }

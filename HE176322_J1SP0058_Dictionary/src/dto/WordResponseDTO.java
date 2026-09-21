@@ -1,35 +1,32 @@
 package dto;
 
 /**
- * DTO carrying the result of a translation FROM the controller OUT TO the view.
+ * DTO carrying the answer of one menu option FROM the controller OUT TO the view - a
+ * JavaBean. Add and delete fill the message; translate fills the meaning, or the message
+ * when the word is not found.
  *
  * @author HE176322
  */
 public class WordResponseDTO {
 
-    // The English word the user asked for.
-    private String english;
-    // Its meaning, or null when the word is not in the dictionary.
+    // The one-line result, e.g. "Successful"; null when the answer is a translation.
+    private String message;
+
+    // The meaning found by translate; null when the answer is a message.
     private String vietnamese;
 
-    // Creates an empty response (JavaBean constructor).
+    // JavaBean constructor: an empty answer, filled through the setters.
     public WordResponseDTO() {
     }
 
-    // Creates the response with both fields filled in.
-    public WordResponseDTO(String english, String vietnamese) {
-        this.english = english;
-        this.vietnamese = vietnamese;
+    // Returns the one-line result.
+    public String getMessage() {
+        return message;
     }
 
-    // Returns the English word.
-    public String getEnglish() {
-        return english;
-    }
-
-    // Sets the English word.
-    public void setEnglish(String english) {
-        this.english = english;
+    // Sets the one-line result.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     // Returns the meaning.
@@ -40,10 +37,5 @@ public class WordResponseDTO {
     // Sets the meaning.
     public void setVietnamese(String vietnamese) {
         this.vietnamese = vietnamese;
-    }
-
-    // Tells whether the word was found.
-    public boolean isFound() {
-        return vietnamese != null;
     }
 }

@@ -1,21 +1,39 @@
 package dto;
 
+import java.util.ArrayList;
+
 /**
- * DTO carrying what the user typed, FROM main INTO the controller.
+ * DTO carrying what main read, FROM main INTO the controller: the lines of the data file
+ * (at start), or what the user typed (one menu option).
  *
  * @author HE176322
  */
 public class WordRequestDTO {
 
+    // Lines of the data file, read by main when the program starts (loadData only).
+    private ArrayList<String> lineList;
+
     // English word typed by the user (add, delete and translate).
     private String english;
+
     // Vietnamese meaning typed by the user (add only).
     private String vietnamese;
+
     // The user's answer to "update its meaning (Y/N)?": true = Y.
     private boolean overwrite;
 
     // Creates an empty request; main fills it through the setters.
     public WordRequestDTO() {
+    }
+
+    // Returns the lines of the data file.
+    public ArrayList<String> getLineList() {
+        return lineList;
+    }
+
+    // Sets the lines of the data file.
+    public void setLineList(ArrayList<String> lineList) {
+        this.lineList = lineList;
     }
 
     // Returns the English word.

@@ -1,6 +1,7 @@
 package repository;
 
 import constants.Constants;
+import dto.WordRequestDTO;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import model.Word;
@@ -8,7 +9,7 @@ import utils.FileUtils;
 
 /**
  * REPOSITORY: holds the dictionary and performs simple CRUD on it, keeping the data file
- * equal to what is in memory.
+ * equal to what is in memory. No rule of the screen, no print, no keyboard.
  *
  * @author HE176322
  */
@@ -17,26 +18,26 @@ public class DictionaryRepository {
     // The dictionary: lower-case English word -> the pair of words.
     private LinkedHashMap<String, Word> wordMap = new LinkedHashMap<>();
 
-    // Creates an empty dictionary; loadData() fills it from the file.
+    // Creates an empty dictionary; loadData() fills it from the lines of the file.
     public DictionaryRepository() {
     }
 
-    // The brief's loadData(): if the data file exists, loads every "english=vietnamese"
-    // line into the map; if not, the map stays empty.
-    public void loadData() throws Exception {
+    // The brief's loadData(): every "english=vietnamese" line main read from the data file
+    // becomes one pair of the map; no file (no line) leaves the map empty.
+    public void loadData(WordRequestDTO requestDTO) {
+        // start again from an empty dictionary
         wordMap = new LinkedHashMap<>();
-        // the brief: no data file yet -> start with an empty dictionary
-        if (!FileUtils.isFileExist(Constants.DATA_FILE)) {
-            return;
-        }
-        ArrayList<String> lines = FileUtils.readLines(Constants.DATA_FILE);
+
         // one line of the file = one pair of words
-        for (String line : lines) {
+        for (String line : requestDTO.getLineList()) {
             // limit 2: only the FIRST "=" separates, the meaning may hold more
-            String[] parts = line.split(Constants.SEPARATOR, Constants.LINE_PARTS);
+            String[] partArray = line.split(Constants.SEPARATOR, Constants.LINE_PARTS);
+
             // skip blank or broken lines instead of stopping the whole load
-            if (parts.length == Constants.LINE_PARTS && !parts[0].trim().isEmpty()) {
-                Word word = new Word(parts[0].trim(), parts[1].trim());
+            if ((partArray.length == Constants.LINE_PARTS) && !partArray[0].trim().isEmpty()) {
+                Word word = new Word(partArray[0].trim(), partArray[1].trim());
+
+                // the key is the English word in lower case
                 wordMap.put(toKey(word.getEnglish()), word);
             }
         }
@@ -52,6 +53,7 @@ public class DictionaryRepository {
     public boolean addWord(String eng, String vi) {
         String key = toKey(eng);
         Word oldWord = wordMap.put(key, new Word(eng, vi));
+
         // save the change; on failure undo it
         try {
             updateDatabase();
@@ -64,6 +66,7 @@ public class DictionaryRepository {
                 // the word existed before: give it back its old meaning
                 wordMap.put(key, oldWord);
             }
+
             return false;
         }
     }
@@ -72,10 +75,12 @@ public class DictionaryRepository {
     public boolean removeWord(String eng) {
         String key = toKey(eng);
         Word oldWord = wordMap.remove(key);
+
         // nothing was removed: the word is not in the dictionary
         if (oldWord == null) {
             return false;
         }
+
         // save the change; on failure undo it
         try {
             updateDatabase();
@@ -90,22 +95,26 @@ public class DictionaryRepository {
     // The brief's translate: the Vietnamese meaning of an English word.
     public String translate(String eng) {
         Word word = wordMap.get(toKey(eng));
+
         // not found: the caller shows "empty"
         if (word == null) {
             return null;
         }
+
         return word.getVietnamese();
     }
 
     // The brief's updateDatabase: writes every pair into the data file, replacing the old
-    // content.
+    // content (the writing itself is done by utils/FileUtils).
     private void updateDatabase() throws Exception {
-        ArrayList<String> lines = new ArrayList<>();
+        ArrayList<String> lineList = new ArrayList<>();
+
         // Word.toString() gives the line "english=vietnamese"
         for (Word word : wordMap.values()) {
-            lines.add(word.toString());
+            lineList.add(word.toString());
         }
-        FileUtils.writeLines(Constants.DATA_FILE, lines);
+
+        FileUtils.writeLines(Constants.DATA_FILE, lineList);
     }
 
     // The key of the map: the English word in lower case, so "Cat", "cat" and "CAT" are
