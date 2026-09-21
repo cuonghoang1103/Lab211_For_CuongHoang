@@ -13,6 +13,7 @@ public class Car extends Vehicle {
 
     // Sport, Travel, Family or Pickup.
     private String carType;
+
     // Year of manufacture, 1900..2100.
     private int yearOfManufacture;
 
@@ -35,7 +36,7 @@ public class Car extends Vehicle {
     // "Travel,2020" - the last two columns of the file.
     @Override
     protected String getDetailData() {
-        return carType + Constants.DATA_SEPARATOR + yearOfManufacture;
+        return String.join(Constants.DATA_SEPARATOR, carType, String.valueOf(yearOfManufacture));
     }
 
     // Returns the type.

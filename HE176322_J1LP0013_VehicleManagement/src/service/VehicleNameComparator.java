@@ -18,10 +18,12 @@ public class VehicleNameComparator implements Comparator<Vehicle> {
     @Override
     public int compare(Vehicle first, Vehicle second) {
         int byName = second.getName().compareToIgnoreCase(first.getName());
+
         // same name: the id decides, so the order never changes between two runs
         if (byName == 0) {
             return first.getId().compareToIgnoreCase(second.getId());
         }
+
         return byName;
     }
 }

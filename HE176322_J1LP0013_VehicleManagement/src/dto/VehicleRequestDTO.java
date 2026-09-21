@@ -1,10 +1,12 @@
 package dto;
 
 import constants.VehicleType;
+import java.util.ArrayList;
 
 /**
- * DTO main -> controller: what the user typed. Wrapper types (Double, Integer, Boolean)
- * because null means "left blank, keep the old value" in update.
+ * DTO main -> controller: what the user typed, and the lines main read from the data
+ * file. Wrapper types (Double, Integer, Boolean) because null means "left blank, keep the
+ * old value" in update.
  *
  * @author HE176322
  */
@@ -12,26 +14,42 @@ public class VehicleRequestDTO {
 
     // Kind of vehicle to create.
     private VehicleType vehicleType;
+
     // Vehicle id.
     private String id;
+
     // Name, or null to keep.
     private String name;
+
     // Color, or null to keep.
     private String color;
+
     // Price, or null to keep.
     private Double price;
+
     // Brand, or null to keep.
     private String brand;
+
     // Car type, or null to keep.
     private String carType;
+
     // Year of manufacture, or null to keep.
     private Integer yearOfManufacture;
+
     // Motorbike speed, or null to keep.
     private Double speed;
+
     // Motorbike license, or null to keep.
     private Boolean requireLicense;
+
     // Text searched in the names.
     private String keyword;
+
+    // Delete: the answer to the confirm message (true = Y).
+    private boolean confirmed;
+
+    // Load: every line main read from vehicles.txt, in order.
+    private ArrayList<String> lineList;
 
     // JavaBean constructor.
     public VehicleRequestDTO() {
@@ -145,5 +163,25 @@ public class VehicleRequestDTO {
     // Changes the search text.
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    // Tells whether the delete was confirmed.
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    // Changes the answer to the confirm message.
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    // Returns the lines of the data file.
+    public ArrayList<String> getLineList() {
+        return lineList;
+    }
+
+    // Changes the lines of the data file.
+    public void setLineList(ArrayList<String> lineList) {
+        this.lineList = lineList;
     }
 }

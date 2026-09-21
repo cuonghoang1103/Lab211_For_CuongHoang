@@ -18,10 +18,12 @@ public class VehiclePriceComparator implements Comparator<Vehicle> {
     @Override
     public int compare(Vehicle first, Vehicle second) {
         int byPrice = Double.compare(second.getPrice(), first.getPrice());
+
         // same price: the id decides, so the order never changes between two runs
         if (byPrice == 0) {
             return first.getId().compareToIgnoreCase(second.getId());
         }
+
         return byPrice;
     }
 }

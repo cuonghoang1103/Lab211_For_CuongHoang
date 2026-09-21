@@ -4,6 +4,14 @@ REPLACE_REFERENCE = True: the reference runs are chained through vehicles.txt (r
 loads what run 0 stored), but verify.py gives every run a fresh copy of the project
 folder. This project ships a vehicles.txt with 5 vehicles, so every run below starts
 from the same file and stands on its own.
+
+21/09/2026 (tờ checklist giấy): the main menu is the brief's word for word ("4. Delete
+vehicle ID", "Others- Quit": any number that is not a function quits, a line that is not
+a number is refused), the search menu says "Search by name(descending)"; every function
+calls the controller once, so update checks the id first (check-only call, the brief's
+"Vehicle does not exist"), delete asks "Delete vehicle <id>? (Y/N)" then answers success,
+fail or cancelled, an id already used is refused after the fields, and Quit no longer asks
+to store.
 """
 REPLACE_REFERENCE = True
 
@@ -13,18 +21,20 @@ def keys(*lines):
 
 
 RUNS = [
-    # A: load the shipped vehicles.txt, show all, show by price (Tin tin tin), search by name (descending), empty search text, search by id
-    (keys('1', '6', '1', '2', '3', '5', '1', 'i', '1', 'zzz', '1', '', 'cam', '2', 'c002', '2', 'C999', '2', 'c1', 'M002', '3', '8'),
+    # A: load the shipped vehicles.txt, show all, show by price (Tin tin tin), search by name (descending),
+    # nothing found, empty search text, search by id (found, not found, wrong form), then 8 = Others- Quit
+    (keys('1', '6', '1', '2', '3', '5', '1', 'i', '1', 'zzz', '1', '', 'cam', '2', 'c002', '2',
+          'C999', '2', 'c1', 'M002', '3', '8'),
      r'''
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Load data from file ---
 Loaded 5 vehicle(s) from vehicles.txt
@@ -33,11 +43,11 @@ Loaded 5 vehicle(s) from vehicles.txt
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== SHOW VEHICLE LIST =====
@@ -84,15 +94,15 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -106,7 +116,7 @@ C003   Civic            Silver      32,000.50 Honda      Car        Type: Sport,
 Total: 3 vehicle(s)
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -114,7 +124,7 @@ Your choice: --- Search vehicle by name ---
 Enter a part of the name: No vehicle found.
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -127,7 +137,7 @@ C001   Camry            Black       35,000.00 Toyota     Car        Type: Travel
 Total: 1 vehicle(s)
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -137,7 +147,7 @@ Enter id: ID     Name             Color           Price Brand      Kind       De
 C002   Ranger           White       48,000.00 Ford       Car        Type: Pickup, Year: 2022
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -145,7 +155,7 @@ Your choice: --- Search vehicle by id ---
 Enter id: Vehicle does not exist
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -156,7 +166,7 @@ Enter id: ID     Name             Color           Price Brand      Kind       De
 M002   Vision           Red          1,200.00 Honda      Motorbike  Speed: 90.0km/h, License: No
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -165,34 +175,43 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: Goodbye.'''),
-    # B: no load: empty show room, menu errors, every add constraint, duplicate id, update with blanks, delete cancel/confirm, quit without storing
-    (keys('abc', '9', '6', '1', '2', '3', '5', '1', 'car', '3', '3', 'C001', '2', '1', 'c1', 'C001', 'A', 'Camry', 'Bl4ck', 'Black', '-5', 'abc', 'NaN', '35000', '!', 'Toyota', 'Racing', 'travel', '1800', '2020.5', '2020', 'y', '2', 'c001', 'M001', 'Exciter 150', 'Blue', '2500', 'Yamaha', '500', '150', 'maybe', 'y', 'x', 'n', '3', 'c001', '', 'Silver', '', '', 'sport', '', '3', 'M001', 'Exciter', '', 'abc', '', '', '', 'n', '4', 'Z001', '4', 'M001', 'n', '4', 'm001', 'y', '6', '2', '3', '8', 'n'),
+    # B: no load: main menu refuses a non-number, sub menu out of range, empty show room, update of an unknown id
+    # stops at once, every add constraint, an id already used (refused after the fields), update with blanks,
+    # delete fail / cancel / success, then 0 = Others- Quit
+    (keys('abc', '', '6', '4', '1', '2', '3', '5', '1', 'car', '3', '3', 'C001', '2', '1', 'c1',
+          'C001', 'A', 'Camry', 'Bl4ck', 'Black', '-5', 'abc', 'NaN', '35000', '!', 'Toyota',
+          'Racing', 'travel', '1800', '2020.5', '2020', 'y', '2', 'c001', 'Exciter 150', 'Blue',
+          '2500', 'Yamaha', '500', '150', 'maybe', 'y', 'y', '2', 'M001', 'Exciter 150', 'Blue',
+          '2500', 'Yamaha', '150', 'y', 'x', 'n', '3', 'c001', '', 'Silver', '', '', 'sport', '',
+          '3', 'M001', 'Exciter', '', 'abc', '', '', '', 'n', '4', 'Z001', 'y', '4', 'M001', 'n',
+          '4', 'm001', 'q', 'y', '6', '2', '3', '0'),
      r'''
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
-Your choice: Please choose from 1 to 8.
-Your choice: Please choose from 1 to 8.
+Your choice: Please enter a number.
+Your choice: Please enter a number.
 Your choice: 
 ===== SHOW VEHICLE LIST =====
 1. Show all
 2. Show all (descending by price)
 3. Back to main menu
 =============================
+Your choice: Please choose from 1 to 3.
 Your choice: --- All vehicles in the show room ---
 The show room is empty.
 
@@ -214,15 +233,15 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -230,7 +249,7 @@ Your choice: --- Search vehicle by name ---
 Enter a part of the name: No vehicle found.
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -239,11 +258,11 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Update vehicle by ID ---
 Enter id: Vehicle does not exist
@@ -252,11 +271,11 @@ Enter id: Vehicle does not exist
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== ADD NEW VEHICLE =====
@@ -283,27 +302,31 @@ Add another vehicle? (Y/N):
 3. Back to main menu
 ===========================
 Your choice: --- Add new Motorbike ---
-Enter id: Vehicle ID c001 already exists.
 Enter id: Enter name: Enter color: Enter price: Enter brand: Enter speed (km/h): Speed must be a number from 1 to 400 km/h.
 Enter speed (km/h): Require license? (Y/N): Please enter Y or N.
-Require license? (Y/N): Add successfully!
+Require license? (Y/N): Vehicle ID c001 already exists.
+Add another vehicle? (Y/N): 
+===== ADD NEW VEHICLE =====
+1. Car
+2. Motorbike
+3. Back to main menu
+===========================
+Your choice: --- Add new Motorbike ---
+Enter id: Enter name: Enter color: Enter price: Enter brand: Enter speed (km/h): Require license? (Y/N): Add successfully!
 Add another vehicle? (Y/N): Please enter Y or N.
 Add another vehicle? (Y/N): 
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Update vehicle by ID ---
-Enter id: ID     Name             Color           Price Brand      Kind       Details
-----------------------------------------------------------------------------------------
-C001   Camry            Black       35,000.00 Toyota     Car        Type: Travel, Year: 2020
-Leave a field blank to keep the current value.
+Enter id: Leave a field blank to keep the current value.
 New name: New color: New price: New brand: New type (Sport/Travel/Family/Pickup): New year of manufacture: Update successfully!
 ID     Name             Color           Price Brand      Kind       Details
 ----------------------------------------------------------------------------------------
@@ -313,17 +336,14 @@ C001   Camry            Silver      35,000.00 Toyota     Car        Type: Sport,
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Update vehicle by ID ---
-Enter id: ID     Name             Color           Price Brand      Kind       Details
-----------------------------------------------------------------------------------------
-M001   Exciter 150      Blue         2,500.00 Yamaha     Motorbike  Speed: 150.0km/h, License: Yes
-Leave a field blank to keep the current value.
+Enter id: Leave a field blank to keep the current value.
 New name: New color: New price: Price must be a positive number.
 New price: New brand: New speed (km/h): New require license (Y/N): Update successfully!
 ID     Name             Color           Price Brand      Kind       Details
@@ -334,56 +354,51 @@ M001   Exciter          Blue         2,500.00 Yamaha     Motorbike  Speed: 150.0
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Delete vehicle by ID ---
-Enter id: Vehicle does not exist
+Enter id: Delete vehicle Z001? (Y/N): Delete failed!
 
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Delete vehicle by ID ---
-Enter id: ID     Name             Color           Price Brand      Kind       Details
-----------------------------------------------------------------------------------------
-M001   Exciter          Blue         2,500.00 Yamaha     Motorbike  Speed: 150.0km/h, License: No
-Delete this vehicle? (Y/N): Delete cancelled.
+Enter id: Delete vehicle M001? (Y/N): Delete cancelled.
 
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Delete vehicle by ID ---
-Enter id: ID     Name             Color           Price Brand      Kind       Details
-----------------------------------------------------------------------------------------
-M001   Exciter          Blue         2,500.00 Yamaha     Motorbike  Speed: 150.0km/h, License: No
-Delete this vehicle? (Y/N): Delete successfully!
+Enter id: Delete vehicle m001? (Y/N): Please enter Y or N.
+Delete vehicle m001? (Y/N): Delete successfully!
 
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== SHOW VEHICLE LIST =====
@@ -408,25 +423,26 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
-Your choice: There are unsaved changes. Store them before quitting? (Y/N): Goodbye.'''),
-    # C: file round trip: load, delete, store, load again, add, quit and store
-    (keys('1', '4', 'C001', 'y', '7', '1', '6', '1', '3', '2', '1', 'C001', 'Camry', 'Black', '35000', 'Toyota', 'Travel', '2020', 'n', '8', 'y'),
+Your choice: Goodbye.'''),
+    # C: file round trip: load, delete, store, load again, add, store, then 9 = Others- Quit
+    (keys('1', '4', 'C001', 'y', '7', '1', '6', '1', '3', '2', '1', 'C001', 'Camry', 'Black',
+          '35000', 'Toyota', 'Travel', '2020', 'n', '7', '9'),
      r'''
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Load data from file ---
 Loaded 5 vehicle(s) from vehicles.txt
@@ -435,27 +451,24 @@ Loaded 5 vehicle(s) from vehicles.txt
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Delete vehicle by ID ---
-Enter id: ID     Name             Color           Price Brand      Kind       Details
-----------------------------------------------------------------------------------------
-C001   Camry            Black       35,000.00 Toyota     Car        Type: Travel, Year: 2020
-Delete this vehicle? (Y/N): Delete successfully!
+Enter id: Delete vehicle C001? (Y/N): Delete successfully!
 
 ===== VEHICLE MANAGEMENT =====
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Store data to file ---
 Stored 4 vehicle(s) to vehicles.txt
@@ -464,11 +477,11 @@ Stored 4 vehicle(s) to vehicles.txt
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Load data from file ---
 Loaded 4 vehicle(s) from vehicles.txt
@@ -477,11 +490,11 @@ Loaded 4 vehicle(s) from vehicles.txt
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== SHOW VEHICLE LIST =====
@@ -509,11 +522,11 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== ADD NEW VEHICLE =====
@@ -528,13 +541,24 @@ Add another vehicle? (Y/N):
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
-Your choice: There are unsaved changes. Store them before quitting? (Y/N): --- Store data to file ---
+Your choice: --- Store data to file ---
 Stored 5 vehicle(s) to vehicles.txt
-Goodbye.'''),
+
+===== VEHICLE MANAGEMENT =====
+1. Load data from file
+2. Add new vehicle
+3. Update vehicle by ID
+4. Delete vehicle ID
+5. Search vehicle
+6. Show vehicle list
+7. Store data to file
+Others- Quit
+==============================
+Your choice: Goodbye.'''),
 ]

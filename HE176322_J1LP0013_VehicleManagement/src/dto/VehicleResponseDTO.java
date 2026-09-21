@@ -1,112 +1,56 @@
 package dto;
 
-import constants.VehicleType;
+import java.util.ArrayList;
 
 /**
- * DTO controller -> view (and main): one row of the vehicle table.
+ * DTO controller -> view: everything ONE function shows, handed to the view through its
+ * attribute (checklist 1.1). Each part is null when the function has nothing of it; the
+ * view prints only the parts that are set.
  *
  * @author HE176322
  */
 public class VehicleResponseDTO {
 
-    // Kind of vehicle (main needs it to ask the right update questions).
-    private VehicleType vehicleType;
-    // Vehicle id.
-    private String id;
-    // Name.
-    private String name;
-    // Color.
-    private String color;
-    // Price.
-    private double price;
-    // Brand.
-    private String brand;
-    // Details column, e.g. "Type: Travel, Year: 2020".
-    private String details;
-    // Sound of a vehicle that can be heard, or null.
-    private String sound;
+    // The result line, e.g. "Add successfully!", or null.
+    private String message;
+
+    // One vehicle shown as a header and a row (update, search by id), or null.
+    private VehicleRowDTO vehicle;
+
+    // A list shown as a table with its total (search by name, show all), or null.
+    private ArrayList<VehicleRowDTO> vehicleList;
 
     // JavaBean constructor.
     public VehicleResponseDTO() {
     }
 
-    // Returns the kind.
-    public VehicleType getVehicleType() {
-        return vehicleType;
+    // Returns the result line.
+    public String getMessage() {
+        return message;
     }
 
-    // Changes the kind.
-    public void setVehicleType(VehicleType vehicleType) {
-        this.vehicleType = vehicleType;
+    // Changes the result line.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Returns the id.
-    public String getId() {
-        return id;
+    // Returns the single vehicle.
+    public VehicleRowDTO getVehicle() {
+        return vehicle;
     }
 
-    // Changes the id.
-    public void setId(String id) {
-        this.id = id;
+    // Changes the single vehicle.
+    public void setVehicle(VehicleRowDTO vehicle) {
+        this.vehicle = vehicle;
     }
 
-    // Returns the name.
-    public String getName() {
-        return name;
+    // Returns the list of vehicles.
+    public ArrayList<VehicleRowDTO> getVehicleList() {
+        return vehicleList;
     }
 
-    // Changes the name.
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Returns the color.
-    public String getColor() {
-        return color;
-    }
-
-    // Changes the color.
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    // Returns the price.
-    public double getPrice() {
-        return price;
-    }
-
-    // Changes the price.
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    // Returns the brand.
-    public String getBrand() {
-        return brand;
-    }
-
-    // Changes the brand.
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    // Returns the details.
-    public String getDetails() {
-        return details;
-    }
-
-    // Changes the details.
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    // Returns the sound, or null.
-    public String getSound() {
-        return sound;
-    }
-
-    // Changes the sound.
-    public void setSound(String sound) {
-        this.sound = sound;
+    // Changes the list of vehicles.
+    public void setVehicleList(ArrayList<VehicleRowDTO> vehicleList) {
+        this.vehicleList = vehicleList;
     }
 }

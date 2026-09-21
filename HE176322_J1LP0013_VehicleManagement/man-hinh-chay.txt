@@ -29,11 +29,11 @@ Màn hình:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: --- Load data from file ---
 Loaded 5 vehicle(s) from vehicles.txt
@@ -42,11 +42,11 @@ Loaded 5 vehicle(s) from vehicles.txt
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== SHOW VEHICLE LIST =====
@@ -93,15 +93,15 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -115,7 +115,7 @@ C003   Civic            Silver      32,000.50 Honda      Car        Type: Sport,
 Total: 3 vehicle(s)
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -123,7 +123,7 @@ Your choice: --- Search vehicle by name ---
 Enter a part of the name: No vehicle found.
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -136,7 +136,7 @@ C001   Camry            Black       35,000.00 Toyota     Car        Type: Travel
 Total: 1 vehicle(s)
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -146,7 +146,7 @@ Enter id: ID     Name             Color           Price Brand      Kind       De
 C002   Ranger           White       48,000.00 Ford       Car        Type: Pickup, Year: 2022
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -154,7 +154,7 @@ Your choice: --- Search vehicle by id ---
 Enter id: Vehicle does not exist
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -165,7 +165,7 @@ Enter id: ID     Name             Color           Price Brand      Kind       De
 M002   Vision           Red          1,200.00 Honda      Motorbike  Speed: 90.0km/h, License: No
 
 ===== SEARCH VEHICLE =====
-1. Search by name
+1. Search by name(descending)
 2. Search by id
 3. Back to main menu
 ==========================
@@ -174,10 +174,10 @@ Your choice:
 1. Load data from file
 2. Add new vehicle
 3. Update vehicle by ID
-4. Delete vehicle by ID
+4. Delete vehicle ID
 5. Search vehicle
 6. Show vehicle list
 7. Store data to file
-8. Quit
+Others- Quit
 ==============================
 Your choice: Goodbye.

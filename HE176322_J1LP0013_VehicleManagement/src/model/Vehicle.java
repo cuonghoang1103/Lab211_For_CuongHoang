@@ -13,12 +13,16 @@ public abstract class Vehicle {
 
     // Unique id, e.g. C001.
     private String id;
+
     // Name, e.g. Camry.
     private String name;
+
     // Color.
     private String color;
+
     // Price, greater than 0.
     private double price;
+
     // Brand, e.g. Toyota.
     private String brand;
 
@@ -36,12 +40,10 @@ public abstract class Vehicle {
     protected abstract String getDetailData();
 
     // TEMPLATE METHOD: the line saved in vehicles.txt = kind and common columns, then the
-    // subclass's own columns.
+    // subclass's own columns (String.join puts the separator between them, no "+").
     public final String toDataLine() {
-        return getType().getCode() + Constants.DATA_SEPARATOR + id + Constants.DATA_SEPARATOR
-                + name + Constants.DATA_SEPARATOR + color + Constants.DATA_SEPARATOR
-                + price + Constants.DATA_SEPARATOR + brand + Constants.DATA_SEPARATOR
-                + getDetailData();
+        return String.join(Constants.DATA_SEPARATOR, getType().getCode(), id, name, color,
+                String.valueOf(price), brand, getDetailData());
     }
 
     // Returns the id.

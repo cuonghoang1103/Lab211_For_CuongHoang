@@ -1,110 +1,121 @@
 package controller;
 
-import constants.Message;
-import dto.FileResponseDTO;
+import constants.VehicleType;
 import dto.VehicleRequestDTO;
 import dto.VehicleResponseDTO;
-import repository.VehicleRepository;
-import service.VehicleFactory;
-import service.VehicleFileService;
 import service.VehicleService;
 import view.VehicleView;
 
 /**
- * CONTROLLER (and Facade): receives a request DTO from main, asks a service to do the
- * work, and hands the result to the view.
+ * CONTROLLER (and Facade): receives a request DTO from main, asks the service to do the
+ * work, and hands the answer to the view - one render per function. No Scanner, no print,
+ * no model; a broken rule is thrown as an Exception(Message.X) for main to print.
  *
  * @author HE176322
  */
 public class VehicleController {
 
-    // Add, update, delete, search, sort.
+    // Every rule of the show room (Controller -> Service -> Repository -> Model).
     private VehicleService vehicleService;
-    // Load and store.
-    private VehicleFileService vehicleFileService;
+
     // Prints every result.
     private VehicleView vehicleView;
 
-    // Wires the program: ONE show room and ONE factory shared by both services.
+    // Creates the controller together with its service and view.
     public VehicleController() {
-        VehicleRepository repository = new VehicleRepository();
-        VehicleFactory factory = new VehicleFactory();
-        vehicleService = new VehicleService(repository, factory);
-        vehicleFileService = new VehicleFileService(repository, factory);
+        vehicleService = new VehicleService();
         vehicleView = new VehicleView();
     }
 
-    // Function 1: loads vehicles.txt and says how many vehicles (and damaged lines).
-    public void loadFromFile() throws Exception {
-        FileResponseDTO result = vehicleFileService.loadFromFile();
-        vehicleView.showMessage(String.format(Message.LOAD_SUCCESS, result.getCount(),
-                result.getFileName()));
-        // some lines of the file were not valid vehicles
-        if (result.getSkipped() > 0) {
-            vehicleView.showMessage(String.format(Message.LOAD_SKIPPED, result.getSkipped()));
-        }
+    // Function 1: the lines main read from vehicles.txt replace the show room, then the
+    // view prints how many vehicles were loaded - once.
+    public void loadData(VehicleRequestDTO requestDTO) {
+        VehicleResponseDTO responseDTO = vehicleService.loadData(requestDTO);
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 
-    // Function 2, first step: refuses an id already used.
-    public void checkNewId(VehicleRequestDTO requestDTO) throws Exception {
-        vehicleService.checkNewId(requestDTO);
-    }
-
-    // Function 2: adds the vehicle.
+    // Function 2: adds the vehicle (an id already used is thrown), then the view prints
+    // "Add successfully!" - once.
     public void addVehicle(VehicleRequestDTO requestDTO) throws Exception {
-        vehicleService.addVehicle(requestDTO);
-        vehicleView.showMessage(Message.ADD_SUCCESS);
+        VehicleResponseDTO responseDTO = vehicleService.addVehicle(requestDTO);
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 
-    // Functions 3, 4 and 5.2: shows the vehicle with this id and returns it to main.
-    public VehicleResponseDTO findVehicle(VehicleRequestDTO requestDTO) throws Exception {
-        VehicleResponseDTO found = vehicleService.findVehicle(requestDTO);
-        vehicleView.displayVehicle(found);
-        return found;
+    // Function 3, check only (no render): "Vehicle does not exist" is thrown for an unknown
+    // id; a known id answers with its kind, so main asks the right questions.
+    public VehicleType findVehicleType(VehicleRequestDTO requestDTO) throws Exception {
+        return vehicleService.findVehicleType(requestDTO);
     }
 
-    // Function 3: updates the vehicle and shows the result.
+    // Function 3: copies the new values (blank = keep), then the view prints "Update
+    // successfully!" and the vehicle - once.
     public void updateVehicle(VehicleRequestDTO requestDTO) throws Exception {
-        VehicleResponseDTO updated = vehicleService.updateVehicle(requestDTO);
-        vehicleView.showMessage(Message.UPDATE_SUCCESS);
-        vehicleView.displayVehicle(updated);
+        VehicleResponseDTO responseDTO = vehicleService.updateVehicle(requestDTO);
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 
-    // Function 4: deletes the vehicle and says whether it worked.
+    // Function 4: deletes the vehicle when the user confirmed, then the view prints the
+    // result (success, fail or cancelled) - once.
     public void deleteVehicle(VehicleRequestDTO requestDTO) {
-        // the brief: "Show the result of the delete: success or fail"
-        if (vehicleService.deleteVehicle(requestDTO)) {
-            vehicleView.showMessage(Message.DELETE_SUCCESS);
-        } else {
-            // the vehicle disappeared between the confirmation and the delete
-            vehicleView.showMessage(Message.DELETE_FAILED);
-        }
+        VehicleResponseDTO responseDTO = vehicleService.deleteVehicle(requestDTO);
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 
-    // Function 5.1: the vehicles whose name contains the text, name descending.
+    // Function 5.1: the vehicles whose name contains the text, name descending - once.
     public void searchByName(VehicleRequestDTO requestDTO) throws Exception {
-        vehicleView.displayList(vehicleService.searchByName(requestDTO));
+        VehicleResponseDTO responseDTO = vehicleService.searchByName(requestDTO);
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 
-    // Function 6.1: every vehicle.
+    // Function 5.2: the vehicle whose id is the text typed - once.
+    public void searchById(VehicleRequestDTO requestDTO) throws Exception {
+        VehicleResponseDTO responseDTO = vehicleService.searchById(requestDTO);
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
+    }
+
+    // Function 6.1: every vehicle - once.
     public void showAll() throws Exception {
-        vehicleView.displayList(vehicleService.getAllVehicles());
+        VehicleResponseDTO responseDTO = vehicleService.getAllVehicles();
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 
-    // Function 6.2: every vehicle by price descending; motorbikes make their sound.
+    // Function 6.2: every vehicle by price descending; motorbikes make their sound - once.
     public void showAllByPriceDescending() throws Exception {
-        vehicleView.displaySoundList(vehicleService.getAllByPriceDescending());
+        VehicleResponseDTO responseDTO = vehicleService.getAllByPriceDescending();
+
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 
-    // Function 7: stores the show room and says how many vehicles.
-    public void storeToFile() throws Exception {
-        FileResponseDTO result = vehicleFileService.storeToFile();
-        vehicleView.showMessage(String.format(Message.STORE_SUCCESS, result.getCount(),
-                result.getFileName()));
-    }
+    // Function 7: stores the show room in vehicles.txt, then the view prints how many
+    // vehicles were stored - once.
+    public void storeData() throws Exception {
+        VehicleResponseDTO responseDTO = vehicleService.storeData();
 
-    // Tells main whether Quit should offer to store.
-    public boolean hasUnsavedChanges() {
-        return vehicleFileService.hasUnsavedChanges();
+        // one render for the whole flow
+        vehicleView.setResponseDTO(responseDTO);
+        vehicleView.display();
     }
 }

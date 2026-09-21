@@ -10,10 +10,11 @@ import java.util.Locale;
  *
  * @author HE176322
  */
-public class Motorbike extends Vehicle implements Soundable {
+public class Motorbike extends Vehicle implements ISoundable {
 
     // Speed in km/h, 1..400.
     private double speed;
+
     // True when a driving license is required.
     private boolean requireLicense;
 
@@ -37,7 +38,8 @@ public class Motorbike extends Vehicle implements Soundable {
     // "150.0,true" - the last two columns of the file.
     @Override
     protected String getDetailData() {
-        return speed + Constants.DATA_SEPARATOR + requireLicense;
+        return String.join(Constants.DATA_SEPARATOR, String.valueOf(speed),
+                String.valueOf(requireLicense));
     }
 
     // The brief: a motorbike makes the sound "Tin tin tin".
