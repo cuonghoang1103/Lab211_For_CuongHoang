@@ -8,42 +8,57 @@ import java.util.Scanner;
 import utils.Validation;
 
 /**
- * MAIN: the work flow of the program - the menu loop and the keyboard.
+ * MAIN: the work flow of the program - the menu loop and the keyboard. Every keyboard read
+ * and every validation happen here; each menu option then calls the controller once.
  *
  * @author HE176322
  */
-public class Main {
+public final class Main {
+
+    // Private constructor: Main only has static methods (checklist 3.4).
+    private Main() {
+    }
 
     // Starts the program: shows the menu until the user chooses Exit.
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         ContactController controller = new ContactController();
+        ContactRequestDTO requestDTO = null;
         boolean running = true;
+        int choice = 0;
+
         // show the menu again after every function, until Exit is chosen
         while (running) {
             System.out.println(Message.MENU);
-            int choice = inputChoice(sc);
+            choice = inputChoice(sc);
+
             // a business error of the chosen function is shown here
             try {
-                // run the function the user picked
+                // run the function the user picked: one call to the controller per option
                 switch (choice) {
-                    // option 1: add a contact
+                    // option 1: read a new contact, then add it
                     case Constants.MENU_ADD:
-                        addContact(sc, controller);
+                        requestDTO = inputContact(sc);
+                        controller.addContact(requestDTO);
                         break;
-                    // option 2: display all contacts
+
+                    // option 2: the title, then every contact
                     case Constants.MENU_DISPLAY:
                         System.out.println(Message.TITLE_DISPLAY);
                         controller.displayAll();
                         break;
-                    // option 3: delete a contact
+
+                    // option 3: read an ID, then delete that contact
                     case Constants.MENU_DELETE:
-                        deleteContact(sc, controller);
+                        requestDTO = inputDelete(sc);
+                        controller.deleteContact(requestDTO);
                         break;
+
                     // option 4: stop the loop
                     case Constants.MENU_EXIT:
                         running = false;
                         break;
+
                     // unreachable: inputChoice only returns 1..4
                     default:
                         break;
@@ -57,14 +72,16 @@ public class Main {
 
     // Asks for a menu choice until the user types a number from 1 to 4.
     private static int inputChoice(Scanner sc) {
+        String line = "";
+
         // keep asking until Validation accepts the line
         while (true) {
             System.out.print(Message.INPUT_CHOICE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints the reason and loops again
             try {
-                return Validation.getChoice(line, Constants.MENU_ADD,
-                        Constants.MENU_EXIT);
+                return Validation.getChoice(line, Constants.MENU_ADD, Constants.MENU_EXIT);
             } catch (Exception e) {
                 // "Please choice one option from 1 to 4."
                 System.out.println(e.getMessage());
@@ -75,10 +92,13 @@ public class Main {
     // Asks for a text until it is not blank.
     private static String inputText(Scanner sc, String field) {
         String error = String.format(Message.FIELD_BLANK, field);
+        String line = "";
+
         // keep asking until the text is not blank
         while (true) {
             System.out.print(String.format(Message.INPUT_FIELD, field));
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a blank line prints the reason and loops again
             try {
                 return Validation.getNonBlank(line, error);
@@ -91,10 +111,13 @@ public class Main {
 
     // Asks for a phone until it is in one of the seven formats.
     private static String inputPhone(Scanner sc) {
+        String line = "";
+
         // keep asking until the phone matches a format
         while (true) {
             System.out.print(Message.INPUT_PHONE);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong phone prints the list of formats and loops again
             try {
                 return Validation.checkPhone(line);
@@ -107,10 +130,13 @@ public class Main {
 
     // Asks for an ID until it is a positive whole number.
     private static int inputId(Scanner sc) {
+        String line = "";
+
         // keep asking until the ID is a number
         while (true) {
             System.out.print(Message.INPUT_ID);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong ID prints "ID is digit" and loops again
             try {
                 return Validation.checkId(line);
@@ -121,23 +147,26 @@ public class Main {
         }
     }
 
-    // Option 1: reads a new contact and calls the controller once.
-    private static void addContact(Scanner sc, ContactController controller) {
+    // Option 1: the title, then name, group, address and phone into a new request.
+    private static ContactRequestDTO inputContact(Scanner sc) {
+        ContactRequestDTO requestDTO = new ContactRequestDTO();
+
+        // the title of the add form, then its four questions (asked again until valid)
         System.out.println(Message.TITLE_ADD);
-        ContactRequestDTO dto = new ContactRequestDTO();
-        dto.setFullName(inputText(sc, Message.LABEL_NAME));
-        dto.setGroup(inputText(sc, Message.LABEL_GROUP));
-        dto.setAddress(inputText(sc, Message.LABEL_ADDRESS));
-        dto.setPhone(inputPhone(sc));
-        controller.addContact(dto);
+        requestDTO.setFullName(inputText(sc, Message.LABEL_NAME));
+        requestDTO.setGroup(inputText(sc, Message.LABEL_GROUP));
+        requestDTO.setAddress(inputText(sc, Message.LABEL_ADDRESS));
+        requestDTO.setPhone(inputPhone(sc));
+        return requestDTO;
     }
 
-    // Option 3: reads an ID and asks the controller to delete it.
-    private static void deleteContact(Scanner sc, ContactController controller)
-            throws Exception {
+    // Option 3: the title, then the ID to delete into a new request.
+    private static ContactRequestDTO inputDelete(Scanner sc) {
+        ContactRequestDTO requestDTO = new ContactRequestDTO();
+
+        // the title of the delete form, then the ID (asked again until it is a number)
         System.out.println(Message.TITLE_DELETE);
-        ContactRequestDTO dto = new ContactRequestDTO();
-        dto.setId(inputId(sc));
-        controller.deleteContact(dto);
+        requestDTO.setId(inputId(sc));
+        return requestDTO;
     }
 }

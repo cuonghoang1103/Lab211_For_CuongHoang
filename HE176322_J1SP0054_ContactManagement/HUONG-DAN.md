@@ -29,7 +29,7 @@
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
 | `addContact` | `public boolean addContact(List<Contact> list, Contact contact)` | `ContactController.addContact(ContactRequestDTO)` → `ContactRepository.addContact(ContactRequestDTO)` trả **`boolean`** |
-| `displayAll` | `public void displayAll(List<Contact> list)` | `ContactController.displayAll()` → `ContactRepository.displayAll()` (lấy dữ liệu) + `ContactView.displayAll()` (in) |
+| `displayAll` | `public void displayAll(List<Contact> list)` | `ContactController.displayAll()` → `ContactRepository.displayAll()` (lấy dữ liệu) + `ContactView.display()` (in) |
 | `deleteContact` | `public boolean deleteContact(List<Contact> list, Contact contact)` | `ContactController.deleteContact(dto)` → `ContactRepository.deleteContact(dto)` trả **`boolean`** |
 | Thông báo | `Please input Phone flow` + 7 dòng · `ID is digit` · `No found contact` · `Successful` | `constants/Message` — **chép đúng từng chữ** |
 
@@ -92,17 +92,17 @@ Bị từ chối đúng: `123.456.7890 x1234` (đuôi chỉ đi với dấu `-`)
 
 ```
 HE176322_J1SP0054_ContactManagement/src/
-├── model/      Contact               7 thuộc tính, tự tách first/last (JavaBean)
-│               ContactBuilder        Builder: tạo Contact từng bước
+├── model/      Contact               7 thuộc tính, tự tách first/last (JavaBean); toString() = 1 dòng bảng
+│               ContactBuilder        Builder: tạo Contact từng bước (setId … setPhone, build)
 ├── dto/        ContactRequestDTO     name, group, address, phone, id  (main ──► controller)
-│               ContactResponseDTO    7 cột + toString() định dạng       (controller ──► view)
-├── repository/ ContactRepository     ArrayList<Contact> + addContact / displayAll / deleteContact / nextId
-├── controller/ ContactController     điều hướng repository ↔ view (Facade)
-├── view/       ContactView           displayAll (in bảng) + showMessage
+│               ContactResponseDTO    message ("Successful"/"No found contact") + rowList (controller ──► view)
+├── repository/ ContactRepository     ArrayList<Contact> contactList + addContact / displayAll / deleteContact / generateNextId
+├── controller/ ContactController     điều hướng repository ↔ view (Facade); mỗi luồng render view 1 lần
+├── view/       ContactView           field responseDTO + setResponseDTO() + display() KHÔNG tham số
 ├── constants/  Message.java          câu chữ (cả 7 dòng phone)
 │               Constants.java        số menu, FIRST_ID, PHONE_PATTERN, ROW_FORMAT
 ├── utils/      Validation            getChoice, getNonBlank, checkPhone, checkId
-└── main/       Main                  menu + Scanner
+└── main/       Main                  final + private Main(); menu + Scanner + mọi validate
 ```
 
 | Lớp | Làm gì | Không được làm (luật Guide) |
@@ -111,15 +111,26 @@ HE176322_J1SP0054_ContactManagement/src/
 | `ContactController` | nhận DTO → gọi repository → đưa kết quả cho view | Scanner, `System.out`, static |
 | `ContactRepository` | giữ `ArrayList<Contact>`, thêm/lấy/xoá, cấp ID | in, đọc bàn phím |
 | `Contact`, `ContactBuilder` | mô tả 1 contact / dựng nó | Scanner, printf, static |
-| `ContactView` | in bảng + câu thông báo | tính toán |
+| `ContactView` | in bảng + câu thông báo — nhận qua **thuộc tính** `responseDTO` | tính toán, nhận dữ liệu qua tham số |
 | `Validation` | nhận **chuỗi** → trả giá trị sạch hoặc ném lỗi | đọc bàn phím |
+
+| Câu hỏi thiết kế | Trả lời |
+|---|---|
+| Sao bài **có repository**? | Tờ checklist 1.1: *"Bắt buộc phải có repository"*. `ContactRepository` giữ `ArrayList<Contact> contactList` + CRUD đơn giản (thêm, lấy hết, xoá, cấp ID); **không** in, **không** đọc bàn phím. Bài không có tính toán ngoài CRUD nên không cần `service` (Controller → Repository → Model). |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**, không qua tham số (tờ checklist 1.1): `ContactView` có field `responseDTO`; controller gọi `setResponseDTO(responseDTO)` rồi `display()` — **1 lần cho 1 luồng**. Add/Delete set `message` = `Successful`; Display set `rowList` (hoặc `message` = `No found contact` khi rỗng). |
+| Validate ở đâu? | Ở **Main** qua `utils/Validation` (tờ checklist 1.1: *"Toàn bộ việc nhập dữ liệu/Validate … thực hiện ở Main"*): `getChoice`, `getNonBlank`, `checkPhone`, `checkId`. Controller chỉ còn luật **nghiệp vụ**: ID phải tồn tại (`No found contact`). |
+
+**Luồng chung:** `Main` (nhập + validate) ──RequestDTO──► `ContactController` ──► `ContactRepository` ──►
+`Contact`; kết quả thành **một** `ContactResponseDTO` ──► `ContactView` (`setResponseDTO` + `display()` **1 lần**).
+Mỗi case của `Main.main` gọi controller **đúng 1 lần**.
 
 **Luồng Delete:**
 
 ```
-Main: in tiêu đề → inputId (hỏi lại khi "ID is digit") → ContactRequestDTO → controller.deleteContact(dto)
-   controller ──► repository.deleteContact(dto) → false? throw "No found contact"
-   controller ──► view.showMessage("Successful")
+Main: inputDelete → in tiêu đề → inputId (hỏi lại khi "ID is digit") → ContactRequestDTO
+Main: controller.deleteContact(requestDTO)                         (1 lần gọi controller)
+   controller ──► repository.deleteContact(requestDTO) → false? throw "No found contact"
+   controller ──► responseDTO.setMessage("Successful") ──► view.setResponseDTO + view.display()  (1 lần)
 Main: catch → in e.getMessage()
 ```
 
@@ -129,8 +140,8 @@ Main: catch → in e.getMessage()
 |---|---|
 | **Name** | Builder (nhóm Creational) |
 | **Problem** | `Contact` có **7 thuộc tính**; constructor đủ nhận 5 giá trị, **4 cái là `String`** liền nhau → đảo `group` với `address` vẫn biên dịch được, sai âm thầm. Và thầy cấm hàm nhiều tham số. |
-| **Solution** | `ContactBuilder` = **Builder**: mỗi bước **1 tham số có tên** `withId(...)`, `withFullName(...)`, … ; `build()` tạo **Product** `Contact`. `ContactRepository.addContact` = **Director** (gọi các bước theo thứ tự). |
-| **Consequences** | ✅ Đọc là hiểu giá trị nào vào ô nào; thêm trường `email` = thêm 1 bước `withEmail`, chỗ gọi cũ vẫn chạy. ❌ Thêm 1 lớp. (Builder để lớp **riêng**, không lồng `static class` trong model, vì model **không được static**.) |
+| **Solution** | `ContactBuilder` = **Builder**: mỗi bước **1 tham số có tên** `setId(...)`, `setFullName(...)`, … (trả chính builder để gọi nối); `build()` tạo **Product** `Contact`. `ContactRepository.addContact` = **Director** (gọi các bước theo thứ tự). |
+| **Consequences** | ✅ Đọc là hiểu giá trị nào vào ô nào; thêm trường `email` = thêm 1 bước `setEmail`, chỗ gọi cũ vẫn chạy. ❌ Thêm 1 lớp. (Builder để lớp **riêng**, không lồng `static class` trong model, vì model **không được static**.) |
 
 Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repository**
 (`ContactRepository` là nơi duy nhất đụng `ArrayList`).
@@ -153,15 +164,15 @@ Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repo
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/Contact.java` | 7 field `private` + constructor rỗng + constructor đủ + `applyFullName` (private) + get/set + `toString` |
-| 2 | `model/ContactBuilder.java` | 5 field + 5 hàm `withX` trả `this` + `build()` |
-| 3 | `dto/ContactRequestDTO`, `ContactResponseDTO` | JavaBean; Response có `toString()` dùng `ROW_FORMAT` |
-| 4 | `repository/ContactRepository.java` | `ArrayList<Contact>` + `addContact` · `displayAll` · `deleteContact` · `nextId` · `toResponse` |
+| 1 | `model/Contact.java` | 7 field `private` + constructor rỗng + constructor đủ + `applyFullName` (private) + get/set + `toString` (1 dòng bảng theo `ROW_FORMAT`) |
+| 2 | `model/ContactBuilder.java` | 5 field + 5 hàm `setX` trả `this` + `build()` |
+| 3 | `dto/ContactRequestDTO`, `ContactResponseDTO` | JavaBean; Response có `message` + `rowList` |
+| 4 | `repository/ContactRepository.java` | `ArrayList<Contact> contactList` + `addContact` · `displayAll` · `deleteContact` · `generateNextId` |
 | 5 | `constants/Message`, `Constants` | menu, tiêu đề, 7 dòng phone; `FIRST_ID`, `PHONE_PATTERN`, `ROW_FORMAT` |
-| 6 | `view/ContactView.java` | `setContactList`, `displayAll`, `showMessage` |
-| 7 | `controller/ContactController.java` | 3 hàm |
+| 6 | `view/ContactView.java` | field `responseDTO` + `setResponseDTO` + `display()` |
+| 7 | `controller/ContactController.java` | 3 hàm — mỗi hàm `setResponseDTO` rồi `display()` **1 lần** |
 | 8 | `utils/Validation.java` | `getChoice`, `getNonBlank`, `checkPhone`, `checkId` |
-| 9 | `main/Main.java` | menu + `inputChoice/inputText/inputPhone/inputId` + `addContact/deleteContact` |
+| 9 | `main/Main.java` | `final` + `private Main()`; menu + `inputChoice/inputText/inputPhone/inputId` + `inputContact/inputDelete`; mỗi case gọi controller 1 lần |
 
 **Bẫy hay gặp:**
 
@@ -196,11 +207,12 @@ Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repo
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `return contacts.get(contacts.size() - 1).getId() + Constants.ID_STEP;` trong `ContactRepository.nextId` |
+| Breakpoint | dòng `return contactList.get(contactList.size() - 1).getId() + Constants.ID_STEP;` trong `ContactRepository.generateNextId` |
 | Chạy | **Ctrl+F5**, thêm 2 contact |
-| Quan sát | **Variables** → `contacts` (mở ra thấy `elementData`, `size`), xem ID contact cuối |
+| Quan sát | **Variables** → `contactList` (mở ra thấy `elementData`, `size`), xem ID contact cuối |
 | Bước | ở `addContact` bấm **F7** vào `.build()` → vào `Contact(...)` → **F7** vào `applyFullName` xem `space`, `firstName`, `lastName` |
-| Xoá | breakpoint trong vòng `for` của `deleteContact`, xem `i` và `contacts.get(i).getId()` |
+| Xoá | breakpoint trong vòng `for` của `deleteContact`, xem `i` và `contactList.get(i).getId()` |
+| View 1 lần | breakpoint ở `contactView.display();` trong `ContactController` — mỗi option dừng **đúng 1 lần** |
 
 ---
 
@@ -210,7 +222,7 @@ Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repo
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: 7 field `private` trong `Contact`; `firstName/lastName` **không có setter** — chỉ đổi được qua `setFullName` nên không bao giờ lệch với tên đầy đủ. **Kế thừa**: mọi lớp `extends Object`, em ghi đè `toString()`. **Đa hình**: `println(contact)` trong view gọi `toString()` của `ContactResponseDTO`. **Trừu tượng**: `Main` gọi `controller.addContact(dto)` mà không biết có `ArrayList` và Builder. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: 7 field `private` trong `Contact`; `firstName/lastName` **không có setter** — chỉ đổi được qua `setFullName` nên không bao giờ lệch với tên đầy đủ. **Kế thừa**: mọi lớp `extends Object`, em ghi đè `toString()` ở `Contact`. **Đa hình**: `contact.toString()` trong `ContactRepository.displayAll` chạy **bản ghi đè** của `Contact` (1 dòng bảng), không phải bản của `Object`. **Trừu tượng**: `Main` gọi `controller.addContact(requestDTO)` mà không biết có `ArrayList` và Builder. |
 | Sao `firstName` không có setter — thế có còn JavaBean? | JavaBean cho phép thuộc tính **chỉ đọc** (chỉ getter). Hai thuộc tính này **tính ra** từ tên đầy đủ. |
 | Sao constructor gọi `applyFullName` (private) mà không gọi `setFullName`? | Gọi hàm **có thể bị ghi đè** trong constructor là bẫy: lớp con ghi đè sẽ chạy trước khi nó khởi tạo xong. Hàm `private` không ghi đè được. |
 
@@ -218,10 +230,12 @@ Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repo
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| `nextId`, `toResponse` sao `private`? | Chỉ `ContactRepository` dùng; `public` thì lớp khác tự cấp ID được, phá luật "ID cuối + 1". |
-| `withX` của Builder sao `public` và trả `ContactBuilder`? | Repository gọi; trả **chính nó** (`this`) để gọi nối `.withId(..).withGroup(..)`. |
+| `generateNextId` sao `private`? | Chỉ `ContactRepository` dùng; `public` thì lớp khác tự cấp ID được, phá luật "ID cuối + 1". |
+| `setX` của Builder sao `public` và trả `ContactBuilder`? | Repository gọi; trả **chính nó** (`this`) để gọi nối `.setId(..).setGroup(..)`. Tên mở đầu bằng **động từ** `set` (tờ checklist 1.4) — bản trước là `withX`. |
 | `addContact`/`deleteContact` trả `boolean`? | **Đề bắt**: *"to be more one contact status"*, *"Delete contact status"*. Controller dùng `false` để ném `No found contact`. |
-| `displayAll` của repository trả `ArrayList<ContactResponseDTO>`? | Repository **không được in**; nó trả dữ liệu, view in. |
+| `displayAll` của repository trả `ArrayList<String>`? | Repository **không được in**; nó trả các dòng bảng (`Contact.toString()`), view in. Guide: *"Cần output gì thì thêm hàm toString() để trả lại repository -> controller … truyền vào view"*. |
+| `Main` sao `final` + `private Main()`? | Tờ checklist 3.4: lớp chỉ có hàm static phải có private constructor và khai báo `final`. |
+| Sao `requestDTO` trong `main()` khởi tạo `null`? | Mỗi option tạo **RequestDTO mới** trong hàm nhập (`inputContact`, `inputDelete`) rồi trả về; trước khi chọn option chưa có request nào. Vẫn **khai ở đầu hàm + khởi tạo** (tờ checklist 2.6, 3.7); trong vòng lặp chỉ **gán**. |
 | Hàm controller trả `void`? | Kết quả đã đưa cho view; lỗi đi bằng `throw`. |
 | Sao `Validation` static? Bỏ đi thì sao? | Không dùng dữ liệu đối tượng. Bỏ `static` → `Validation.checkPhone(...)` lỗi biên dịch; phải bỏ `private` constructor và `new Validation()` trong `Main`. |
 | Hàm `inputX` trong `Main` sao `private static`? | `private`: chỉ `Main` dùng. `static`: `main()` là static nên gọi thẳng được; Guide cho *static với hàm* trong main, **cấm** static với biến → Scanner là biến cục bộ truyền vào. |
@@ -233,9 +247,22 @@ Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repo
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| Sao `displayAll` tách 2 nửa? | Đề cho nó trả `void` = **in ra**. Guide cấm in ngoài view → nửa **lấy dữ liệu** ở repository, nửa **in** ở view — cùng tên `displayAll`. |
+| Sao `displayAll` tách 2 nửa? | Đề cho nó trả `void` = **in ra**. Guide cấm in ngoài view → nửa **lấy dữ liệu** ở `ContactRepository.displayAll()`, nửa **in** ở `ContactView.display()`; `ContactController.displayAll()` giữ đúng tên đề và nối hai nửa. |
 | Sao `deleteContact` nhận DTO chứ không nhận `Contact`? | `Main` và controller **không được** đụng model (Guide). Người dùng gõ **ID**, nên DTO mang ID. |
 | Sao cả "không có ai" lẫn "xoá ID không có" đều `No found contact`? | Câu của đề cho trường hợp xoá; bảng rỗng dùng lại cùng câu (bản cũ cũng vậy). |
+
+### Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| **1.1** MVC + repository | `repository/ContactRepository` (bắt buộc có repository); `ContactController` không import `model`; `ContactView` nhận `responseDTO` qua setter, `display()` không tham số, gọi **1 lần/luồng**; mỗi case trong `Main.main` gọi controller **1 lần** |
+| **1.4** method mở đầu bằng động từ | `ContactBuilder.setId/setFullName/…`, `ContactRepository.generateNextId` |
+| **1.5** tên collection | `contactList` (repository), `rowList` (`ContactResponseDTO`, `ContactRepository.displayAll`, `ContactController.displayAll`) |
+| **2.6 / 3.7** khai báo đầu block + khởi tạo | `Main.main`: `requestDTO = null`, `running = true`, `choice = 0`; `Main.inputX`: `String line = ""`, trong vòng lặp chỉ gán; `Validation`: `int choice = 0`, `int id = 0`; `Contact.applyFullName`: `text`, `space` ở đầu hàm |
+| **2.8** dòng trống | giữa các field (mọi lớp), sau vùng khai báo biến, trước mọi comment đứng sau dòng code, giữa các `case`, sau `}` trước câu lệnh tiếp |
+| **3.3** ngoặc | `Validation.getChoice`: `if ((choice < min) \|\| (choice > max))`; `(input == null) ? "" : input.trim()` ở `getNonBlank`, `checkPhone`, `Contact.applyFullName` |
+| **3.4** lớp chỉ có static | `Main`, `Validation`, `Constants`, `Message`: `final` + `private` constructor |
+| **3.8** cộng chuỗi | `Contact.toString()` dùng `String.format(Constants.ROW_FORMAT, …)` (bản trước `id + " " + fullName`) |
 
 ---
 
@@ -243,7 +270,7 @@ Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repo
 
 | Thầy bảo | Sửa file | Không phải đụng |
 |---|---|---|
-| Thêm trường `email` | `Contact`, `ContactBuilder` (`withEmail`), 2 DTO, `Message`, `Constants.ROW_FORMAT`, `ContactRepository` (add + `toResponse`), `ContactView` (header), `Main` (nhập) | **`ContactController`** |
+| Thêm trường `email` | `Contact` (+ `toString`), `ContactBuilder` (`setEmail`), `ContactRequestDTO`, `Message`, `Constants.ROW_FORMAT`, `ContactRepository.addContact`, `ContactView` (header), `Main` (nhập) | **`ContactController`**, `ContactResponseDTO` |
 | Thêm menu "Search by name" | `Message.MENU`, `Constants`, `ContactController.searchContact`, `ContactRepository.searchContact`, `case` mới ở `Main` | `Contact`, Builder |
 | ID không cấp lại sau khi xoá | `ContactRepository`: thêm field `private int lastId` tăng dần | mọi file khác |
 | Thêm 1 dạng phone | chỉ `Constants.PHONE_PATTERN` + `Message.INVALID_PHONE` | mọi file khác |
@@ -264,3 +291,8 @@ Còn có: **Facade** (`ContactController` là một cửa cho `Main`) và **Repo
 | Bảng rỗng | đề không nói | `No found contact` | bản cũ |
 | Builder | bản cũ `new Contact(...)` | `ContactBuilder` | thầy đánh giá cao Design Pattern; model ≥ 6 trường |
 | Kiến trúc | 3 hàm static trong `Main`, Scanner trong `Validator` | MVC theo Guide, Scanner **chỉ ở `main`** | luật thầy |
+| View (21/09) | bản trước: `setContactList(ArrayList<ContactResponseDTO>)` + `displayAll()` + `showMessage(String)` | field `responseDTO` + `setResponseDTO` + `display()`; `Successful`/`No found contact` đi trong `ContactResponseDTO.message` | tờ checklist 1.1: view nhận qua **thuộc tính**, render **1 lần/luồng** |
+| `ContactResponseDTO` (21/09) | bản trước: 7 cột của 1 contact + `toString()` | `message` + `rowList`; dòng bảng do `Contact.toString()` dựng | một DTO chở **cả câu trả lời** của 1 luồng; Guide: model có `toString()` cho output |
+| Builder (21/09) | bản trước: `withId`, `withFullName`… | `setId`, `setFullName`… | tờ checklist 1.4: tên method mở đầu bằng động từ |
+| Tên (21/09) | bản trước: `contacts`, `rows`, `nextId()` | `contactList`, `rowList`, `generateNextId()` | tờ checklist 1.5 (collection đuôi `List`), 1.4 (động từ) |
+| `Main` (21/09) | bản trước: `addContact/deleteContact` vừa đọc vừa gọi controller; biến khai giữa block | `inputContact/inputDelete` chỉ đọc và trả `ContactRequestDTO`; case gọi controller 1 lần; biến khai đầu hàm + khởi tạo; `final` + `private Main()` | tờ checklist 1.1, 2.6, 3.4, 3.7 |

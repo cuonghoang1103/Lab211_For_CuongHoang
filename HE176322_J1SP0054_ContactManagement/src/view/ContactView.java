@@ -3,43 +3,42 @@ package view;
 import constants.Constants;
 import constants.Message;
 import dto.ContactResponseDTO;
-import java.util.ArrayList;
 
 /**
  * VIEW: the only place (with main) allowed to print results - the printing half of the
- * brief's displayAll, and the one-line results.
+ * brief's displayAll, and the one-line results. It receives the data through its attribute
+ * (the ResponseDTO), never through the parameters of display().
  *
  * @author HE176322
  */
 public class ContactView {
 
-    // The rows to display, handed over by the controller.
-    private ArrayList<ContactResponseDTO> contactList;
+    // The answer to print, handed over by the controller.
+    private ContactResponseDTO responseDTO;
 
-    // Receives the rows the next displayAll() call will print.
-    public void setContactList(ArrayList<ContactResponseDTO> contactList) {
-        this.contactList = contactList;
+    // Receives the answer the next display() call will print.
+    public void setResponseDTO(ContactResponseDTO responseDTO) {
+        this.responseDTO = responseDTO;
     }
 
-    // The brief's displayAll: prints the header and one line per contact, or "No found
-    // contact" when the list is empty.
-    public void displayAll() {
-        // nothing stored yet (or everything deleted)
-        if (contactList == null || contactList.isEmpty()) {
-            System.out.println(Message.NOT_FOUND);
-            return;
+    // Prints what the controller set: the one-line result, or the header and one line per
+    // contact (the printing half of the brief's displayAll).
+    public void display() {
+        // a one-line result: "Successful", or "No found contact" for an empty list
+        if (responseDTO.getMessage() != null) {
+            System.out.println(responseDTO.getMessage());
         }
-        System.out.println(String.format(Constants.ROW_FORMAT, Message.LABEL_ID,
-                Message.LABEL_NAME, Message.LABEL_FIRST_NAME, Message.LABEL_LAST_NAME,
-                Message.LABEL_GROUP, Message.LABEL_ADDRESS, Message.LABEL_PHONE));
-        // one line per contact; toString() of the DTO is already padded
-        for (ContactResponseDTO contact : contactList) {
-            System.out.println(contact);
-        }
-    }
 
-    // Prints a one-line result such as "Successful".
-    public void showMessage(String message) {
-        System.out.println(message);
+        // the table of option 2
+        if (responseDTO.getRowList() != null) {
+            System.out.println(String.format(Constants.ROW_FORMAT, Message.LABEL_ID,
+                    Message.LABEL_NAME, Message.LABEL_FIRST_NAME, Message.LABEL_LAST_NAME,
+                    Message.LABEL_GROUP, Message.LABEL_ADDRESS, Message.LABEL_PHONE));
+
+            // one line per contact, text built by the model's toString()
+            for (String row : responseDTO.getRowList()) {
+                System.out.println(row);
+            }
+        }
     }
 }

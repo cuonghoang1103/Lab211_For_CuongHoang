@@ -9,12 +9,16 @@ public class ContactRequestDTO {
 
     // ID typed on delete.
     private int id;
+
     // Full name typed on add.
     private String fullName;
+
     // Group typed on add.
     private String group;
+
     // Address typed on add.
     private String address;
+
     // Phone typed on add, already in a legal format.
     private String phone;
 

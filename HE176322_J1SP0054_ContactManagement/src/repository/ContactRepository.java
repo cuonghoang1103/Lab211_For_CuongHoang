@@ -2,83 +2,77 @@ package repository;
 
 import constants.Constants;
 import dto.ContactRequestDTO;
-import dto.ContactResponseDTO;
 import java.util.ArrayList;
 import model.Contact;
 import model.ContactBuilder;
 
 /**
  * REPOSITORY: holds the contacts and performs simple CRUD on them - the brief's
- * addContact, displayAll (the data part) and deleteContact.
+ * addContact, displayAll (the data part) and deleteContact. No rule of the screen, no
+ * print.
  *
  * @author HE176322
  */
 public class ContactRepository {
 
     // The "database" of contacts, in the order they were added.
-    private ArrayList<Contact> contacts = new ArrayList<>();
+    private ArrayList<Contact> contactList;
 
     // Creates an empty repository.
     public ContactRepository() {
+        contactList = new ArrayList<>();
     }
 
     // The brief's addContact: stores a new contact whose ID is the last ID + 1 (1 for the
     // first contact).
     public boolean addContact(ContactRequestDTO requestDTO) {
         Contact contact = new ContactBuilder()
-                .withId(nextId())
-                .withFullName(requestDTO.getFullName())
-                .withGroup(requestDTO.getGroup())
-                .withAddress(requestDTO.getAddress())
-                .withPhone(requestDTO.getPhone())
+                .setId(generateNextId())
+                .setFullName(requestDTO.getFullName())
+                .setGroup(requestDTO.getGroup())
+                .setAddress(requestDTO.getAddress())
+                .setPhone(requestDTO.getPhone())
                 .build();
-        return contacts.add(contact);
+
+        // keep it after the others; true = one more contact is stored
+        return contactList.add(contact);
     }
 
-    // The data half of the brief's displayAll: every contact as a row the view can print
-    // (the view does the printing half).
-    public ArrayList<ContactResponseDTO> displayAll() {
-        ArrayList<ContactResponseDTO> rows = new ArrayList<>();
-        // copy each stored contact into a row for the view
-        for (Contact contact : contacts) {
-            rows.add(toResponse(contact));
+    // The data half of the brief's displayAll: every contact as the table row its
+    // toString() gives (the view does the printing half).
+    public ArrayList<String> displayAll() {
+        ArrayList<String> rowList = new ArrayList<>();
+
+        // one row per stored contact, in the order they were added
+        for (Contact contact : contactList) {
+            rowList.add(contact.toString());
         }
-        return rows;
+
+        return rowList;
     }
 
     // The brief's deleteContact: removes the contact with the request's ID.
     public boolean deleteContact(ContactRequestDTO requestDTO) {
         // look at every contact until the ID matches
-        for (int i = 0; i < contacts.size(); i++) {
+        for (int i = 0; i < contactList.size(); i++) {
             // found it: remove by position and stop
-            if (contacts.get(i).getId() == requestDTO.getId()) {
-                contacts.remove(i);
+            if (contactList.get(i).getId() == requestDTO.getId()) {
+                contactList.remove(i);
                 return true;
             }
         }
+
         return false;
     }
 
     // The brief's ID rule: "new contact has ID equal to last ID contact + 1, the first
     // contact has ID: 1".
-    private int nextId() {
+    private int generateNextId() {
         // empty list: the first contact gets ID 1
-        if (contacts.isEmpty()) {
+        if (contactList.isEmpty()) {
             return Constants.FIRST_ID;
         }
-        return contacts.get(contacts.size() - 1).getId() + Constants.ID_STEP;
-    }
 
-    // Copies a model object into the DTO the view is allowed to see.
-    private ContactResponseDTO toResponse(Contact contact) {
-        ContactResponseDTO row = new ContactResponseDTO();
-        row.setId(contact.getId());
-        row.setFullName(contact.getFullName());
-        row.setFirstName(contact.getFirstName());
-        row.setLastName(contact.getLastName());
-        row.setGroup(contact.getGroup());
-        row.setAddress(contact.getAddress());
-        row.setPhone(contact.getPhone());
-        return row;
+        return contactList.get(contactList.size() - 1).getId() + Constants.ID_STEP;
     }
 }

@@ -12,16 +12,22 @@ public class Contact {
 
     // Unique ID, given by the repository (last ID + 1).
     private int id;
+
     // The full name as typed.
     private String fullName;
+
     // Everything before the first space.
     private String firstName;
+
     // Everything after the first space.
     private String lastName;
+
     // Group of the contact.
     private String group;
+
     // Address of the contact.
     private String address;
+
     // Phone, in one of the seven formats of the brief.
     private String phone;
 
@@ -43,8 +49,12 @@ public class Contact {
     // gives "Raul" + "Gonzalez"; "Ronaldo de Assis" gives "Ronaldo" + "de Assis"; a
     // one-word name "Cher" gives "Cher" + "".
     private void applyFullName(String name) {
-        fullName = name == null ? "" : name.trim();
-        int space = fullName.indexOf(Constants.NAME_SEPARATOR);
+        String text = (name == null) ? "" : name.trim();
+        int space = text.indexOf(Constants.NAME_SEPARATOR);
+
+        // the full name is kept as typed, without the spaces around it
+        fullName = text;
+
         // one word only: it is the first name, the last name is empty
         if (space < 0) {
             firstName = fullName;
@@ -116,10 +126,12 @@ public class Contact {
         this.phone = phone;
     }
 
-    // Polymorphism: overrides Object.toString() so the debugger shows the contact on one
-    // line.
+    // Polymorphism: overrides Object.toString() - one table row, already padded into
+    // fixed-width columns (Guide: "cần output gì thì thêm hàm toString()"), so the view
+    // only has to print it.
     @Override
     public String toString() {
-        return id + " " + fullName;
+        return String.format(Constants.ROW_FORMAT, id, fullName, firstName, lastName, group,
+                address, phone);
     }
 }

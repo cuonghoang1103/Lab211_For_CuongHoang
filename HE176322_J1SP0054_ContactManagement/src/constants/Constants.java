@@ -9,15 +9,19 @@ public final class Constants {
 
     // Menu option: add a contact; also the smallest option.
     public static final int MENU_ADD = 1;
+
     // Menu option: display all contacts.
     public static final int MENU_DISPLAY = 2;
+
     // Menu option: delete a contact.
     public static final int MENU_DELETE = 3;
+
     // Menu option: exit; also the largest option.
     public static final int MENU_EXIT = 4;
 
     // ID of the first contact (the brief: "the first contact has ID: 1").
     public static final int FIRST_ID = 1;
+
     // Step between two IDs (the brief: "last ID contact + 1").
     public static final int ID_STEP = 1;
 
