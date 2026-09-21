@@ -4,7 +4,8 @@ import constants.TaskType;
 import java.util.Date;
 
 /**
- * BUILDER (design pattern): assembles a Task step by step.
+ * BUILDER (design pattern): assembles a Task step by step. Every step starts with the verb
+ * "set" and returns the builder, so the steps chain: new TaskBuilder().setId(1)...build().
  *
  * @author HE176322
  */
@@ -19,49 +20,49 @@ public class TaskBuilder {
     }
 
     // Sets the ID.
-    public TaskBuilder withId(int id) {
+    public TaskBuilder setId(int id) {
         task.setId(id);
         return this;
     }
 
     // Sets the task type.
-    public TaskBuilder withTaskType(TaskType taskType) {
+    public TaskBuilder setTaskType(TaskType taskType) {
         task.setTaskType(taskType);
         return this;
     }
 
     // Sets the requirement name.
-    public TaskBuilder withRequirementName(String requirementName) {
+    public TaskBuilder setRequirementName(String requirementName) {
         task.setRequirementName(requirementName);
         return this;
     }
 
     // Sets the date.
-    public TaskBuilder withDate(Date date) {
+    public TaskBuilder setDate(Date date) {
         task.setDate(date);
         return this;
     }
 
     // Sets the start time.
-    public TaskBuilder withPlanFrom(double planFrom) {
+    public TaskBuilder setPlanFrom(double planFrom) {
         task.setPlanFrom(planFrom);
         return this;
     }
 
     // Sets the end time.
-    public TaskBuilder withPlanTo(double planTo) {
+    public TaskBuilder setPlanTo(double planTo) {
         task.setPlanTo(planTo);
         return this;
     }
 
     // Sets the assignee.
-    public TaskBuilder withAssignee(String assignee) {
+    public TaskBuilder setAssignee(String assignee) {
         task.setAssignee(assignee);
         return this;
     }
 
     // Sets the reviewer.
-    public TaskBuilder withReviewer(String reviewer) {
+    public TaskBuilder setReviewer(String reviewer) {
         task.setReviewer(reviewer);
         return this;
     }

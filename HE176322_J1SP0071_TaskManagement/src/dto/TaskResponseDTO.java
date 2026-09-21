@@ -1,108 +1,43 @@
 package dto;
 
-import constants.Constants;
+import java.util.ArrayList;
 
 /**
- * DTO carrying one row of the task table FROM the controller OUT TO the view - a JavaBean
- * (private fields, public no-argument constructor, getters/setters).
+ * DTO carrying the answer of one flow FROM the controller OUT TO the view: the line of an
+ * add or a delete, or the rows of the task table. The view keeps it as its attribute and
+ * prints what was set.
  *
  * @author HE176322
  */
 public class TaskResponseDTO {
 
-    // ID column.
-    private int id;
-    // Name column (requirement name).
-    private String requirementName;
-    // Task Type column (type name).
-    private String taskType;
-    // Date column, dd-MM-yyyy.
-    private String date;
-    // Time column, "from-to".
-    private String time;
-    // Assignee column.
-    private String assignee;
-    // Reviewer column.
-    private String reviewer;
+    // Options 1 and 2: the one line of the result, e.g. "Task [1] has been added.".
+    private String message;
 
-    // JavaBean constructor: an empty row, filled through the setters.
+    // Option 3: the rows of the table, ascending by ID; null for options 1 and 2.
+    private ArrayList<TaskDTO> taskList;
+
+    // JavaBean constructor: an empty answer, filled through the setters.
     public TaskResponseDTO() {
     }
 
-    // Returns the ID.
-    public int getId() {
-        return id;
+    // Returns the line of the result.
+    public String getMessage() {
+        return message;
     }
 
-    // Sets the ID.
-    public void setId(int id) {
-        this.id = id;
+    // Sets the line of the result.
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Returns the requirement name.
-    public String getRequirementName() {
-        return requirementName;
+    // Returns the rows of the table.
+    public ArrayList<TaskDTO> getTaskList() {
+        return taskList;
     }
 
-    // Sets the requirement name.
-    public void setRequirementName(String requirementName) {
-        this.requirementName = requirementName;
-    }
-
-    // Returns the type name.
-    public String getTaskType() {
-        return taskType;
-    }
-
-    // Sets the type name.
-    public void setTaskType(String taskType) {
-        this.taskType = taskType;
-    }
-
-    // Returns the date text.
-    public String getDate() {
-        return date;
-    }
-
-    // Sets the date text.
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    // Returns the time text.
-    public String getTime() {
-        return time;
-    }
-
-    // Sets the time text.
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    // Returns the assignee.
-    public String getAssignee() {
-        return assignee;
-    }
-
-    // Sets the assignee.
-    public void setAssignee(String assignee) {
-        this.assignee = assignee;
-    }
-
-    // Returns the reviewer.
-    public String getReviewer() {
-        return reviewer;
-    }
-
-    // Sets the reviewer.
-    public void setReviewer(String reviewer) {
-        this.reviewer = reviewer;
-    }
-
-    // One table row, already padded into fixed-width columns.
-    @Override
-    public String toString() {
-        return String.format(Constants.ROW_FORMAT, id, requirementName, taskType,
-                date, time, assignee, reviewer);
+    // Sets the rows of the table.
+    public void setTaskList(ArrayList<TaskDTO> taskList) {
+        this.taskList = taskList;
     }
 }

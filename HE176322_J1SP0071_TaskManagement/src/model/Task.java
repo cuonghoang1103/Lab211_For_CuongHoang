@@ -1,5 +1,6 @@
 package model;
 
+import constants.Constants;
 import constants.TaskType;
 import java.util.Date;
 
@@ -13,18 +14,25 @@ public class Task {
 
     // Unique ID; the repository gives it (last ID + 1).
     private int id;
+
     // One of the four fixed types.
     private TaskType taskType;
+
     // Name of the requirement.
     private String requirementName;
+
     // Day the task is done; a real Date, parsed from dd-MM-yyyy.
     private Date date;
+
     // Start time, 8.0 ..
     private double planFrom;
+
     // End time, 8.0 ..
     private double planTo;
+
     // Person who does the task.
     private String assignee;
+
     // Person who reviews the task.
     private String reviewer;
 
@@ -112,10 +120,17 @@ public class Task {
         this.reviewer = reviewer;
     }
 
+    // Returns how many hours the task is planned for: plan to - plan from (the brief's Time
+    // column: 9.5 to 17.5 is 8.0).
+    public double calculateTime() {
+        return planTo - planFrom;
+    }
+
     // Polymorphism: overrides Object.toString() so a task reads as one line in the
-    // debugger.
+    // debugger (String.format, no string concatenation).
     @Override
     public String toString() {
-        return id + " " + requirementName + " " + taskType.getName();
+        return String.format(Constants.TASK_TEXT_FORMAT, id, requirementName,
+                taskType.getName());
     }
 }

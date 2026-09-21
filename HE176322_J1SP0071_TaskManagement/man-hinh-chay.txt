@@ -52,8 +52,8 @@ Requirement Name: Task Type: Date: From: To: Assignee: Reviewer: Task [2] has be
 4. exit
 Please choose one option: ----------------------------------------- Task ---------------------------------------
 ID  Name                Task Type   Date          Time        Assignee    Reviewer
-1   Dev Program         Code        26-06-2015    9.5-17.5    Dev         Lead
-2   Test Program        Test        28-08-2015    8.0-9.0     Tester      Lead
+1   Dev Program         Code        26-06-2015    8.0         Dev         Lead
+2   Test Program        Test        28-08-2015    1.0         Tester      Lead
 ========= Task program =========
 1. Add Task
 2. Delete task
@@ -75,8 +75,8 @@ Requirement Name: Task Type: Date: From: To: Assignee: Reviewer: Task [3] has be
 4. exit
 Please choose one option: ----------------------------------------- Task ---------------------------------------
 ID  Name                Task Type   Date          Time        Assignee    Reviewer
-1   Dev Program         Code        26-06-2015    9.5-17.5    Dev         Lead
-3   Design DB           Design      01-09-2015    13.0-17.5   Architect   Lead
+1   Dev Program         Code        26-06-2015    8.0         Dev         Lead
+3   Design DB           Design      01-09-2015    4.5         Architect   Lead
 ========= Task program =========
 1. Add Task
 2. Delete task

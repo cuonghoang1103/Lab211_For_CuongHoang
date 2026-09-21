@@ -2,106 +2,105 @@ package repository;
 
 import constants.Constants;
 import constants.Message;
-import constants.TaskType;
+import dto.TaskDTO;
 import dto.TaskRequestDTO;
-import dto.TaskResponseDTO;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import model.Task;
 import model.TaskBuilder;
 import utils.FormatUtils;
-import utils.Validation;
 
 /**
- * REPOSITORY: holds the tasks and performs the brief's three functions on them - addTask,
- * deleteTask, getDataTasks.
+ * REPOSITORY: holds the data of the program - the tasks - and the brief's three functions
+ * on them, which are simple CRUD: addTask (create), deleteTask (delete), getDataTasks
+ * (read). No check of what was typed (Main did it), no print.
  *
  * @author HE176322
  */
 public class TaskRepository {
 
     // The "database" of tasks, in the order they were added.
-    private ArrayList<Task> tasks = new ArrayList<>();
-    // The ID the next task will get.
-    private int nextId = Constants.FIRST_ID;
+    private ArrayList<Task> taskList;
 
-    // Creates an empty repository.
+    // The ID the next task will get.
+    private int nextId;
+
+    // Creates an empty repository; the first task will get ID 1.
     public TaskRepository() {
+        taskList = new ArrayList<>();
+        nextId = Constants.FIRST_ID;
     }
 
-    // The brief's addTask: checks every value, then adds the task.
-    public int addTask(TaskRequestDTO requestDTO) throws Exception {
-        String name = Validation.getRequired(requestDTO.getRequirementName(),
-                Message.NAME_EMPTY);
-        String assignee = Validation.getRequired(requestDTO.getAssignee(),
-                Message.ASSIGNEE_EMPTY);
-        String reviewer = Validation.getRequired(requestDTO.getReviewer(),
-                Message.REVIEWER_EMPTY);
-        TaskType type = Validation.getTaskType(requestDTO.getTaskTypeId());
-        Date date = Validation.getDate(requestDTO.getDate());
-        double planFrom = Validation.getPlanTime(requestDTO.getPlanFrom(),
-                Message.LABEL_PLAN_FROM);
-        double planTo = Validation.getPlanTime(requestDTO.getPlanTo(),
-                Message.LABEL_PLAN_TO);
-        Validation.checkPlanOrder(planFrom, planTo);
+    // The brief's addTask: stores the task Main has already checked, with the next ID
+    // (last ID + 1), and returns that ID.
+    public int addTask(TaskRequestDTO requestDTO) {
         Task task = new TaskBuilder()
-                .withId(nextId)
-                .withTaskType(type)
-                .withRequirementName(name)
-                .withDate(date)
-                .withPlanFrom(planFrom)
-                .withPlanTo(planTo)
-                .withAssignee(assignee)
-                .withReviewer(reviewer)
+                .setId(nextId)
+                .setTaskType(requestDTO.getTaskType())
+                .setRequirementName(requestDTO.getRequirementName())
+                .setDate(requestDTO.getDate())
+                .setPlanFrom(requestDTO.getPlanFrom())
+                .setPlanTo(requestDTO.getPlanTo())
+                .setAssignee(requestDTO.getAssignee())
+                .setReviewer(requestDTO.getReviewer())
                 .build();
-        tasks.add(task);
+
+        // keep the task, then move the counter on for the next one
+        taskList.add(task);
         nextId++;
         return task.getId();
     }
 
-    // The brief's deleteTask: removes the task with the typed ID.
+    // The brief's deleteTask: removes the task with the typed ID ("Id must exist in the
+    // DB").
     public void deleteTask(TaskRequestDTO requestDTO) throws Exception {
-        int id = Validation.getId(requestDTO.getId());
         // look for the task with this ID
-        for (int i = 0; i < tasks.size(); i++) {
+        for (int i = 0; i < taskList.size(); i++) {
             // found: remove it and stop
-            if (tasks.get(i).getId() == id) {
-                tasks.remove(i);
+            if (taskList.get(i).getId() == requestDTO.getId()) {
+                taskList.remove(i);
                 return;
             }
         }
-        throw new Exception(String.format(Message.TASK_NOT_EXIST, id));
+
+        // no task has this ID
+        throw new Exception(String.format(Message.TASK_NOT_EXIST, requestDTO.getId()));
     }
 
-    // The brief's getDataTasks: every task, ascending by ID.
-    public ArrayList<TaskResponseDTO> getDataTasks() {
-        ArrayList<Task> sorted = new ArrayList<>(tasks);
-        Collections.sort(sorted, new Comparator<Task>() {
+    // The brief's getDataTasks: every task as a row of the table, ascending by ID.
+    public ArrayList<TaskDTO> getDataTasks() {
+        ArrayList<Task> sortedList = new ArrayList<>(taskList);
+        ArrayList<TaskDTO> rowList = new ArrayList<>();
+
+        // ascending by ID (the brief), on a copy so the stored list is untouched
+        Collections.sort(sortedList, new Comparator<Task>() {
             // Orders two tasks by ID.
             @Override
             public int compare(Task first, Task second) {
                 return Integer.compare(first.getId(), second.getId());
             }
         });
-        ArrayList<TaskResponseDTO> rows = new ArrayList<>();
+
         // turn every task into the row the view is allowed to see
-        for (Task task : sorted) {
-            rows.add(toResponse(task));
+        for (Task task : sortedList) {
+            rowList.add(convertToTaskDTO(task));
         }
-        return rows;
+
+        return rowList;
     }
 
-    // Copies a model object into the DTO the view may see, with the date and the time
+    // Copies a model object into the row the view may see, with the date and the time
     // already written as text.
-    private TaskResponseDTO toResponse(Task task) {
-        TaskResponseDTO row = new TaskResponseDTO();
+    private TaskDTO convertToTaskDTO(Task task) {
+        TaskDTO row = new TaskDTO();
+
+        // one setter per column of the brief's table
         row.setId(task.getId());
         row.setRequirementName(task.getRequirementName());
         row.setTaskType(task.getTaskType().getName());
         row.setDate(FormatUtils.formatDate(task.getDate()));
-        row.setTime(FormatUtils.formatTime(task.getPlanFrom(), task.getPlanTo()));
+        row.setTime(FormatUtils.formatTime(task.calculateTime()));
         row.setAssignee(task.getAssignee());
         row.setReviewer(task.getReviewer());
         return row;

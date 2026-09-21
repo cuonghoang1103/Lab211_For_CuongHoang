@@ -1,28 +1,39 @@
 package dto;
 
+import constants.TaskType;
+import java.util.Date;
+
 /**
- * DTO carrying what the user typed, FROM main INTO the controller.
+ * DTO carrying what the user typed, FROM main INTO the controller - already checked by
+ * Main through Validation, so every value has its real type (a Date, a double...).
  *
  * @author HE176322
  */
 public class TaskRequestDTO {
 
-    // Requirement name typed.
+    // Requirement name typed, not blank.
     private String requirementName;
-    // Task type ID typed (should be 1..4).
-    private String taskTypeId;
-    // Date typed (should be dd-MM-yyyy).
-    private String date;
-    // Plan from typed (should be 8.0..17.5).
-    private String planFrom;
-    // Plan to typed (should be 8.0..17.5).
-    private String planTo;
-    // Assignee typed.
+
+    // Task type chosen by its ID (1..4).
+    private TaskType taskType;
+
+    // Date typed, a real dd-MM-yyyy date.
+    private Date date;
+
+    // Plan from typed, 8.0..17.5 on a half hour.
+    private double planFrom;
+
+    // Plan to typed, 8.0..17.5 on a half hour, after plan from.
+    private double planTo;
+
+    // Assignee typed, not blank.
     private String assignee;
-    // Reviewer typed.
+
+    // Reviewer typed, not blank.
     private String reviewer;
-    // ID typed on the delete screen.
-    private String id;
+
+    // ID typed on the delete screen, a whole number.
+    private int id;
 
     // Creates an empty request; main fills it through the setters.
     public TaskRequestDTO() {
@@ -38,43 +49,43 @@ public class TaskRequestDTO {
         this.requirementName = requirementName;
     }
 
-    // Returns the task type ID.
-    public String getTaskTypeId() {
-        return taskTypeId;
+    // Returns the task type.
+    public TaskType getTaskType() {
+        return taskType;
     }
 
-    // Sets the task type ID.
-    public void setTaskTypeId(String taskTypeId) {
-        this.taskTypeId = taskTypeId;
+    // Sets the task type.
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
     }
 
     // Returns the date.
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
     // Sets the date.
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
     // Returns the plan from time.
-    public String getPlanFrom() {
+    public double getPlanFrom() {
         return planFrom;
     }
 
     // Sets the plan from time.
-    public void setPlanFrom(String planFrom) {
+    public void setPlanFrom(double planFrom) {
         this.planFrom = planFrom;
     }
 
     // Returns the plan to time.
-    public String getPlanTo() {
+    public double getPlanTo() {
         return planTo;
     }
 
     // Sets the plan to time.
-    public void setPlanTo(String planTo) {
+    public void setPlanTo(double planTo) {
         this.planTo = planTo;
     }
 
@@ -99,12 +110,12 @@ public class TaskRequestDTO {
     }
 
     // Returns the ID to delete.
-    public String getId() {
+    public int getId() {
         return id;
     }
 
     // Sets the ID to delete.
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 }
