@@ -9,6 +9,7 @@ public final class Constants {
 
     // Smallest array size: the brief asks for a positive number.
     public static final int MIN_SIZE = 1;
+
     // Largest array size, so a typo such as 99999999 cannot exhaust memory.
     public static final int MAX_SIZE = 1000;
 
