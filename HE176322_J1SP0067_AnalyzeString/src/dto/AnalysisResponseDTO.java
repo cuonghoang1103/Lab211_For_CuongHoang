@@ -9,20 +9,28 @@ public class AnalysisResponseDTO {
 
     // Number of characters of the string.
     private int length;
+
     // Perfect square numbers.
     private String squareNumbers;
+
     // Odd numbers.
     private String oddNumbers;
+
     // Even numbers.
     private String evenNumbers;
+
     // All numbers, in the order they appear.
     private String allNumbers;
+
     // Uppercase characters.
     private String uppercase;
+
     // Lowercase characters.
     private String lowercase;
+
     // Special characters.
     private String special;
+
     // Every character that is not a digit.
     private String allCharacters;
 
