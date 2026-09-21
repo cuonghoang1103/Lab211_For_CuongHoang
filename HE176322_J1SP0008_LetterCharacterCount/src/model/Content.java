@@ -6,7 +6,8 @@ import java.util.StringTokenizer;
 
 /**
  * MODEL: the content the user typed - a JavaBean (private field, public no-argument
- * constructor, getter/setter), as in MVC of JSP.
+ * constructor, getter/setter), as in MVC of JSP. It only describes the content: no print,
+ * no input.
  *
  * @author HE176322
  */
@@ -17,7 +18,7 @@ public class Content {
 
     // JavaBean constructor: an empty content, to be filled with setText.
     public Content() {
-        this.text = "";
+        text = "";
     }
 
     // Wraps a text.
@@ -35,15 +36,17 @@ public class Content {
         this.text = text;
     }
 
-    // Splits the text into words with StringTokenizer.
+    // Splits the text into words with StringTokenizer (the brief's Guidelines).
     public ArrayList<String> getWords() {
-        ArrayList<String> words = new ArrayList<>();
+        ArrayList<String> wordList = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(text, Constants.WORD_DELIMITERS);
+
         // take the words one by one until the text is used up
         while (tokenizer.hasMoreTokens()) {
-            words.add(tokenizer.nextToken());
+            wordList.add(tokenizer.nextToken());
         }
-        return words;
+
+        return wordList;
     }
 
     // Polymorphism: overrides Object.toString() to give the text itself.

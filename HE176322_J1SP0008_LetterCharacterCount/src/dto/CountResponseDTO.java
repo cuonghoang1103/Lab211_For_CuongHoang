@@ -10,25 +10,25 @@ import java.util.ArrayList;
 public class CountResponseDTO {
 
     // The result lines, in the order they are shown.
-    private ArrayList<String> results;
+    private ArrayList<String> resultList;
 
     // JavaBean constructor: an empty response.
     public CountResponseDTO() {
-        this.results = new ArrayList<>();
+        resultList = new ArrayList<>();
     }
 
     // Returns the result lines.
-    public ArrayList<String> getResults() {
-        return results;
+    public ArrayList<String> getResultList() {
+        return resultList;
     }
 
     // Replaces the result lines.
-    public void setResults(ArrayList<String> results) {
-        this.results = results;
+    public void setResultList(ArrayList<String> resultList) {
+        this.resultList = resultList;
     }
 
     // Appends one result line.
     public void addResult(String result) {
-        results.add(result);
+        resultList.add(result);
     }
 }

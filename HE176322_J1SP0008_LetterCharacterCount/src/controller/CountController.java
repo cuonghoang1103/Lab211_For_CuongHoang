@@ -6,28 +6,31 @@ import service.CountService;
 import view.CountView;
 
 /**
- * Controller: sends the content to the service and the counts to the view (no Scanner, no
- * printing, no static).
+ * CONTROLLER (Facade): sends the content to the service and the counts to the view, once
+ * (no Scanner, no printing, no model, no static).
  *
  * @author HE176322
  */
 public class CountController {
 
-    // counts words and characters
+    // Keeps and counts the content (Controller -> Service -> Repository -> Model).
     private CountService countService;
-    // prints the counts
+
+    // Prints the counts.
     private CountView countView;
 
-    // creates the controller with its service and view
+    // Creates the controller together with its service and its view.
     public CountController() {
         countService = new CountService();
         countView = new CountView();
     }
 
-    // the only workflow: count, then display
+    // The only workflow: the service counts, the view shows the two lines ONCE.
     public void countContent(CountRequestDTO requestDTO) {
-        CountResponseDTO response = countService.countContent(requestDTO);
-        countView.setResponse(response);
+        CountResponseDTO responseDTO = countService.countContent(requestDTO);
+
+        // hand the result to the view, then render it - once for the whole flow
+        countView.setResponseDTO(responseDTO);
         countView.display();
     }
 }

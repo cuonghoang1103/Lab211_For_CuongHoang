@@ -1,7 +1,8 @@
 # J1.S.P0008 — Letter and Character Count
 
 > Bài xử lý chuỗi, vẫn **đủ MVC**. Đếm **từ** và **ký tự** ngay trong `CountService`, mỗi việc một hàm nhỏ:
-> `countUnits` (đếm) và `splitCharacters` (tách ký tự).
+> `countUnits` (đếm) và `splitCharacters` (tách ký tự). Chuỗi đã nhập được cất trong
+> `ContentRepository`. Bản 21/09/2026 đã sửa theo **tờ checklist giấy 25 mục** của thầy — xem mục 10 cuối bài.
 
 | | |
 |---|---|
@@ -42,10 +43,12 @@ hello world
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
 | Tách từ bằng `StringTokenizer` | Guidelines | `model/Content.getWords` |
-| Dòng 1: đếm từng **từ** | ảnh `{hello=1, world=1}` | `CountService.countUnits(words)` |
+| Dòng 1: đếm từng **từ** | ảnh `{hello=1, world=1}` | `CountService.countUnits(content.getWords())` |
 | Dòng 2: đếm từng **ký tự**, không đếm dấu cách | ảnh (không có ký tự trống) | `CountService.splitCharacters` + `countUnits` |
 | Định dạng `{khoá=số, …}` | ảnh | `LinkedHashMap.toString()` |
 | Prompt | `Enter your content:` (xuống dòng) | `Message.INPUT_CONTENT` |
+
+Đề **không bắt** tên lớp hay tên hàm nào — mọi tên trong bài là của lời giải, đặt theo tờ checklist.
 
 ---
 
@@ -56,7 +59,7 @@ hello world
 ```java
 StringTokenizer tokenizer = new StringTokenizer(text, " \t\n\r\f");
 while (tokenizer.hasMoreTokens()) {
-    words.add(tokenizer.nextToken());
+    wordList.add(tokenizer.nextToken());
 }
 ```
 
@@ -110,35 +113,39 @@ Cả ba đều là `Map` (cùng hợp đồng `put/get/containsKey`), chỉ khá
 
 ```
 HE176322_J1SP0008_LetterCharacterCount/src/
-├── model/      Content                 chuỗi đã nhập (JavaBean) + getWords() bằng StringTokenizer
-├── dto/        CountRequestDTO         content                         (main ──► controller)
-│               CountResponseDTO        ArrayList<String> các dòng kết quả (controller ──► view)
-├── service/    CountService            countContent · countUnits · splitCharacters
-├── controller/ CountController         chọn: [đếm từ, đếm ký tự]; service ──► view
-├── view/       CountView               in từng dòng kết quả
-├── constants/  Message.java            prompt + thông báo lỗi
-│               Constants.java          WORD_DELIMITERS, FIRST_COUNT = 1
-├── utils/      Validation              getContent(chuỗi) → chuỗi không rỗng hoặc ném lỗi
-└── main/       Main                    Scanner + gọi controller 1 lần
+├── model/       Content                 chuỗi đã nhập (JavaBean) + getWords() bằng StringTokenizer
+├── repository/  ContentRepository       GIỮ chuỗi: Content content + saveContent/getContent
+├── dto/         CountRequestDTO         content                                  (main ──► controller)
+│                CountResponseDTO        ArrayList<String> resultList — các dòng kết quả (controller ──► view)
+├── service/     CountService            countContent · countUnits · splitCharacters
+├── controller/  CountController         service ──► view, render 1 lần
+├── view/        CountView               thuộc tính responseDTO + setResponseDTO + display()
+├── constants/   Message.java            prompt + thông báo lỗi
+│                Constants.java          WORD_DELIMITERS, FIRST_COUNT = 1
+├── utils/       Validation              getContent(chuỗi) → chuỗi không rỗng hoặc ném lỗi
+└── main/        Main                    final + private Main(); Scanner + gọi controller 1 lần
 ```
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
 | Sao `getWords()` nằm ở model? | "Chuỗi này gồm những từ nào" là **tính chất của chính nội dung** — cả hai lần đếm đều cần, viết một chỗ. Model được có hành vi của chính nó (Guide: *"thuộc tính và function của đối tượng"*). |
-| Sao đếm ký tự lại dùng khoá `String`, không `Character`? | Để **cả hai** cách đếm trả cùng một kiểu `LinkedHashMap<String, Integer>` → dùng chung lớp cha. In ra vẫn y hệt: `{h=1, …}`. |
+| Sao đếm ký tự lại dùng khoá `String`, không `Character`? | Để **cả hai** cách đếm trả cùng một kiểu `LinkedHashMap<String, Integer>` → dùng chung một hàm `countUnits`. In ra vẫn y hệt: `{h=1, …}`. |
 | Sao response là **chuỗi**, không phải map? | View chỉ in; không cần biết đếm bằng cấu trúc gì. |
-| Sao không có `repository`? | Không lưu gì, không CRUD. Đếm là **tính toán nghiệp vụ** → `service`. |
+| Sao bài đếm chữ lại có `repository`? | Tờ checklist 1.1: *"**Bắt buộc phải có repository**"*. `ContentRepository` giữ **dữ liệu mà thuật toán làm việc** (chuỗi đã nhập, gói trong model `Content`) với CRUD đơn giản: `saveContent` (Create), `getContent` (Read). Không đếm, không in. |
+| Vậy việc đếm nằm đâu? | Ở `service` (Guide: tính toán nghiệp vụ → Services, *"Services nằm giữa Controller và Repo"*). `CountService` **lấy `Content` từ repository** rồi đếm. |
+| Sao controller không đụng `Content`? | Tờ checklist 1.1: controller *"không làm việc với Model"*; Guide: *"chỉ import DTO, View, Service"*. |
 
-**Luồng chạy:**
+**Luồng chạy** (Main → RequestDTO → Controller → Service → Repository → Model; ResponseDTO → View 1 lần):
 
 ```
-Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──► controller.countContent(dto)
-   controller ──► service.countContent(dto)
-                     ├─ content = new Content(text)
+Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──► controller.countContent(requestDTO)   ← gọi 1 lần
+   controller ──► countService.countContent(requestDTO)
+                     ├─ contentRepository.saveContent(text)   → repository gói vào Content (model)
+                     ├─ contentRepository.getContent()        ← service lấy dữ liệu TỪ repository
                      ├─ countUnits(content.getWords())        ← đếm từ
                      └─ countUnits(splitCharacters(content))  ← đếm ký tự
-                            response.addResult(map.toString())
-   controller ──► view.setResponse(response) ──► view.display()
+                            responseDTO.addResult(map.toString())
+   controller ──► countView.setResponseDTO(responseDTO) ──► countView.display()   ← render 1 lần
 ```
 
 ### 3.1 Design Pattern trong bài
@@ -146,7 +153,8 @@ Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──�
 | Pattern | Ở đâu |
 |---|---|
 | **MVC** — thầy gọi là "MVC JSP" | controller điều hướng (như Servlet) · view hiển thị (như trang JSP) · model là JavaBean |
-| **Facade** | controller: `Main` chỉ gọi `controller.countContent(dto)`, không biết service/model/view phía sau |
+| **Facade** | controller: `Main` chỉ gọi `controller.countContent(requestDTO)`, không biết service/repository/model/view phía sau |
+| **Repository** | `ContentRepository` là chỗ duy nhất giữ dữ liệu (chuỗi đã nhập) |
 
 > Bài chỉ 50 LOC nên **không thêm lớp pattern GoF** — ghi chú slide SOLID của thầy cảnh báo *"trừu tượng hoá sớm … vi phạm YAGNI"*. Hai lần đếm dùng chung **một hàm** `countUnits`; khác nhau chỉ ở cách tách (từ / ký tự).
 
@@ -156,14 +164,14 @@ Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──�
 |---|---|
 | **Name** | Strategy (nhóm Behavioral) |
 | **Problem** | nhiều cách đếm (từ, ký tự, nguyên âm…) cùng một khung "tách → đếm" |
-| **Solution** | tách `abstract class CountStrategy` (khung `count()` = **Template Method**) hoặc `interface`; mỗi cách làm là 1 lớp `implements` nó (`WordCountStrategy`, `CharacterCountStrategy`); `CountService` giữ danh sách strategy và chạy lần lượt |
+| **Solution** | tách `abstract class CountStrategy` (khung `count()` = **Template Method**) hoặc `interface ICountStrategy` (tên interface bắt đầu bằng `I` — tờ checklist 1.3); mỗi cách làm là 1 lớp con (`WordCountStrategy`, `CharacterCountStrategy`); `CountService` giữ danh sách strategy (`strategyList`) và chạy lần lượt |
 | **Consequences** | ➕ thêm cách làm = thêm 1 lớp, service đứng yên (**O**) · ➖ thêm 2 file — chỉ đáng khi có từ 2 cách trở lên |
 
 ### 3.2 SOLID trong bài
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `Content` giữ chuỗi + tách từ · `CountService` đếm · `CountView` in · `Validation` kiểm |
+| **S** | `Content` giữ chuỗi + tách từ · `ContentRepository` cất chuỗi · `CountService` đếm · `CountView` in · `Validation` kiểm |
 | **O** | đếm thêm một thứ = thêm 1 hàm tách + 1 dòng trong `countContent`; hàm `countUnits` đứng yên |
 | **L** | bài chưa có lớp con riêng — chỉ `extends Object` |
 | **I** | không có interface — bài chưa cần |
@@ -177,21 +185,24 @@ Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──�
 
 | Bước | File | Việc |
 |---|---|---|
-| 1 | `model/Content.java` | `private String text` + constructor rỗng + constructor đủ + get/set + `getWords()` (StringTokenizer) + `toString` |
-| 2 | `dto/CountRequestDTO.java`, `CountResponseDTO.java` | JavaBean; response có `addResult` |
-| 3 | `service/CountService.java` | `countContent(dto)`; `countUnits` (đếm, `private`); `splitCharacters` (tách ký tự, `private`) |
-| 4 | `view/CountView.java` | `setResponse` · `display` |
-| 5 | `controller/CountController.java` | `new CountService()`; `countContent(dto)` |
-| 6 | `constants/Message.java`, `Constants.java` | prompt, lỗi; delimiters, `FIRST_COUNT` |
-| 7 | `utils/Validation.java` | `getContent(String)` |
-| 8 | `main/Main.java` | `inputContent` (vòng hỏi lại) + gọi controller **1 lần** |
+| 1 | `model/Content.java` | `private String text` + constructor rỗng + constructor đủ + get/set + `getWords()` (StringTokenizer, biến `wordList`) + `toString` |
+| 2 | `repository/ContentRepository.java` | field `Content content` · ctor (chuỗi rỗng) · `saveContent(String text)` · `getContent()` |
+| 3 | `dto/CountRequestDTO.java`, `CountResponseDTO.java` | JavaBean; response có `resultList` + `addResult` |
+| 4 | `service/CountService.java` | field `contentRepository` + ctor; `countContent(requestDTO)`; `countUnits` (đếm, `private`, biến `countMap`); `splitCharacters` (tách ký tự, `private`, biến `characterList`) |
+| 5 | `controller/CountController.java` | `new CountService()`; `countContent(requestDTO)`: `setResponseDTO` rồi `display()` **1 lần** |
+| 6 | `view/CountView.java` | field `responseDTO` · `setResponseDTO` · `display()` **không tham số** |
+| 7 | `constants/Message.java`, `Constants.java` | prompt, lỗi; delimiters, `FIRST_COUNT` |
+| 8 | `utils/Validation.java` | `getContent(String)` |
+| 9 | `main/Main.java` | `public final class` + `private Main()`; `inputContent` (vòng hỏi lại) + gọi controller **1 lần** |
 
 **Bẫy hay gặp:**
 
 1. Dùng `split(" ")` → nhiều dấu cách sinh **từ rỗng** `""=3`.
 2. Đếm ký tự trên **cả chuỗi** mà quên bỏ dấu cách → xuất hiện ` =1` trong dòng 2.
-3. `counts.put(unit, counts.get(unit) + 1)` khi **chưa có** khoá → `get` trả `null` → `NullPointerException`. Phải `containsKey` trước.
+3. `countMap.put(unit, countMap.get(unit) + 1)` khi **chưa có** khoá → `get` trả `null` → `NullPointerException`. Phải `containsKey` trước.
 4. Dùng `HashMap` rồi ngạc nhiên thứ tự in "lộn xộn" và khác ảnh — xem 2.3.
+5. View có hàm nhận tham số (`display(dto)`, `showMessage(String)`) → tờ checklist 1.1 đánh trượt:
+   View nhận dữ liệu **qua thuộc tính**.
 
 ---
 
@@ -212,10 +223,11 @@ Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──�
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `if (counts.containsKey(unit))` trong `CountService.countUnits` |
+| Breakpoint | dòng `if (countMap.containsKey(unit))` trong `CountService.countUnits` |
 | Chạy | **Ctrl+F5**, nhập `hello world` |
-| Quan sát | **Variables**: `unit`, mở `counts` xem map lớn dần như bảng 2.2 |
+| Quan sát | **Variables**: `unit`, mở `countMap` xem map lớn dần như bảng 2.2 |
 | Bước | **F5** mỗi vòng: lần gọi `countUnits` thứ nhất đếm từ (`hello`, `world`), lần thứ hai đếm ký tự (`h`, `e`, …) |
+| Thấy repository | **F7** vào `contentRepository.saveContent(...)` — chuỗi vừa nhập được gói thành `Content` và cất lại |
 
 ---
 
@@ -232,12 +244,23 @@ Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──�
 | Độ phức tạp? | Duyệt mỗi ký tự một lần, mỗi thao tác map ~`O(1)` → **O(n)**. |
 | Hoa/thường có tính là một không? | Không — `Hello` và `hello` là 2 từ (đề không nói gộp). Muốn gộp: mục 8. |
 
+### Kiến trúc theo tờ checklist
+
+| Câu hỏi | Trả lời mẫu |
+|---|---|
+| Sao bài có repository? | Tờ checklist 1.1 *"Bắt buộc phải có repository"*. `ContentRepository` giữ **dữ liệu** (chuỗi đã nhập, trong model `Content`) và chỉ có CRUD đơn giản: `saveContent` tạo `Content` từ chuỗi, `getContent` trả nó ra. Đếm ở `CountService` — luồng **Controller → Service → Repository → Model**. |
+| View nhận dữ liệu thế nào? | **Qua thuộc tính**: `CountView` có field `private CountResponseDTO responseDTO` + setter `setResponseDTO(...)`; `display()` không tham số. Controller gọi `setResponseDTO(responseDTO)` rồi `display()` **đúng 1 lần**. |
+| Validate ở đâu? | Ở **Main**: `Main.inputContent` đọc `sc.nextLine()`, đưa cho `Validation.getContent` — trống thì ném `Exception(Message.EMPTY_CONTENT)`, Main bắt, in `e.getMessage()` rồi hỏi lại. Controller/service chỉ nhận `CountRequestDTO` đã sạch. |
+| Sao `Main` là `final` và có `private Main()`? | Tờ checklist 3.4: lớp chỉ có hàm `static` phải có private constructor và khai báo `final`. |
+| Sao tên biến `wordList`, `unitList`, `characterList`, `countMap`, `resultList`? | Tờ checklist 1.5: biến kiểu collection kết thúc bằng `List`, kiểu Map kết thúc bằng `Map`. |
+
 ### OOP / access modifier / static
 
 | Câu hỏi | Trả lời mẫu |
 |---|---|
-| 4 tính chất OOP ở đâu? | **Đóng gói**: `text` `private` trong `Content`, chỉ lộ `getWords()`. **Kế thừa**: mọi lớp ngầm `extends Object`; các lớp ghi đè `toString()`. **Đa hình**: `toString()` có `@Override`; `countUnits(...).toString()` chạy bản của `LinkedHashMap`, ra `{hello=1, world=1}`. **Trừu tượng**: `Main` chỉ gọi `controller.countContent(dto)`. |
+| 4 tính chất OOP ở đâu? | **Đóng gói**: `text` `private` trong `Content`, chỉ lộ `getWords()`; `content` `private` trong `ContentRepository`. **Kế thừa**: mọi lớp ngầm `extends Object`; các lớp ghi đè `toString()`. **Đa hình**: `toString()` có `@Override`; `countUnits(...).toString()` chạy bản của `LinkedHashMap`, ra `{hello=1, world=1}`. **Trừu tượng**: `Main` chỉ gọi `controller.countContent(requestDTO)`. |
 | `countUnits`, `splitCharacters` sao `private`? | Chỉ `countContent` trong **cùng lớp** gọi (thầy V2: chỉ `public` khi lớp khác gọi). `countContent` `public` vì `CountController` (lớp khác) gọi. |
+| `saveContent`, `getContent` sao `public`? | `CountService` (package `service`) gọi repository ở package **khác**. |
 | Abstract class khác interface? | Interface chỉ là **hợp đồng**; abstract class chứa được **code chung** + field. Bài này chưa cần cả hai. Nếu tách pattern (mục 3.1) thì chọn abstract class, vì hai cách đếm chung nguyên phần "tăng số" (Template Method). |
 | `getWords` trả `ArrayList<String>` vì sao? | Nơi gọi cần **các từ theo thứ tự** để duyệt. |
 | `Validation.getContent` sao static? Bỏ đi thì sao? | Không dùng dữ liệu đối tượng. Bỏ `static` → gọi `Validation.getContent(...)` lỗi biên dịch; phải bỏ `private` constructor, `new Validation()` trong `Main`. |
@@ -250,12 +273,12 @@ Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──�
 
 | Thầy bảo | Sửa | Không đụng |
 |---|---|---|
-| Đếm thêm **nguyên âm** / **chữ số** | 1 hàm tách mới (như `splitCharacters`) + 1 dòng `response.addResult(...)` trong `countContent` | view, main, model |
+| Đếm thêm **nguyên âm** / **chữ số** | 1 hàm tách mới (như `splitCharacters`) + 1 dòng `responseDTO.addResult(...)` trong `countContent` | view, main, model, repository |
 | **Không phân biệt** hoa thường | `Content.getWords`: `tokenizer.nextToken().toLowerCase()` | mọi file khác |
 | Chỉ đếm **chữ cái** (bỏ số, dấu câu) | `CountService.splitCharacters`: chỉ thêm khi `Character.isLetter(ch)` | mọi file khác |
 | In **sắp theo khoá** | `CountService.countUnits`: `TreeMap` thay `LinkedHashMap` (đổi kiểu trả về) | view, main |
 | Coi `,` `.` là dấu ngắt từ | `Constants.WORD_DELIMITERS` thêm `",."` | mọi file khác |
-| In thêm **tổng số từ** | `CountService` thêm dòng `words.size()` vào response | view (vẫn in từng dòng) |
+| In thêm **tổng số từ** | `CountService` thêm dòng `content.getWords().size()` vào response (câu mới trong `Message`) | view (vẫn in từng dòng) |
 
 ---
 
@@ -268,4 +291,33 @@ Main: đọc content (hỏi lại khi trống) ──► CountRequestDTO ──�
 | Nội dung in | Bản cũ in 4 **tổng** (`Characters (with spaces): 16`, `Letters: 10`, `Words: 3`…) | map đếm **từng từ** và **từng ký tự** | đúng ảnh đề |
 | Prompt | Bản cũ: tiêu đề + `Please input a string: ` | `Enter your content:` (xuống dòng) | đúng ảnh đề |
 | Dấu câu | Đề không nói | thuộc về từ (`hello,`) và được đếm như ký tự | `StringTokenizer` mặc định chỉ ngắt ở khoảng trắng |
-| Kiến trúc | `bo/ui/utils`, Scanner trong `Validator` | MVC theo Guide | luật thầy |
+| Kiến trúc | `bo/ui/utils`, Scanner trong `Validator` | MVC theo Guide + Repository | luật thầy |
+
+### 9.1 Đổi theo tờ checklist giấy (21/09/2026)
+
+Màn hình chạy **không đổi một chữ** (`verify.py` so từng dòng, cả en_US và vi_VN).
+
+| Chỗ | Bản trước | Bây giờ | Mục checklist |
+|---|---|---|---|
+| Tầng dữ liệu | không có `repository`; service tự `new Content(...)` | `repository/ContentRepository` giữ `Content`; service `saveContent` rồi `getContent` | 1.1 |
+| View | `setResponse(response)` | field `responseDTO` + `setResponseDTO(...)` + `display()` | 1.1 |
+| Main | `public class Main` | `public final class Main` + `private Main()` | 3.4 |
+| Tên collection | `results`, `words`, `units`, `characters`, `counts` | `resultList` (`getResultList/setResultList`), `wordList`, `unitList`, `characterList`, `countMap` | 1.5 |
+| Khai báo biến | `String line = sc.nextLine();` giữa vòng lặp; `response` giữa hàm | `String line = "";` đầu hàm; `responseDTO`, `content` đầu `countContent` | 2.6, 3.7 |
+| Ngoặc | `input == null \|\| input.trim().isEmpty()` | `(input == null) \|\| input.trim().isEmpty()` | 3.3 |
+| Dòng trống | comment của các hằng/field dính nhau; khối sau `}` dính nhau | 1 dòng trống trước mỗi comment, sau vùng khai báo, sau mỗi `}` | 2.8 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỉ vào đâu |
+|---|---|
+| 1.1 | `repository/ContentRepository` (bắt buộc có); `CountController` chỉ import `dto`/`service`/`view`; `CountView` nhận `responseDTO` qua setter, `display()` gọi 1 lần; `Main` gọi `controller.countContent` 1 lần |
+| 1.3 / 1.4 | lớp là danh từ (`Content`, `ContentRepository`, `CountService`…); hàm mở đầu bằng động từ: `countContent`, `countUnits`, `splitCharacters`, `saveContent`, `getWords` |
+| 1.5 | `ArrayList<String> wordList` (`Content.getWords`), `unitList`, `characterList`, `LinkedHashMap<String, Integer> countMap` (`CountService`), `resultList` (`CountResponseDTO`) |
+| 2.6 + 3.7 | `String line = "";` (`Main.inputContent`), `CountResponseDTO responseDTO = new CountResponseDTO();` + `Content content = null;` (`CountService.countContent`), `wordList` + `tokenizer` đầu `Content.getWords` |
+| 2.8 | 1 dòng trống giữa các hằng/field có comment, sau vùng khai báo biến, sau mỗi `}` trước câu lệnh kế |
+| 3.3 | `if ((input == null) \|\| input.trim().isEmpty())` (`Validation.getContent`) |
+| 3.4 | `public final class Main` + `private Main()`; `Validation`, `Message`, `Constants` cũng `final` + private constructor |
+| Soát máy | `checklist_audit.py` → **0 VI_PHAM**; còn RUI_RO: `String[] args` của `main` và tham số setter/constructor trùng tên field (`this.text = text` — IDE sinh) |
