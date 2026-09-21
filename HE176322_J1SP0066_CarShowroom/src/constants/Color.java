@@ -9,22 +9,31 @@ public enum Color {
 
     // The unpainted car: $100 cheaper (the brief).
     NO_COLOR("no color"),
+
     // An AUDI colour.
     WHITE("WHITE"),
+
     // An AUDI colour.
     YELLOW("YELLOW"),
+
     // An AUDI colour.
     ORANGE("ORANGE"),
+
     // A MERCEDES colour.
     GREEN("GREEN"),
+
     // A MERCEDES colour.
     BLUE("BLUE"),
+
     // A MERCEDES colour.
     PURPLE("PURPLE"),
+
     // A BMW colour.
     PINK("PINK"),
+
     // A BMW colour.
     RED("RED"),
+
     // A BMW colour.
     BROWN("BROWN");
 
@@ -48,6 +57,7 @@ public enum Color {
         if (color == null) {
             return null;
         }
+
         // compare the text with the label of every colour
         for (Color candidate : values()) {
             // found the colour the user meant
@@ -55,6 +65,7 @@ public enum Color {
                 return candidate;
             }
         }
+
         return null;
     }
 }

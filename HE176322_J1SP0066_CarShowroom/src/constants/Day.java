@@ -9,16 +9,22 @@ public enum Day {
 
     // Monday.
     MONDAY,
+
     // Tuesday.
     TUESDAY,
+
     // Wednesday.
     WEDNESDAY,
+
     // Thursday.
     THURSDAY,
+
     // Friday.
     FRIDAY,
+
     // Saturday.
     SATURDAY,
+
     // Sunday.
     SUNDAY;
 
@@ -29,6 +35,7 @@ public enum Day {
         if (day == null) {
             return null;
         }
+
         // compare the text with the name of every day
         for (Day candidate : values()) {
             // found the day the user meant
@@ -36,6 +43,7 @@ public enum Day {
                 return candidate;
             }
         }
+
         return null;
     }
 }

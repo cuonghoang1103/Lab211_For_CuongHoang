@@ -9,6 +9,7 @@ public final class Constants {
 
     // Discount for an unpainted car (the brief: "$100 discount").
     public static final double NO_COLOR_DISCOUNT = 100;
+
     // A price must be greater than this (the brief: "greater than zero").
     public static final double MIN_PRICE = 0;
 
@@ -17,8 +18,12 @@ public final class Constants {
 
     // Answer that means "find more".
     public static final String YES = "Y";
+
     // Answer that means "stop".
     public static final String NO = "N";
+
+    // One order on one line for the debugger: car, colour, day, price.
+    public static final String ORDER_FORMAT = "%s %s %s %s";
 
     // Private constructor: this class only holds constants.
     private Constants() {

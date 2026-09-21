@@ -2,6 +2,7 @@ package model;
 
 import constants.Car;
 import constants.Color;
+import constants.Constants;
 import constants.Day;
 
 /**
@@ -14,10 +15,13 @@ public class CarOrder {
 
     // The car asked for.
     private Car car;
+
     // The colour asked for; NO_COLOR for an unpainted car.
     private Color color;
+
     // The day of the request.
     private Day day;
+
     // The price the customer offers; double because it may have decimals.
     private double price;
 
@@ -74,9 +78,9 @@ public class CarOrder {
     }
 
     // Polymorphism: overrides Object.toString() so the debugger shows the order on one
-    // line.
+    // line (String.format, no string "+").
     @Override
     public String toString() {
-        return car + " " + color + " " + day + " " + price;
+        return String.format(Constants.ORDER_FORMAT, car, color, day, price);
     }
 }

@@ -13,11 +13,14 @@ public class CarRequestDTO {
 
     // The car, or null when the name is not a Car.
     private Car car;
+
     // The colour, or null when the text is not a Color.
     private Color color;
+
     // The day, or null when the text is not a Day.
     private Day day;
-    // The price exactly as typed.
+
+    // The price exactly as typed (the brief's checkCar takes it as a String).
     private String price;
 
     // Creates an empty request; main fills it through the setters.

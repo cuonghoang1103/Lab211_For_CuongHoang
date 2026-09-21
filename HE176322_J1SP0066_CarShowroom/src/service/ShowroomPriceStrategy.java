@@ -12,17 +12,20 @@ import model.CarOrder;
  *
  * @author HE176322
  */
-public class ShowroomPriceStrategy implements PriceStrategy {
+public class ShowroomPriceStrategy implements IPriceStrategy {
 
     // Returns the lowest price accepted for the order's car and colour.
     @Override
     public double getAskingPrice(CarOrder order) {
         Car car = order.getCar();
-        ArrayList<Double> prices = car.getPrices();
+        ArrayList<Double> priceList = car.getPrices();
+
         // unpainted: $100 off the cheapest paint job
         if (order.getColor() == Color.NO_COLOR) {
-            return Collections.min(prices) - Constants.NO_COLOR_DISCOUNT;
+            return Collections.min(priceList) - Constants.NO_COLOR_DISCOUNT;
         }
-        return prices.get(car.getColors().indexOf(order.getColor()));
+
+        // painted: the price at the same position as the colour
+        return priceList.get(car.getColors().indexOf(order.getColor()));
     }
 }
