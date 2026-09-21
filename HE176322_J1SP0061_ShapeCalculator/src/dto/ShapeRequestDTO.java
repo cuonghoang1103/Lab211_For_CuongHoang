@@ -9,14 +9,19 @@ public class ShapeRequestDTO {
 
     // Width of the rectangle.
     private double width;
+
     // Length of the rectangle.
     private double length;
+
     // Radius of the circle.
     private double radius;
+
     // Side A of the triangle.
     private double sideA;
+
     // Side B of the triangle.
     private double sideB;
+
     // Side C of the triangle.
     private double sideC;
 

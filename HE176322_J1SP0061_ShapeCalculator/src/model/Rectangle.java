@@ -12,6 +12,7 @@ public class Rectangle extends Shape {
 
     // Width of the rectangle.
     private double width;
+
     // Length of the rectangle.
     private double length;
 
@@ -66,8 +67,8 @@ public class Rectangle extends Shape {
     // Template step: the width and length lines.
     @Override
     protected String getProperties() {
-        return Message.LABEL_WIDTH + width + Constants.NEW_LINE
-                + Message.LABEL_LENGTH + length;
+        return String.format(Constants.TWO_LINES_FORMAT, Message.LABEL_WIDTH, width,
+                Message.LABEL_LENGTH, length);
     }
 
     // Hook overridden: the rectangle prints "Area: " with a space.

@@ -1,5 +1,6 @@
 package model;
 
+import constants.Constants;
 import constants.Message;
 
 /**
@@ -52,6 +53,6 @@ public class Circle extends Shape {
     // Template step: the radius line.
     @Override
     protected String getProperties() {
-        return Message.LABEL_RADIUS + radius;
+        return String.format(Constants.LINE_FORMAT, Message.LABEL_RADIUS, radius);
     }
 }

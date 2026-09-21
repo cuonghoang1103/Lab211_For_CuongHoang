@@ -12,8 +12,10 @@ public class Triangle extends Shape {
 
     // Length of side A.
     private double sideA;
+
     // Length of side B.
     private double sideB;
+
     // Length of side C.
     private double sideC;
 
@@ -68,8 +70,11 @@ public class Triangle extends Shape {
     // Area by Heron's formula: S = sqrt(p(p-a)(p-b)(p-c)), where p is HALF the perimeter.
     @Override
     public double getArea() {
-        double p = getPerimeter() / 2;
-        return Math.sqrt(p * (p - sideA) * (p - sideB) * (p - sideC));
+        double halfPerimeter = getPerimeter() / 2;
+        double heronProduct = halfPerimeter * (halfPerimeter - sideA)
+                * (halfPerimeter - sideB) * (halfPerimeter - sideC);
+
+        return Math.sqrt(heronProduct);
     }
 
     // Template step: the title line.
@@ -81,8 +86,7 @@ public class Triangle extends Shape {
     // Template step: the three side lines.
     @Override
     protected String getProperties() {
-        return Message.LABEL_SIDE_A + sideA + Constants.NEW_LINE
-                + Message.LABEL_SIDE_B + sideB + Constants.NEW_LINE
-                + Message.LABEL_SIDE_C + sideC;
+        return String.format(Constants.THREE_LINES_FORMAT, Message.LABEL_SIDE_A, sideA,
+                Message.LABEL_SIDE_B, sideB, Message.LABEL_SIDE_C, sideC);
     }
 }

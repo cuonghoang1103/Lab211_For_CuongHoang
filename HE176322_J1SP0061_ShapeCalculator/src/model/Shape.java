@@ -33,12 +33,11 @@ public abstract class Shape {
         return Message.LABEL_PERIMETER;
     }
 
-    // The template method: builds the whole result block of the brief's screen.
+    // The template method: builds the whole result block of the brief's screen - title,
+    // properties, area, perimeter - with String.format (checklist 3.8: no "+" on strings).
     @Override
     public final String toString() {
-        return getTitle() + Constants.NEW_LINE
-                + getProperties() + Constants.NEW_LINE
-                + getAreaLabel() + getArea() + Constants.NEW_LINE
-                + getPerimeterLabel() + getPerimeter();
+        return String.format(Constants.RESULT_FORMAT, getTitle(), getProperties(),
+                getAreaLabel(), getArea(), getPerimeterLabel(), getPerimeter());
     }
 }

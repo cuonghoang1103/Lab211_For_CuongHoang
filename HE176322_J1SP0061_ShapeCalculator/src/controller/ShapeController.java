@@ -2,33 +2,37 @@ package controller;
 
 import dto.ShapeRequestDTO;
 import dto.ShapeResponseDTO;
-import java.util.ArrayList;
 import service.ShapeService;
 import view.ShapeView;
 
 /**
- * CONTROLLER: takes the request from main, asks the service for the results, and hands
- * them to the view.
+ * CONTROLLER (Facade): takes the request from main, lets the service calculate, and hands
+ * the results to the view once. No Scanner, no print, no model.
  *
  * @author HE176322
  */
 public class ShapeController {
 
-    // Builds the shapes and computes their results.
+    // Builds the shapes and computes their results (Controller -> Service -> Repository ->
+    // Model).
     private ShapeService shapeService;
+
     // Prints the results.
     private ShapeView shapeView;
 
-    // Creates the controller with its service and view.
+    // Creates the controller together with its service and its view.
     public ShapeController() {
         shapeService = new ShapeService();
         shapeView = new ShapeView();
     }
 
-    // The brief's Function 2: calculate, display, and the program ends.
+    // The brief's Function 2 (the only workflow): the service calculates, the view shows
+    // the results ONCE, and the program ends.
     public void calculate(ShapeRequestDTO requestDTO) {
-        ArrayList<ShapeResponseDTO> results = shapeService.calculateShapes(requestDTO);
-        shapeView.setShapes(results);
+        ShapeResponseDTO responseDTO = shapeService.calculateShapes(requestDTO);
+
+        // hand the results to the view, then render them - once for the whole flow
+        shapeView.setResponseDTO(responseDTO);
         shapeView.printResult();
     }
 }
