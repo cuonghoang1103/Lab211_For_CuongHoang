@@ -1,57 +1,28 @@
 package dto;
 
 /**
- * DTO carrying one person FROM the controller OUT TO the view.
+ * DTO carrying the result FROM the controller OUT TO the view: the persons sorted by
+ * salary ascending, as rows the view is allowed to see.
  *
  * @author HE176322
  */
 public class PersonResponseDTO {
 
-    // Name shown after "Name:".
-    private String name;
-    // Address shown after "Address:".
-    private String address;
-    // Salary shown after "Salary:".
-    private double salary;
+    // The sorted persons, lowest salary first.
+    private PersonDTO[] personArray;
 
-    // Creates an empty response (JavaBean constructor).
+    // Creates an empty response (JavaBean constructor); filled through the setter.
     public PersonResponseDTO() {
+        personArray = new PersonDTO[0];
     }
 
-    // Creates the response with every value filled in.
-    public PersonResponseDTO(String name, String address, double salary) {
-        this.name = name;
-        this.address = address;
-        this.salary = salary;
+    // Returns the sorted persons.
+    public PersonDTO[] getPersonArray() {
+        return personArray;
     }
 
-    // Returns the name.
-    public String getName() {
-        return name;
-    }
-
-    // Sets the name.
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Returns the address.
-    public String getAddress() {
-        return address;
-    }
-
-    // Sets the address.
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    // Returns the salary.
-    public double getSalary() {
-        return salary;
-    }
-
-    // Sets the salary.
-    public void setSalary(double salary) {
-        this.salary = salary;
+    // Sets the sorted persons.
+    public void setPersonArray(PersonDTO[] personArray) {
+        this.personArray = personArray;
     }
 }

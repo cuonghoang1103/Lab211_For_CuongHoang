@@ -7,14 +7,15 @@ import view.PersonView;
 
 /**
  * Controller: sends the typed persons to the service and the sorted result to the view
- * (no Scanner, no printing, no static).
+ * once (no Scanner, no printing, no static, no model).
  *
  * @author HE176322
  */
 public class PersonController {
 
-    // builds and sorts the persons
+    // builds, keeps and sorts the persons (Controller -> Service -> Repository -> Model)
     private PersonService personService;
+
     // prints the persons
     private PersonView personView;
 
@@ -25,9 +26,11 @@ public class PersonController {
     }
 
     // the only workflow: sort by salary, then display
-    public void displaySortedPersons(PersonRequestDTO[] requests) throws Exception {
-        PersonResponseDTO[] sorted = personService.sortPersons(requests);
-        personView.setPersons(sorted);
+    public void displaySortedPersons(PersonRequestDTO requestDTO) throws Exception {
+        PersonResponseDTO responseDTO = personService.sortPersons(requestDTO);
+
+        // hand the sorted persons to the view, then render them - once for the whole flow
+        personView.setResponseDTO(responseDTO);
         personView.display();
     }
 }

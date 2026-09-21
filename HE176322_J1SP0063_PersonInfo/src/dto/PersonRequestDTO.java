@@ -1,50 +1,28 @@
 package dto;
 
 /**
- * DTO carrying what the user typed for ONE person, FROM main INTO the controller.
+ * DTO carrying what the user typed FROM main INTO the controller: the brief's array of 3
+ * persons, in the order they were typed.
  *
  * @author HE176322
  */
 public class PersonRequestDTO {
 
-    // Name typed by the user (not blank).
-    private String name;
-    // Address typed by the user (not blank).
-    private String address;
-    // Salary typed by the user, already converted and checked by main.
-    private double salary;
+    // The persons typed by the user, first typed first.
+    private PersonDTO[] personArray;
 
-    // Creates an empty request; main fills it through the setters.
+    // Creates an empty request; main fills it through the setter.
     public PersonRequestDTO() {
+        personArray = new PersonDTO[0];
     }
 
-    // Returns the name.
-    public String getName() {
-        return name;
+    // Returns the persons typed.
+    public PersonDTO[] getPersonArray() {
+        return personArray;
     }
 
-    // Sets the name.
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Returns the address.
-    public String getAddress() {
-        return address;
-    }
-
-    // Sets the address.
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    // Returns the salary.
-    public double getSalary() {
-        return salary;
-    }
-
-    // Sets the salary.
-    public void setSalary(double salary) {
-        this.salary = salary;
+    // Sets the persons typed.
+    public void setPersonArray(PersonDTO[] personArray) {
+        this.personArray = personArray;
     }
 }

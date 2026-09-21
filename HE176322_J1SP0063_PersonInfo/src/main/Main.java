@@ -3,31 +3,45 @@ package main;
 import constants.Constants;
 import constants.Message;
 import controller.PersonController;
+import dto.PersonDTO;
 import dto.PersonRequestDTO;
 import java.util.Scanner;
 import utils.Validation;
 
 /**
- * MAIN: the work flow - read three persons (Function 1), then call the controller once to
- * sort and display them (Functions 2 and 3).
+ * MAIN: the work flow - read and check three persons (Function 1), then call the
+ * controller once to sort and display them (Functions 2 and 3).
  *
  * @author HE176322
  */
-public class Main {
+public final class Main {
 
-    // Starts the program.
+    // Private constructor: Main only has static methods (checklist 3.4).
+    private Main() {
+    }
+
+    // Starts the program: reads the three persons, then calls the controller once.
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         PersonController controller = new PersonController();
+        PersonRequestDTO requestDTO = new PersonRequestDTO();
+        PersonDTO[] personArray = new PersonDTO[Constants.NUMBER_OF_PERSONS];
+
+        // Function 1: the title of the brief's screen, once
         System.out.println(Message.TITLE);
-        PersonRequestDTO[] requests = new PersonRequestDTO[Constants.NUMBER_OF_PERSONS];
+
         // the brief: an array of 3 persons, filled one after another
-        for (int i = 0; i < requests.length; i++) {
-            requests[i] = inputPerson(sc);
+        for (int i = 0; i < personArray.length; i++) {
+            personArray[i] = inputPerson(sc);
         }
-        // a business error from the service is shown instead of a crash
+
+        // Function 2 (auto next): the three persons go to the controller in the request
+        requestDTO.setPersonArray(personArray);
+
+        // sort and display - the controller is called once; a business error of the
+        // service is shown instead of a crash
         try {
-            controller.displaySortedPersons(requests);
+            controller.displaySortedPersons(requestDTO);
         } catch (Exception e) {
             // "Salary is greater than zero" or "Can't Sort Person"
             System.out.println(e.getMessage());
@@ -35,21 +49,26 @@ public class Main {
     }
 
     // Reads the name, address and salary of one person.
-    private static PersonRequestDTO inputPerson(Scanner sc) {
+    private static PersonDTO inputPerson(Scanner sc) {
+        PersonDTO personDTO = new PersonDTO();
+
+        // the brief's line before each person, then its three fields
         System.out.println(Message.TITLE_INPUT);
-        PersonRequestDTO dto = new PersonRequestDTO();
-        dto.setName(inputName(sc));
-        dto.setAddress(inputAddress(sc));
-        dto.setSalary(inputSalary(sc));
-        return dto;
+        personDTO.setName(inputName(sc));
+        personDTO.setAddress(inputAddress(sc));
+        personDTO.setSalary(inputSalary(sc));
+        return personDTO;
     }
 
     // Asks for the name until it is not blank.
     private static String inputName(Scanner sc) {
+        String line = "";
+
         // keep asking until the name is not blank
         while (true) {
             System.out.print(Message.INPUT_NAME);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a blank line prints "You must input name." and loops again
             try {
                 return Validation.getNonBlank(line, Message.NAME_EMPTY);
@@ -62,10 +81,13 @@ public class Main {
 
     // Asks for the address until it is not blank.
     private static String inputAddress(Scanner sc) {
+        String line = "";
+
         // keep asking until the address is not blank
         while (true) {
             System.out.print(Message.INPUT_ADDRESS);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a blank line prints "You must input address." and loops again
             try {
                 return Validation.getNonBlank(line, Message.ADDRESS_EMPTY);
@@ -78,10 +100,13 @@ public class Main {
 
     // Asks for the salary until it is a number greater than zero.
     private static double inputSalary(Scanner sc) {
+        String line = "";
+
         // keep asking until Validation accepts the line
         while (true) {
             System.out.print(Message.INPUT_SALARY);
-            String line = sc.nextLine();
+            line = sc.nextLine();
+
             // a wrong line prints one of the brief's three messages
             try {
                 return Validation.checkSalary(line);

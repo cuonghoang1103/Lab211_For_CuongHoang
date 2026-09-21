@@ -1,5 +1,7 @@
 package model;
 
+import constants.Constants;
+
 /**
  * MODEL: one person - name, address, salary - exactly the class the brief describes
  * ("private String name; private String address; private double salary", constructors,
@@ -11,8 +13,10 @@ public class Person {
 
     // Name of the person.
     private String name;
+
     // Address of the person.
     private String address;
+
     // Salary; the list is sorted by it.
     private double salary;
 
@@ -61,6 +65,6 @@ public class Person {
     // because the model is not allowed to print.
     @Override
     public String toString() {
-        return name + " " + address + " " + salary;
+        return String.format(Constants.PERSON_FORMAT, name, address, salary);
     }
 }

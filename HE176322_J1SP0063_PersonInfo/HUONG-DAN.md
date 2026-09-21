@@ -3,6 +3,13 @@
 > Bài nhập 3 người rồi **sắp theo lương bằng bubble sort**. Có **3 hàm đề bắt**
 > (`inputPersonInfo`, `displayPersonInfo`, `sortBySalary`) — mỗi hàm về **đúng tầng**, và phần sắp
 > xếp bằng bubble sort ngay trong `PersonService.sortBySalary`.
+>
+> **Bản 21/09/2026 — sửa theo tờ checklist giấy 25 mục của thầy** (mục 10): thêm
+> `repository/PersonRepository` giữ mảng 3 `Person` (tờ giấy 1.1 *"Bắt buộc phải có repository"*);
+> `dto/PersonDTO` là **một người**, `PersonRequestDTO`/`PersonResponseDTO` chở **cả mảng**
+> (`PersonDTO[] personArray`); View nhận `responseDTO` qua thuộc tính, `display()` không tham số,
+> `displayPersonInfo` thành `private`; mọi mảng đuôi `Array` (1.5); bubble sort có cờ `swapped` như
+> P0001; `Main` thành `final` + constructor `private`. Đối chiếu lại đề từng ký tự: màn hình **không đổi**.
 
 | | |
 |---|---|
@@ -48,10 +55,10 @@ Name:TuanNT
 | Thứ | Đề viết | Bài này đặt ở |
 |---|---|---|
 | Lớp `Person` (`name`, `address`, `double salary`, constructors, get/set) | *"Create a class named Person"* | `model/Person` |
-| `Person inputPersonInfo(String name, String address, String sSalary) throws Exception` | *"Create function"* | `service/PersonService.inputPersonInfo(PersonRequestDTO)` — **giữ tên**, 3 tham số gói vào DTO (luật thầy, mục 9) |
-| `void displayPersonInfo(Person person)` | *"Create a function"* | `view/PersonView.displayPersonInfo(PersonResponseDTO)` — in là việc của **view** |
-| `Person[] sortBySalary(Person[] person) throws Exception` — **BubbleSort** | *"Create function"* | `service/PersonService.sortBySalary` — **giữ nguyên chữ ký**; bubble sort viết ngay trong hàm |
-| *"Create an array of 3 person"* | | `Constants.NUMBER_OF_PERSONS = 3`, mảng `Person[]` |
+| `Person inputPersonInfo(String name, String address, String sSalary) throws Exception` | *"Create function"* | `service/PersonService.inputPersonInfo(PersonDTO)` — **giữ tên**, 3 tham số gói vào DTO (luật thầy, mục 9) |
+| `void displayPersonInfo(Person person)` | *"Create a function"* | `view/PersonView.displayPersonInfo(PersonDTO)` — `private`, chỉ `display()` gọi; in là việc của **view** |
+| `Person[] sortBySalary(Person[] person) throws Exception` — **BubbleSort** | *"Create function"* | `service/PersonService.sortBySalary(Person[] personArray)` — **giữ kiểu trả về + kiểu tham số**, chỉ đổi tên tham số (tờ giấy 1.5); bubble sort viết ngay trong hàm |
+| *"Create an array of 3 person"* | | `Constants.NUMBER_OF_PERSONS = 3`; `Main` tạo `PersonDTO[] personArray`, repository giữ `Person[] personArray` |
 | Lỗi | `Salary is greater than zero` · `You must input Salary.` · `You must input digit.` · `Can't Sort Person` | `constants/Message` — **chép đúng từng chữ** |
 
 ---
@@ -83,8 +90,8 @@ Kết quả in: `LienVT` → `TuanNT` → `NghiaNV` — đúng màn hình đề.
 
 | Chi tiết | Code | Vì sao |
 |---|---|---|
-| đổi chỗ **cả đối tượng** | `Person temp = persons[j]; ...` | đổi riêng lương là **lẫn** lương người này sang tên người kia |
-| so bằng `>` | `persons[j].getSalary() > persons[j + 1].getSalary()` | hai người **bằng lương** giữ thứ tự nhập (ổn định) — kịch bản test 3 |
+| đổi chỗ **cả đối tượng** | `Person temp = personArray[j]; ...` | đổi riêng lương là **lẫn** lương người này sang tên người kia |
+| so bằng `>` | `personArray[j].getSalary() > personArray[j + 1].getSalary()` | hai người **bằng lương** giữ thứ tự nhập (ổn định) — kịch bản test 3 |
 | vòng trong `size - 1 - i` + cờ `swapped` | như P0001 | bỏ phần cuối đã đúng chỗ; lượt không đổi → dừng |
 
 Độ phức tạp: xấu nhất `O(n²)`, tốt nhất `O(n)` (mảng đã sắp — 1 lượt rồi dừng).
@@ -118,13 +125,15 @@ Kết quả in: `LienVT` → `TuanNT` → `NghiaNV` — đúng màn hình đề.
 ```
 HE176322_J1SP0063_PersonInfo/src/
 ├── model/      Person               name, address, salary (JavaBean) — lớp đề đặt tên
-├── dto/        PersonRequestDTO     1 người vừa gõ        (main ──► controller)
-│               PersonResponseDTO    1 người để in         (controller ──► view)
-│               PersonService        inputPersonInfo + sortBySalary + sortPersons (Context)
-├── controller/ PersonController     service ──► view
-├── view/       PersonView           display + displayPersonInfo
-├── constants/  Message.java         câu chữ, lỗi của đề
-│               Constants.java       NUMBER_OF_PERSONS, MIN_SALARY, SALARY_PATTERN, SALARY_FORMAT
+├── dto/        PersonDTO            1 người (name, address, salary) — dùng cả chiều vào lẫn ra
+│               PersonRequestDTO     PersonDTO[] personArray vừa gõ   (main ──► controller)
+│               PersonResponseDTO    PersonDTO[] personArray đã sắp   (controller ──► view)
+├── repository/ PersonRepository     giữ Person[] personArray: savePersonArray / getPersonArray
+├── service/    PersonService        sortPersons + inputPersonInfo + sortBySalary
+├── controller/ PersonController     service ──► view (setResponseDTO + display 1 lần)
+├── view/       PersonView           field responseDTO; display() + displayPersonInfo (private)
+├── constants/  Message.java         câu chữ, lỗi của đề (RESULT_NAME = "Name:%s"…)
+│               Constants.java       NUMBER_OF_PERSONS, MIN_SALARY, SALARY_PATTERN, SALARY_FORMAT, PERSON_FORMAT
 ├── utils/      Validation           getNonBlank, checkSalary (3 lỗi của đề)
 └── main/       Main                 Scanner, nhập 3 người, gọi controller 1 lần
 ```
@@ -132,25 +141,27 @@ HE176322_J1SP0063_PersonInfo/src/
 | Lớp | Làm gì | Vì sao ở đây |
 |---|---|---|
 | `Person` | mô tả 1 người | đề đặt tên lớp; Guide: model chỉ thuộc tính + get/set |
-| `PersonService` | DTO → `Person` (`inputPersonInfo`), sắp (`sortBySalary`), `Person` → DTO | Guide: service *"được phép import Model"*; controller thì **không** |
-| `PersonView` | in từng khối (`displayPersonInfo`) | Guide: *"Không được gọi print ngoài view và main"* |
+| `PersonRepository` | giữ mảng 3 `Person` (`savePersonArray` / `getPersonArray`) | tờ checklist 1.1: *"Bắt buộc phải có repository"* — chỉ dữ liệu + CRUD đơn giản |
+| `PersonService` | DTO → `Person` (`inputPersonInfo`), cất vào repository, sắp (`sortBySalary`), `Person` → DTO | Guide: service *"được phép import Model"*; controller thì **không** |
+| `PersonView` | nhận `responseDTO` qua thuộc tính; `display()` in từng khối (`displayPersonInfo`) | Guide: *"Không được gọi print ngoài view và main"* |
 | `Validation` | kiểm chuỗi lương/tên/địa chỉ, ném lỗi | Guide: utils static; Main bắt lỗi và **hỏi lại ngay** |
 
 | Câu hỏi thiết kế | Trả lời |
 |---|---|
-| Sao không có `repository`? | Mảng 3 người chỉ sống trong **một lần chạy**, không thêm/sửa/xoá — không có CRUD. |
+| Sao bài có `repository`? | Tờ checklist 1.1: *"**Bắt buộc phải có repository**"*. Repository = **dữ liệu** + CRUD đơn giản: ở đây là mảng 3 người (*"Create an array of 3 person"*), với `savePersonArray` / `getPersonArray`. Việc **sắp** là nghiệp vụ nên nằm ở `PersonService` — đúng tầng *Controller ↔ Services ↔ Repository ↔ Model*. |
 | Lương bị kiểm **2 lần** (`Validation.checkSalary` ở Main và `inputPersonInfo` ở service)? | Main kiểm để **hỏi lại ngay** như màn hình đề. Service kiểm lại `salary > 0` vì đề nói `inputPersonInfo` ném `Salary is greater than zero` — service không tin người gọi. |
 
 **Luồng chạy:**
 
 ```
-Main: 3 lần { in "Input Information of Person"; đọc tên, địa chỉ, lương (hỏi lại khi sai) → PersonRequestDTO }
-      ──► controller.displaySortedPersons(requests)                  ← gọi controller ĐÚNG 1 lần
-   controller ──► service.sortPersons(requests)
-                     ├─ persons[i] = inputPersonInfo(requests[i])   (DTO → Person)
-                     ├─ sortBySalary(persons)  ← bubble sort chạy ở đây
-                     └─ persons → PersonResponseDTO[] theo thứ tự đã sắp
-   controller ──► view.setPersons(sorted) ──► view.display() ──► displayPersonInfo × 3
+Main: 3 lần { in "Input Information of Person"; đọc + validate tên, địa chỉ, lương (hỏi lại khi sai) → PersonDTO }
+      requestDTO.setPersonArray(personArray) ──► controller.displaySortedPersons(requestDTO)   ← gọi controller ĐÚNG 1 lần
+   controller ──► service.sortPersons(requestDTO)
+                     ├─ personArray[i] = inputPersonInfo(typedArray[i])      (PersonDTO → Person)
+                     ├─ repository.savePersonArray(personArray)
+                     ├─ sortBySalary(repository.getPersonArray())  ← bubble sort chạy ở đây
+                     └─ Person → PersonDTO, theo thứ tự đã sắp → responseDTO.setPersonArray(rowArray)
+   controller ──► view.setResponseDTO(responseDTO) ──► view.display() ──► displayPersonInfo × 3   (render 1 lần)
 Main: catch (Exception e) → in e.getMessage()
 ```
 
@@ -159,7 +170,7 @@ Main: catch (Exception e) → in e.getMessage()
 | Pattern | Ở đâu |
 |---|---|
 | **MVC** — thầy gọi là "MVC JSP" | controller điều hướng (như Servlet) · view hiển thị (như trang JSP) · model là JavaBean |
-| **Facade** | controller: `Main` chỉ gọi `controller.displaySortedPersons(requests)`, không biết service/model/view phía sau |
+| **Facade** | controller: `Main` chỉ gọi `controller.displaySortedPersons(requestDTO)`, không biết service/model/view phía sau |
 
 > Bài chỉ 25 LOC nên **không thêm lớp pattern GoF** — ghi chú slide SOLID của thầy cảnh báo *"trừu tượng hoá sớm … vi phạm YAGNI"*. Bubble sort theo lương nằm ngay trong hàm đề bắt `sortBySalary` của `PersonService`.
 
@@ -176,7 +187,7 @@ Main: catch (Exception e) → in e.getMessage()
 
 | Nguyên lý | Ở đâu |
 |---|---|
-| **S** | `Person` giữ dữ liệu · `PersonService` kiểm lương + sắp · `PersonView` in · `Validation` kiểm |
+| **S** | `Person` giữ dữ liệu · `PersonRepository` giữ mảng · `PersonService` kiểm lương + sắp · `PersonView` in · `Validation` kiểm |
 | **O** | đổi thuật toán chỉ sửa thân `sortBySalary`; đổi câu chữ chỉ sửa `Message` |
 | **L** | bài chưa có lớp con riêng — chỉ `extends Object` |
 | **I** | không có interface — bài chưa cần |
@@ -191,13 +202,14 @@ Main: catch (Exception e) → in e.getMessage()
 | Bước | File | Việc |
 |---|---|---|
 | 1 | `model/Person.java` | 3 field `private` (đúng tên đề) + constructor rỗng + constructor `(name, address, salary)` + get/set + `toString` |
-| 2 | `dto/PersonRequestDTO.java`, `PersonResponseDTO.java` | JavaBean: constructor rỗng + get/set |
-| 3 | `service/PersonService.java` | `inputPersonInfo` · `sortBySalary` · `sortPersons` |
-| 4 | `view/PersonView.java` | `setPersons` · `display` · `displayPersonInfo` |
-| 5 | `controller/PersonController.java` | `new PersonService()`; `displaySortedPersons(requests)` |
-| 6 | `constants/Message.java`, `Constants.java` | câu chữ, lỗi của đề, regex, định dạng |
-| 7 | `utils/Validation.java` | `getNonBlank` · `checkSalary` (**3 lỗi đúng thứ tự**) |
-| 8 | `main/Main.java` | vòng 3 người · `inputPerson` · `inputName` · `inputAddress` · `inputSalary` · gọi controller **1 lần** |
+| 2 | `dto/PersonDTO.java`, `PersonRequestDTO.java`, `PersonResponseDTO.java` | JavaBean: constructor rỗng + get/set (`personArray`) |
+| 3 | `repository/PersonRepository.java` | field `personArray` · `savePersonArray` · `getPersonArray` |
+| 4 | `service/PersonService.java` | `sortPersons` · `inputPersonInfo` · `sortBySalary` (cờ `swapped`) |
+| 5 | `view/PersonView.java` | field `responseDTO` · `setResponseDTO` · `display` · `displayPersonInfo` (private) |
+| 6 | `controller/PersonController.java` | `new PersonService()`; `displaySortedPersons(requestDTO)` |
+| 7 | `constants/Message.java`, `Constants.java` | câu chữ, lỗi của đề, regex, định dạng |
+| 8 | `utils/Validation.java` | `getNonBlank` · `checkSalary` (**3 lỗi đúng thứ tự**) |
+| 9 | `main/Main.java` | `final` + `private Main()`; vòng 3 người · `inputPerson` · `inputName` · `inputAddress` · `inputSalary` · gọi controller **1 lần** |
 
 **Bẫy hay gặp:**
 
@@ -229,10 +241,10 @@ Main: catch (Exception e) → in e.getMessage()
 
 | Việc | Cách làm |
 |---|---|
-| Breakpoint | dòng `if (person[j].getSalary() > person[j + 1].getSalary())` trong `PersonService.sortBySalary` |
+| Breakpoint | dòng `if (personArray[j].getSalary() > personArray[j + 1].getSalary())` trong `PersonService.sortBySalary` |
 | Chạy | **Ctrl+F5**, nhập đúng ví dụ của đề |
-| Quan sát | tab **Variables**: `i`, `j`, `swapped`; mở `persons` → `[0]`, `[1]`, `[2]` → xem `name`, `salary` |
-| Bước | **F8** qua các lần đổi chỗ trong `sortBySalary`; mở mảng `person` xem thứ tự đổi |
+| Quan sát | tab **Variables**: `i`, `j`, `swapped`; mở `personArray` → `[0]`, `[1]`, `[2]` → xem `name`, `salary` |
+| Bước | **F8** qua các lần đổi chỗ trong `sortBySalary`; mở mảng `personArray` xem thứ tự đổi |
 | Kiểm lương | breakpoint trong `Validation.checkSalary`, gõ `abc` → F8 thấy nhảy vào `throw ... SALARY_NOT_DIGIT`, rồi rơi vào `catch` của `Main.inputSalary` |
 
 ---
@@ -252,7 +264,7 @@ Main: catch (Exception e) → in e.getMessage()
 | Câu hỏi | Trả lời mẫu |
 |---|---|
 | `sortPersons` sao `public`, còn `inputPersonInfo`/`sortBySalary` sao `private`? | `sortPersons` do `PersonController` (lớp khác, package khác) gọi → `public`. Hai hàm đề bắt chỉ được gọi **bên trong** `PersonService` → `private` (thầy V2: chỉ `public` khi lớp khác gọi). Đề chỉ bắt **tên** hàm, không bắt `public`. |
-| `displayPersonInfo` sao `public`? | Hàm đề bắt; là "hợp đồng" của view (in 1 người). |
+| `displayPersonInfo` sao `private`? | Chỉ `display()` của chính `PersonView` gọi (mỗi người 1 lần). Tờ checklist 1.1: View nhận dữ liệu **qua thuộc tính**, không qua tham số — nên hàm `public` duy nhất có tham số là setter `setResponseDTO`; `displayPersonInfo` giữ **tên đề** nhưng là việc nội bộ của view. |
 | Field `salaryFormat` sao `private`? | Chỉ lớp đó dùng; không ai bên ngoài được đổi thuật toán/định dạng giữa chừng. |
 | Hàm nhập trong `Main` sao `private static`? | `private`: chỉ `main()` gọi. `static`: `main()` static nên chỉ gọi thẳng được hàm static; thầy cho static **hàm** ở main, cấm static **biến**. |
 | `Validation.checkSalary` sao static? Bỏ thì sao? | Không dùng dữ liệu đối tượng nào; Guide bắt utils static. Bỏ `static` → phải bỏ `private` constructor, `new Validation()` trong `Main`, gọi qua đối tượng. |
@@ -260,7 +272,11 @@ Main: catch (Exception e) → in e.getMessage()
 | `sortBySalary` trả `Person[]` dù sắp tại chỗ? | Đề bắt chữ ký `Person[] sortBySalary(Person[] person)`; trả lại chính mảng đó cho tiện gọi nối. |
 | `inputPersonInfo` trả `Person` vì sao? | Đề: *"Return value: Person object"* — nó **tạo** người từ dữ liệu nhập. |
 | Sao `inputPersonInfo` nhận DTO, không nhận `(name, address, sSalary)` như đề? | Thầy: *"không được truyền 3 tham số 1 hàm"* → 3 giá trị gói vào `PersonRequestDTO`; **tên hàm giữ nguyên**. |
-| Sao `displayPersonInfo` nhận `PersonResponseDTO`, không nhận `Person`? | Guide: **Model và View không giao tiếp** — view chỉ thấy DTO. |
+| Sao `displayPersonInfo` nhận `PersonDTO`, không nhận `Person`? | Guide: **Model và View không giao tiếp** — view chỉ thấy DTO. |
+| View nhận dữ liệu thế nào? | Qua **thuộc tính**: controller gọi `personView.setResponseDTO(responseDTO)` rồi `personView.display()` — `display()` **không tham số**, gọi **1 lần** cho cả luồng (tờ checklist 1.1). |
+| Validate ở đâu? | Ở `Main` qua `utils/Validation` (`getNonBlank`, `checkSalary` — 3 lỗi của đề): sai thì ném `Exception(Message…)`, `Main` bắt, in `e.getMessage()` rồi **hỏi lại ngay** ô đó. Service chỉ kiểm lại `salary > 0` trong `inputPersonInfo` (lưới an toàn, đề bắt hàm này ném lỗi). |
+| Sao tên mảng đều đuôi `Array`? | Tờ checklist 1.5: *"tên biến kiểu Array kết thúc bằng Array"* → `personArray`, `typedArray`, `rowArray`. Tham số `person` của `sortBySalary` → `personArray`: tên tham số **không** thuộc chữ ký (kiểu vẫn `Person[]`). Riêng `String[] args` của `main` giữ đúng chữ ký Java. |
+| Sao `Main` là `final` và có `private Main() { }`? | Tờ checklist 3.4: *"Class chỉ có static method thì phải có private contructor, và khai báo class là final"*. |
 | Sao dùng mảng mà không `ArrayList`? | Đề bắt *"array of 3 person"* và chữ ký `Person[]`; số người **cố định 3**. `ArrayList` là **lớp** cài đặt bằng mảng **co giãn**; `List` là **interface** (hợp đồng). Nếu thầy bắt nhập số người tuỳ ý thì em khai `ArrayList<Person> persons = new ArrayList<>()` — kiểu cụ thể. |
 
 ### Ca biên
@@ -282,7 +298,7 @@ Main: catch (Exception e) → in e.getMessage()
 | Sắp **giảm dần** | `>` → `<` trong `PersonService.sortBySalary` | mọi file khác |
 | Nhập **n người** thay vì 3 | `Main` hỏi thêm số người (thêm `Validation.getInt`), tạo mảng `n` | `PersonService`, view — đều chạy theo `length` |
 | Sắp theo **tên** | `sortBySalary` so `getName().compareTo(...) > 0` (nên đổi tên `sortByName`) | `Main`, view |
-| Thêm trường **tuổi** | `Person`, 2 DTO, `Validation` (kiểm số), `Main` (hỏi), `PersonService` (chép), `PersonView` (in), `Message` | `PersonController` |
+| Thêm trường **tuổi** | `Person`, `PersonDTO`, `Validation` (kiểm số), `Main` (hỏi), `PersonService` (chép), `PersonView` (in), `Message` | `PersonController`, `PersonRepository` |
 
 ---
 
@@ -293,8 +309,39 @@ Main: catch (Exception e) → in e.getMessage()
 | Thông báo lương sai | màn hình đề: `You must input digidt.` | `You must input digit.` | Guidelines ghi `Exception("You must input digit.")` — **Guidelines thắng** màn hình |
 | Dòng trống giữa các khối | bản cũ: **không** có | **có** (như màn hình đề) | màn hình đề thắng → file test `REPLACE_REFERENCE = True`, viết lại kịch bản của bản cũ có dòng trống |
 | `inputPersonInfo(name, address, sSalary)` | đề: 3 tham số | `inputPersonInfo(PersonRequestDTO)` | luật thầy V4: không truyền 3 tham số 1 hàm |
-| `displayPersonInfo(Person)` | đề: nhận `Person` | nhận `PersonResponseDTO`, nằm ở `view` | Guide: view không thấy model |
+| `displayPersonInfo(Person)` | đề: nhận `Person`, `public` | `private void displayPersonInfo(PersonDTO personDTO)` trong `view`, chỉ `display()` gọi | Guide: view không thấy model; tờ checklist 1.1: view nhận dữ liệu qua thuộc tính |
 | Kiểm "là số" | bản cũ: `Double.parseDouble` (nhận `NaN`, `1e3`) | regex `-?\d+(\.\d+)?` rồi mới parse | `NaN` lọt qua kiểm `> 0` |
 | In lương | bản cũ: `Double.toString` (`1.0E7`) | `DecimalFormat` `0.0##########`, `Locale.US` | giữ dạng `500.0` của đề mà không ra dạng khoa học |
 | Tên/địa chỉ trống | đề **không** nói | `You must input name.` · `You must input address.` | lấy đúng chữ bản cũ |
 | Kiến trúc | cả 3 hàm static trong `ui.Main` | MVC theo Guide | luật thầy |
+| Repository | bản trước 21/09: không có (*"không có CRUD"*) | `repository/PersonRepository` giữ `Person[] personArray` | tờ checklist 1.1 *"Bắt buộc phải có repository"* |
+| DTO | bản trước 21/09: `PersonRequestDTO[]` / `PersonResponseDTO[]` (mỗi DTO 1 người) | `PersonDTO` = 1 người; Request/Response chở `PersonDTO[] personArray` | View có **một** thuộc tính `responseDTO`; controller nhận **một** DTO |
+| View | bản trước 21/09: `setPersons(PersonResponseDTO[])`, `displayPersonInfo` `public` | `setResponseDTO` + `display()` không tham số; `displayPersonInfo` `private` | tờ checklist 1.1 |
+| Tên mảng | `requests`, `persons`, `sorted`, tham số `person` | `personArray`, `typedArray`, `rowArray` | tờ checklist 1.5 |
+| Bubble sort | bản trước 21/09: chưa có cờ `swapped` (mục 2.2 đã tả) | có cờ `swapped` — lượt không đổi thì dừng | khớp mục 2.2 và P0001; kết quả in không đổi |
+| Nối chuỗi | `Message.LABEL_NAME + …`, `name + " " + …` trong `toString` | `String.format(Message.RESULT_…)`, `String.format(Constants.PERSON_FORMAT, …)` | tờ checklist 3.8 |
+
+---
+
+## 10. Tờ checklist 25 mục — bài này đạt thế nào
+
+| Mục | Chỗ trong code |
+|---|---|
+| 1.1 MVC + repository | `repository/PersonRepository` giữ `Person[] personArray`; `PersonService` cất/đọc mảng qua repository rồi mới sắp; controller nhận **một** `PersonRequestDTO`, chỉ import DTO/service/view; `PersonView` nhận `responseDTO` qua `setResponseDTO`, `display()` gọi **1 lần**; mọi nhập + validate ở `Main` |
+| 1.4 method = động từ | `sortPersons`, `sortBySalary`, `inputPersonInfo`, `displaySortedPersons`, `savePersonArray`, `checkSalary`, `inputSalary`… |
+| 1.5 tên biến | `personArray`, `typedArray`, `rowArray` (mảng → `Array`); `personDTO`, `requestDTO`/`responseDTO`; không có `ID` |
+| 2.6 + 3.7 khai báo đầu block, có khởi tạo | `Main.main`: `sc`, `controller`, `requestDTO`, `personArray` ở đầu; mỗi hàm `input…`: `String line = "";` ở đầu, trong `while` chỉ `line = sc.nextLine();`; `sortBySalary`: `int size = 0;` ở đầu, `boolean swapped = false;` đầu thân `for`; `Validation.checkSalary`: `double salary = 0;` |
+| 2.8 dòng trống | trước mọi comment (kể cả comment field trong `Message`, `Constants`, DTO, `Person`), sau vùng khai báo, sau `}` trước câu lệnh kế |
+| 3.3 ngoặc | `Validation`: `(input == null) ? "" : input.trim()`; `sortBySalary`: `i < (size - 1)`, `j < (size - 1 - i)` |
+| 3.4 | `public final class Main` + `private Main() { }`; `Validation`, `Constants`, `Message` cũng `final` + ctor private |
+| 3.8 | không cộng chuỗi: `PersonView` in bằng `String.format(Message.RESULT_…)`, `Person.toString` bằng `String.format(Constants.PERSON_FORMAT, …)` |
+
+**Chỗ cần hỏi thầy (đề đặt, tờ checklist bắt khác):**
+- `void displayPersonInfo(Person person)` → em giữ **tên đề** nhưng để `private` trong `PersonView`, nhận
+  `PersonDTO` (view không thấy model), dữ liệu vào view qua thuộc tính `responseDTO` (mục 9).
+- `Person inputPersonInfo(String name, String address, String sSalary)` → giữ tên, 3 giá trị gói trong
+  `PersonDTO` (luật V4); chuỗi lương được **Main** kiểm (tờ giấy 1.1: validate ở Main), service chỉ kiểm lại `> 0`.
+- Tham số `person` của `sortBySalary` → `personArray` không đổi chữ ký nên không cần hỏi.
+
+Kiểm lại: `python3 _tools/verify.py J1SP0063` · `python3 _tools/lint.py HE176322_J1SP0063_*` · `python3 _tools/soat_checklist.py HE176322_J1SP0063_*` → 0 `VI_PHAM`.
+`RUI_RO` còn lại chỉ là `String[] args` và tham số setter/constructor trùng tên field (`this.name = name`) — kiểu IDE sinh, được chấp nhận.
