@@ -14,7 +14,9 @@
   - Đính chính khúc 1: thêm dòng trống trước `return input.trim();` và `return choice;` (mục 2.8)
   - Đã giảng: package repository làm gì (kho: giữ ArrayList + CRUD + báo "không tồn tại"; kiểm định dạng ở Main,
     kiểm tồn tại ở Repository)
-- **Đang chờ người học:** "xong khúc 1" + trả lời 5 câu:
+- **01/10 (lượt 2) — ĐỔI HƯỚNG theo ý người học: học KHUNG CHUNG trước, rồi mới phần riêng từng bài.** Mẫu: `KHUNG-CHUNG/HE176322_KHUNG_NoteManagement` (11 file, 0 vi phạm). Người học gõ vào `BAI-LAM/HE176322_KHUNG_NoteManagement`. Lộ trình K1a→K1b→K2→K3→K4→K5 (xem `KHUNG-CHUNG/README.md`) → thi thử khung 40 phút → P0071. Đang ở **K1a**, chờ "xong K1a" + 3 câu.
+- (thay bởi dòng trên) **01/10 làm lại từ đầu, khúc 1 tách đôi:** 1a = Constants + Message (khung) · 1b = Validation (getText, getChoice). Đang chờ "xong khúc 1a" + 3 câu (final/private ctor/static là gì; vì sao câu chữ để ở Message; `%d` trong INVALID_RANGE để làm gì).
+- **(Cũ, chưa dùng) Đang chờ người học:** "xong khúc 1" + trả lời 5 câu:
   1. Công thức 3 chữ của 3 class tiện ích, mỗi chữ để làm gì?
   2. Gõ `abc` ở menu → chuyện gì xảy ra từng bước trong getChoice?
   3. Gõ `9` → câu thông báo in ra chính xác là gì?
@@ -52,3 +54,5 @@ P0072 (150) · T8 xong P0072, P0011 (100) → 770 ✅ · T9 P0056 (70, dự phò
 |---|---|---|---|
 | 27/09 | P0071 | Kế hoạch 8 bài, luật 25 mục để chép vở, khung khúc 1 | chưa gõ |
 | 01/10 | — | Tạo skill `lab211-kem-hoc` + file tiến độ này | |
+| 01/10 | P0071 | **Học lại từ đầu** (người học: "chưa biết gì"): phương pháp 4 tầng Nhớ→Hiểu→Luồng→Soát; chạy thử bài mẫu; bước 1 tạo project + 8 package; khúc 1a = Constants + Message (phần khung) | chờ "xong khúc 1a" + 3 câu |
+| 01/10 | KHUNG | Dựng project KHUNG CHUNG (Note, 11 file) + bản đồ khung→8 bài; bắt đầu K1a | chờ "xong K1a" |
