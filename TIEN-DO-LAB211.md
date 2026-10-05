@@ -56,3 +56,4 @@ P0072 (150) · T8 xong P0072, P0011 (100) → 770 ✅ · T9 P0056 (70, dự phò
 | 01/10 | — | Tạo skill `lab211-kem-hoc` + file tiến độ này | |
 | 01/10 | P0071 | **Học lại từ đầu** (người học: "chưa biết gì"): phương pháp 4 tầng Nhớ→Hiểu→Luồng→Soát; chạy thử bài mẫu; bước 1 tạo project + 8 package; khúc 1a = Constants + Message (phần khung) | chờ "xong khúc 1a" + 3 câu |
 | 01/10 | KHUNG | Dựng project KHUNG CHUNG (Note, 11 file) + bản đồ khung→8 bài; bắt đầu K1a | chờ "xong K1a" |
+| 05/10 | KHUNG | Bàn giao từ phiên kèm LAB211 (01/10) sang phiên tổng: người học CHƯA gõ file nào (`BAI-LAM/` chỉ có README), CHƯA trả lời câu kiểm tra nào; quán cà phê mới GIẢNG (chưa kiểm hiểu). Đang ở K1a (Constants+Message của khung Note), chờ "xong K1a" + 3 câu; còn câu hỏi treo: tuần 4 đã lên lớp slot nào | chưa có lỗi hay mắc vì chưa gõ |
