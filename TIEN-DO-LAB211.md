@@ -2,6 +2,17 @@
 
 > AI đọc file này ĐẦU MỖI BUỔI, cập nhật CUỐI MỖI BUỔI (skill `lab211-kem-hoc`).
 
+## ⭐ Cập nhật 05/10/2026 11h (thứ Hai tuần 5) — đọc trước
+- **LOC: 0/750. Chưa gõ dòng nào** (BAI-LAM trống). Lộ trình chốt lại theo slot (mỗi slot pass 1 bài):
+  T5 P0071 (150) → T6 P0054 (64) + P0073 (100) → T7 P0057 (56) + P0070 (150) → T8 P0072 (150) + P0011 (100) = **770 ✅**
+  → T9–T10: 4 slot dự phòng (reject / P0056).
+- **Slot hôm nay (T2 05/10 12:50):** đăng ký P0071 · gõ khung K1a+K1b (Constants, Message, Validation) rồi K2+K3
+  (model, DTO, Repository) trên máy trường · save draft mỗi khúc · 30' cuối THÁM THÍNH: nghe thầy hỏi bạn khác, giơ tay
+  nhờ xem cấu trúc + hỏi 3 câu ở mục "Câu cần hỏi thầy" · ghi nguyên văn. Gửi Claude ảnh code + ảnh vở sau buổi.
+- **Tối 05/10:** K4+K5 (View, Controller, Main) + phần riêng P0071. **T3–T4:** hoàn thiện + thi thử 70' + soát 25 mục.
+  **T5 08/10 slot 4: review P0071 chính thức.**
+- Theo dõi + chấm trên web: https://cuongthai.com/hoc-tap/mon/2
+
 ## Trạng thái hiện tại (cập nhật 01/10/2026)
 
 - **LOC đã pass:** 0 / 750 · đang ở tuần 4/10 (2 slot/tuần)
@@ -56,4 +67,6 @@ P0072 (150) · T8 xong P0072, P0011 (100) → 770 ✅ · T9 P0056 (70, dự phò
 | 01/10 | — | Tạo skill `lab211-kem-hoc` + file tiến độ này | |
 | 01/10 | P0071 | **Học lại từ đầu** (người học: "chưa biết gì"): phương pháp 4 tầng Nhớ→Hiểu→Luồng→Soát; chạy thử bài mẫu; bước 1 tạo project + 8 package; khúc 1a = Constants + Message (phần khung) | chờ "xong khúc 1a" + 3 câu |
 | 01/10 | KHUNG | Dựng project KHUNG CHUNG (Note, 11 file) + bản đồ khung→8 bài; bắt đầu K1a | chờ "xong K1a" |
+| 04/10 | KHUNG | Tối CN ghim K1a 20:15, K1b 22:20 trên /hoc-tap — người học chưa gõ | |
+| 05/10 | KHUNG | Kế hoạch slot T2: gõ K1–K3 trên lớp + thám thính thầy; lộ trình 8 bài theo slot (đủ 770 ở T8) | chờ ảnh code + ghi chép câu thầy hỏi |
 | 05/10 | KHUNG | Bàn giao từ phiên kèm LAB211 (01/10) sang phiên tổng: người học CHƯA gõ file nào (`BAI-LAM/` chỉ có README), CHƯA trả lời câu kiểm tra nào; quán cà phê mới GIẢNG (chưa kiểm hiểu). Đang ở K1a (Constants+Message của khung Note), chờ "xong K1a" + 3 câu; còn câu hỏi treo: tuần 4 đã lên lớp slot nào | chưa có lỗi hay mắc vì chưa gõ |
